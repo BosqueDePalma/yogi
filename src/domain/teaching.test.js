@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { PRESETS, start, stop, replace, remaining, check, currentLesson, lessonSummaries } from "./teaching.js";
+import {
+  PRESETS,
+  start,
+  stop,
+  replace,
+  remaining,
+  check,
+  currentLesson,
+  lessonSummaries,
+  deleteLesson,
+} from "./teaching.js";
 
 const MIN = 60_000;
 // Times in ms; hours past midnight on 21 Nov 2026 (UTC), so h = 24 is the next midnight.
@@ -156,5 +166,22 @@ describe("after the app is closed mid-Run", () => {
     const saved = JSON.stringify(start(empty, 5, t(9)));
     const { completed } = check(JSON.parse(saved), t(11));
     expect(completed).toEqual({ preset: 5, startedAt: t(9), endedAt: t(9, 5), outcome: "completed" });
+  });
+});
+
+describe("deleting a Lesson", () => {
+  it("removes that Lesson and its Runs, leaving the others", () => {
+    let state = complete(empty, 3, t(9)); // morning Lesson
+    state = complete(state, 10, t(18)); // evening Lesson
+    state = deleteLesson(state, t(9));
+    expect(lessonSummaries(state).map((lesson) => lesson.id)).toEqual([t(18)]);
+  });
+
+  it("leaves a Run that is going untouched", () => {
+    let state = complete(empty, 3, t(9));
+    state = start(state, 5, t(9, 10));
+    state = deleteLesson(state, t(9));
+    expect(state.lessons).toEqual([]);
+    expect(remaining(state, t(9, 10))).toBe(5 * MIN);
   });
 });

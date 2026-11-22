@@ -59,6 +59,10 @@ export function lessonSummaries(state) {
     .reverse();
 }
 
+export function deleteLesson(state, id) {
+  return { ...state, lessons: state.lessons.filter((lesson) => lesson.id !== id) };
+}
+
 function finished(run, endedAt, outcome) {
   return { preset: run.preset, startedAt: run.startedAt, endedAt, outcome };
 }
