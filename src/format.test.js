@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatCountdown, describeRun, describeLesson } from "./format.js";
+import { formatCountdown, describeRun, describeRuns, describeLesson } from "./format.js";
 
 describe("the countdown", () => {
   it("shows the full Preset when a Run starts", () => {
@@ -22,6 +22,17 @@ describe("a Run in the lesson list", () => {
 
   it("shows a Stopped Run with the whole seconds it ran", () => {
     expect(describeRun({ preset: 5, startedAt: 0, endedAt: 161_900, outcome: "stopped" })).toBe("5 min · stopped 2:41");
+  });
+
+  it("lists a Lesson's Runs as lines ready to draw, with their outcome", () => {
+    const runs = [
+      { preset: 3, startedAt: 0, endedAt: 180_000, outcome: "completed" },
+      { preset: 5, startedAt: 200_000, endedAt: 361_900, outcome: "stopped" },
+    ];
+    expect(describeRuns(runs)).toEqual([
+      { text: "3 min · completed", outcome: "completed" },
+      { text: "5 min · stopped 2:41", outcome: "stopped" },
+    ]);
   });
 });
 

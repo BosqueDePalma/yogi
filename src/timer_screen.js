@@ -10,7 +10,7 @@
 //   { ring: true }        play the Chime (only on time; never for a Run noticed late)
 //   { unlockAudio: true } a Run started inside this tap, so audio can be unlocked
 import * as teaching from "./domain/teaching.js";
-import { describeRun, formatCountdown } from "./format.js";
+import { describeRuns, formatCountdown } from "./format.js";
 
 const CONFIRM_MS = 3_000; // how long a Preset shows "Tap again"
 const PULSE_MS = 4_000; // how long 0:00 pulses after a Run completes
@@ -67,7 +67,7 @@ export function createTimerScreen(store) {
       countdown: running ? formatCountdown(teaching.remaining(state, now)) : mode === "pulsing" ? "0:00" : "Ready",
       mode,
       armedPreset: armedPresetAt(now),
-      lessonRuns: runs.map((run) => ({ text: describeRun(run), outcome: run.outcome })),
+      lessonRuns: describeRuns(runs),
       running,
     };
   }

@@ -11,6 +11,11 @@ export function describeRun(run) {
   return `${run.preset} min · stopped ${clock(Math.floor((run.endedAt - run.startedAt) / 1000))}`;
 }
 
+// A Lesson's Runs as lines ready to draw: [{ text, outcome }]. Used by both tabs.
+export function describeRuns(runs) {
+  return runs.map((run) => ({ text: describeRun(run), outcome: run.outcome }));
+}
+
 // A row in History, from lessonSummaries(). Dates follow the phone's language and time
 // zone unless `locale` and `timeZone` are given (tests pass them).
 export function describeLesson(summary, { locale, timeZone } = {}) {

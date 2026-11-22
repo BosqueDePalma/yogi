@@ -103,7 +103,8 @@ A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keep
 - Stimulus controllers only connect the domain modules and storage to the page: the timer, the Preset confirmation, the History list, the Chime and the Chime selector.
 - The Timer tab's own rules (Run completion, the Replace confirmation, the 0:00 pulse, what the countdown shows, and whether the Chime rings) live in a DOM-free module that takes the time as an input. The timer controller only draws what it returns ([issue 08](issues/08-run-screen-module.md)).
 - The Chime's rules (her saved choice, no preview during a Run, unlocking audio inside a tap) live in a module with no DOM and no Web Audio. The Web Audio player sits behind a seam, so tests use a fake ([issue 10](issues/10-chime-module.md)).
-- Hosting is GitHub Pages, set up **after** the app is finished and only with the user's go-ahead ([issue 11](issues/11-github-pages-hosting.md)).
+- The History tab's rows (newest first, date and time, Run count, total, and each Run line) are built by a DOM-free module. The History controller only draws them and asks before a delete ([issue 11](issues/11-history-screen-module.md)).
+- Hosting is GitHub Pages, set up **after** the app is finished and only with the user's go-ahead ([issue 12](issues/12-github-pages-hosting.md)).
 
 ## Open questions
 

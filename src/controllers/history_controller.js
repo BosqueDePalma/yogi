@@ -1,14 +1,14 @@
 import { Controller } from "@hotwired/stimulus";
-import { deleteLesson, lessonSummaries } from "../domain/teaching.js";
-import { describeLesson, describeRun } from "../format.js";
 import { store } from "../app_store.js";
+import { createHistoryScreen } from "../history_screen.js";
 
-// The History tab: past Lessons, newest first. Tapping one opens its Runs; a whole Lesson
-// can be deleted after the phone's own confirmation dialog.
+// The History tab. The rows come from history_screen.js; this controller draws them and
+// asks with the phone's own dialog before a Lesson is deleted.
 export default class extends Controller {
   static targets = ["list", "empty", "unsaved"];
 
   connect() {
+    this.screen = createHistoryScreen(store);
     this.unsubscribe = store.subscribe(() => this.render());
     this.render();
   }
@@ -17,31 +17,26 @@ export default class extends Controller {
     this.unsubscribe();
   }
 
-  delete({ params: { id } }) {
+  delete({ currentTarget }) {
     if (!confirm("Delete this lesson? This can't be undone.")) return;
-    store.setState(deleteLesson(store.getState(), id));
+    // Read from the dataset, not a Stimulus param, which would turn the id into a number.
+    this.screen.deleteLesson(currentTarget.closest("details").dataset.id);
   }
 
   render() {
-    // Drawn on every change, before the early return below, so it can't get stuck.
-    this.unsavedTarget.hidden = store.saved();
-    const { lessons } = store.getState();
-    // Redraw only when the Lessons change, so an open Lesson stays open.
-    if (lessons === this.lessons) return;
-    this.lessons = lessons;
+    const view = this.screen.view();
+    this.unsavedTarget.hidden = !view.unsaved;
+    // Redraw the list only when what it shows changes, so an open Lesson stays open.
+    const drawn = JSON.stringify(view.lessons);
+    if (drawn === this.drawn) return;
+    this.drawn = drawn;
     const open = new Set([...this.listTarget.querySelectorAll("details[open]")].map((d) => d.dataset.id));
-    const runsById = new Map(lessons.map((lesson) => [lesson.id, lesson.runs]));
-    const summaries = lessonSummaries({ lessons });
-
-    this.emptyTarget.hidden = summaries.length > 0;
-    this.listTarget.hidden = summaries.length === 0;
-    this.listTarget.replaceChildren(
-      ...summaries.map((summary) => this.lessonItem(summary, runsById.get(summary.id), open.has(String(summary.id)))),
-    );
+    this.emptyTarget.hidden = !view.empty;
+    this.listTarget.hidden = view.empty;
+    this.listTarget.replaceChildren(...view.lessons.map((lesson) => this.lessonItem(lesson, open.has(lesson.id))));
   }
 
-  lessonItem(summary, runs, isOpen) {
-    const text = describeLesson(summary);
+  lessonItem(lesson, isOpen) {
     const item = document.createElement("li");
     item.innerHTML = `
       <details class="history-lesson">
@@ -53,23 +48,21 @@ export default class extends Controller {
         <button class="history-delete" type="button" data-action="history#delete">Delete lesson</button>
       </details>`;
     const details = item.querySelector("details");
-    details.dataset.id = summary.id;
+    details.dataset.id = lesson.id;
     details.open = isOpen;
-    item.querySelector(".history-date").textContent = text.date;
-    item.querySelector(".history-time").textContent = text.time;
-    item.querySelector(".history-runs").textContent = text.runs;
-    item.querySelector(".history-total").textContent = text.total;
+    item.querySelector(".history-date").textContent = lesson.date;
+    item.querySelector(".history-time").textContent = lesson.time;
+    item.querySelector(".history-runs").textContent = lesson.runCount;
+    item.querySelector(".history-total").textContent = lesson.total;
     item.querySelector(".runs").replaceChildren(
-      ...runs.map((run) => {
+      ...lesson.runs.map(({ text, outcome }) => {
         const row = document.createElement("li");
-        row.textContent = describeRun(run);
-        row.dataset.outcome = run.outcome;
+        row.textContent = text;
+        row.dataset.outcome = outcome;
         return row;
       }),
     );
-    const button = item.querySelector(".history-delete");
-    button.dataset.historyIdParam = summary.id;
-    button.setAttribute("aria-label", `Delete lesson of ${text.date}, ${text.time}`);
+    item.querySelector(".history-delete").setAttribute("aria-label", lesson.deleteLabel);
     return item;
   }
 }
