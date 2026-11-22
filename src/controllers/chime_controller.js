@@ -5,7 +5,7 @@ import { getState } from "../store.js";
 
 // The Chime selector, and the Chime at zero. Sits on the Timer tab next to the timer
 // controller and listens for its events: timer:started unlocks audio inside the Preset tap,
-// timer:completed plays the chosen Chime unless the end was noticed late.
+// timer:ring plays the chosen Chime (the timer only sends it when a Run reaches zero on time).
 export default class extends Controller {
   static targets = ["option"];
 
@@ -42,7 +42,7 @@ export default class extends Controller {
     unlock();
   }
 
-  ring({ detail: { late } }) {
-    if (!late) play(this.chime);
+  ring() {
+    play(this.chime);
   }
 }

@@ -1,6 +1,6 @@
 # Run screen module
 
-Status: ready-for-agent
+Status: resolved
 Type: task
 Blocked by: 05, 06, 07
 Blocks: 09
@@ -73,3 +73,11 @@ All with `now` passed in. Write them test-first, one at a time. The existing `te
 - The Simulator run is not repeated. The real-iPhone test ([issue 10](10-real-iphone-acceptance-test.md)) has a line for this rework.
 
 ## Comments
+
+**2026-11-22, done.**
+- `src/timer_screen.js` exports `createTimerScreen(store)` with `tapPreset`, `stop`, `tick` and `view`, as decided above. It holds the "Tap again" and the 0:00 pulse as end times, never sets a timer, and reads and saves only through the store it's given.
+- `src/timer_screen.test.js` has the nine tests, written one at a time, with an in-memory store. Test 5 is split in two (Stop; the Run completing). Test 4 passed with no new code, because there's only one armed slot; it stays as a guard. Test 9 starts its Mis-tap Run while 0:00 is still pulsing. That caught a real gap: the pulse came back after the Mis-tap Stop, so a new Run now ends the pulse, as the old controller did.
+- `timer_controller.js` no longer subscribes to the store. It forwards taps and the time (read once per command), draws the view, dispatches `timer:started` and `timer:ring`, and keeps the wake lock. `chime#ring` has no `late` check, and `index.html` wires `timer:ring->chime#ring`.
+- A History delete now reaches the Timer tab's Lesson list on the next tick (up to 250 ms), not straight away.
+- Leftover, not new: a Run that ended less than 1.5 s before the app reopens still says ring, and that ring is lost if the Chime controller hasn't connected yet. This is the same as before, and too narrow to matter.
+- Checked in the browser pane with the clock sped up: start, "Tap again" → Replace, the "Tap again" window running out after about 3 s, Stop, one Chime at zero (the Chime controller built its sound), the 0:00 pulse for about 4 s then Ready, no Chime and no pulse when late, and reopening after a Run ended while closed (filed Completed, Ready, no pulse). No console errors. The Simulator run was not repeated, as agreed.

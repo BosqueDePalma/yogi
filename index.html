@@ -20,7 +20,7 @@
   <body data-controller="tabs">
     <main class="panels">
       <section id="timer-panel" class="panel timer" role="tabpanel" aria-labelledby="timer-tab" data-tabs-target="panel"
-        data-controller="timer chime" data-action="timer:started->chime#unlock timer:completed->chime#ring" data-ready>
+        data-controller="timer chime" data-action="timer:started->chime#unlock timer:ring->chime#ring" data-ready>
         <div class="dial">
           <p class="countdown" role="timer" data-timer-target="countdown">Ready</p>
           <button class="stop" type="button" data-action="timer#stop">Stop</button>

@@ -1,139 +1,82 @@
 import { Controller } from "@hotwired/stimulus";
-import * as teaching from "../domain/teaching.js";
-import { describeRun, formatCountdown } from "../format.js";
-import { getState, setState, subscribe } from "../store.js";
+import * as store from "../store.js";
+import { createTimerScreen } from "../timer_screen.js";
 
 const TICK_MS = 250;
-const CONFIRM_MS = 3_000; // how long a Preset shows "Tap again"
-const PULSE_MS = 4_000; // how long 0:00 pulses after a Run completes
 
-// The Timer tab: countdown, Stop, Presets and the current Lesson's Runs.
+// The Timer tab. The rules live in timer_screen.js; this controller forwards taps and
+// the time to it, draws what it returns, and keeps the screen awake during a Run.
 // Dispatches timer:started (inside the tap, so the Chime can unlock audio) and
-// timer:completed with { run, late } (the Chime plays unless late).
+// timer:ring (the Run reached zero on time, so the Chime plays).
 export default class extends Controller {
   static targets = ["countdown", "preset", "lesson", "runs"];
 
   connect() {
+    this.screen = createTimerScreen(store);
+    for (const button of this.presetTargets) button.dataset.label = button.getAttribute("aria-label");
     this.onVisibility = () => {
-      if (document.visibilityState === "visible") {
-        this.tick();
-        this.syncWakeLock();
-      }
+      if (document.visibilityState === "visible") this.tick();
     };
     document.addEventListener("visibilitychange", this.onVisibility);
-    this.unsubscribe = subscribe(() => {
-      this.render();
-      this.syncWakeLock();
-    });
     this.interval = setInterval(() => this.tick(), TICK_MS);
     this.tick(); // files a Run that ended while the app was closed, with no Chime
-    this.render();
-    this.syncWakeLock();
   }
 
   disconnect() {
     clearInterval(this.interval);
-    clearTimeout(this.pulseTimer);
-    this.disarm();
     document.removeEventListener("visibilitychange", this.onVisibility);
-    this.unsubscribe();
     this.wakeLock?.release();
   }
 
-  tapPreset({ params: { preset }, currentTarget }) {
-    this.tick(); // the Run may have just reached zero
+  tapPreset({ params: { preset } }) {
     const now = Date.now();
-    const state = getState();
-    if (!state.activeRun) return this.begin(teaching.start(state, preset, now));
-    if (this.armed === currentTarget) {
-      this.disarm();
-      return this.begin(teaching.replace(state, preset, now));
-    }
-    this.arm(currentTarget);
+    this.apply(this.screen.tapPreset(preset, now), now);
   }
 
   stop() {
-    this.disarm();
-    const state = getState();
-    if (state.activeRun) setState(teaching.stop(state, Date.now()));
+    const now = Date.now();
+    this.apply(this.screen.stop(now), now);
   }
 
   tick() {
     const now = Date.now();
-    const { state, completed, late } = teaching.check(getState(), now);
-    if (completed) {
-      this.disarm();
-      if (!late) this.pulse();
-      setState(state);
-      this.dispatch("completed", { detail: { run: completed, late } });
-    }
-    this.render(now);
+    this.apply(this.screen.tick(now), now);
   }
 
-  begin(next) {
-    this.endPulse();
-    setState(next);
-    this.dispatch("started", { detail: { run: next.activeRun } });
-  }
-
-  // --- Replace confirmation ---------------------------------------------------
-
-  arm(button) {
-    this.disarm();
-    this.armed = button;
-    button.dataset.armed = "";
-    button.dataset.label = button.getAttribute("aria-label");
-    button.setAttribute("aria-label", `Tap again to replace with ${button.dataset.label}`);
-    this.armTimer = setTimeout(() => this.disarm(), CONFIRM_MS);
-  }
-
-  disarm() {
-    clearTimeout(this.armTimer);
-    if (!this.armed) return;
-    delete this.armed.dataset.armed;
-    this.armed.setAttribute("aria-label", this.armed.dataset.label);
-    this.armed = null;
-  }
-
-  // --- Completion pulse --------------------------------------------------------
-
-  pulse() {
-    this.pulsing = true;
-    clearTimeout(this.pulseTimer);
-    this.pulseTimer = setTimeout(() => this.endPulse(), PULSE_MS);
-  }
-
-  endPulse() {
-    clearTimeout(this.pulseTimer);
-    this.pulsing = false;
-    this.render();
+  apply(effects, now) {
+    if (effects.unlockAudio) this.dispatch("started");
+    if (effects.ring) this.dispatch("ring");
+    const view = this.screen.view(now);
+    this.render(view);
+    this.running = view.running;
+    this.syncWakeLock();
   }
 
   // --- Drawing -------------------------------------------------------------------
 
-  render(now = Date.now()) {
-    const state = getState();
-    const run = state.activeRun;
-    this.element.toggleAttribute("data-running", Boolean(run));
-    this.element.toggleAttribute("data-pulsing", Boolean(this.pulsing));
-    this.element.toggleAttribute("data-ready", !run && !this.pulsing);
-    this.countdownTarget.textContent = run
-      ? formatCountdown(teaching.remaining(state, now))
-      : this.pulsing ? "0:00" : "Ready";
-    this.renderLesson(teaching.currentLesson(state, now));
+  render(view) {
+    this.element.toggleAttribute("data-running", view.mode === "running");
+    this.element.toggleAttribute("data-pulsing", view.mode === "pulsing");
+    this.element.toggleAttribute("data-ready", view.mode === "ready");
+    this.countdownTarget.textContent = view.countdown;
+    for (const button of this.presetTargets) {
+      const armed = Number(button.dataset.timerPresetParam) === view.armedPreset;
+      button.toggleAttribute("data-armed", armed);
+      button.setAttribute("aria-label", armed ? `Tap again to replace with ${button.dataset.label}` : button.dataset.label);
+    }
+    this.renderLesson(view.lessonRuns);
   }
 
-  renderLesson(lesson) {
-    const runs = lesson?.runs ?? [];
-    const key = runs.map((run) => `${run.startedAt}-${run.endedAt}`).join();
+  renderLesson(lines) {
+    const key = JSON.stringify(lines);
     if (key === this.lessonKey) return;
     this.lessonKey = key;
-    this.lessonTarget.hidden = runs.length === 0;
+    this.lessonTarget.hidden = lines.length === 0;
     this.runsTarget.replaceChildren(
-      ...runs.map((run) => {
+      ...lines.map(({ text, outcome }) => {
         const item = document.createElement("li");
-        item.textContent = describeRun(run);
-        item.dataset.outcome = run.outcome;
+        item.textContent = text;
+        item.dataset.outcome = outcome;
         return item;
       }),
     );
@@ -143,8 +86,7 @@ export default class extends Controller {
   // iOS drops the wake lock whenever the app is hidden, so it is asked for again on return.
 
   async syncWakeLock() {
-    const running = Boolean(getState().activeRun);
-    if (!running) {
+    if (!this.running) {
       this.wakeLock?.release();
       this.wakeLock = null;
       return;
@@ -158,7 +100,7 @@ export default class extends Controller {
         if (this.wakeLock === lock) this.wakeLock = null;
       });
       this.wakeLock = lock;
-      if (!getState().activeRun) this.syncWakeLock(); // the Run ended while we waited
+      if (!this.running) this.syncWakeLock(); // the Run ended while we waited
     } catch {
       // Not allowed right now (e.g. low power mode); the countdown still works.
     } finally {
