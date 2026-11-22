@@ -322,6 +322,12 @@ button {
   font-weight: 700;
 }
 
+.history-unsaved {
+  margin: -4px 0 16px;
+  color: #b3412f;
+  line-height: 1.35;
+}
+
 .history-empty .placeholder {
   padding-top: 22vh;
 }
@@ -408,7 +414,8 @@ button {
 }
 
 @media (prefers-color-scheme: dark) {
-  .history-delete {
+  .history-delete,
+  .history-unsaved {
     color: #e8806c;
   }
 }

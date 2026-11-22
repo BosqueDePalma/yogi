@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus";
 import { play, unlock } from "../audio/player.js";
 import { loadChime, saveChime } from "../chimes.js";
-import { getState } from "../store.js";
+import { store } from "../app_store.js";
 
 // The Chime selector, and the Chime at zero. Sits on the Timer tab next to the timer
 // controller and listens for its events: timer:started unlocks audio inside the Preset tap,
@@ -15,7 +15,7 @@ export default class extends Controller {
     // If iOS closed the app mid-Run, reopening it continues the Run with audio still locked.
     // Any tap on the Timer tab then unlocks it, so the Chime can play at zero.
     this.onTap = () => {
-      if (getState().activeRun) unlock();
+      if (store.getState().activeRun) unlock();
     };
     this.element.addEventListener("touchend", this.onTap, { passive: true });
     this.element.addEventListener("click", this.onTap);
@@ -31,7 +31,7 @@ export default class extends Controller {
     this.chime = currentTarget.value;
     saveChime(localStorage, this.chime);
     // A Run going means a class is going: switch quietly, no preview.
-    if (getState().activeRun) return;
+    if (store.getState().activeRun) return;
     this.stopPreview?.();
     this.stopPreview = play(this.chime);
   }

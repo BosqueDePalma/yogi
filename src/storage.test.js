@@ -1,16 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { loadState, saveState } from "./storage.js";
-
-// An in-memory stand-in for localStorage.
-function fakeStorage(items = {}) {
-  const data = new Map(Object.entries(items));
-  return {
-    getItem: (key) => (data.has(key) ? data.get(key) : null),
-    setItem: (key, value) => data.set(key, String(value)),
-    removeItem: (key) => data.delete(key),
-    items: () => Object.fromEntries(data),
-  };
-}
+import { fakeStorage } from "./testing/fake_storage.js";
 
 const empty = { lessons: [], activeRun: null };
 

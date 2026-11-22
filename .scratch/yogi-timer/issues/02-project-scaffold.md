@@ -29,5 +29,5 @@ Set up the empty app so later tickets have somewhere to land. See the [spec](../
 - Timer and History tabs via `tabs_controller.js`.
 - Preview: the `app-preview` entry in `.claude/launch.json` builds and serves on `http://127.0.0.1:4173/`.
 - **iOS Simulator:** Add to Home Screen shows the bowl icon and "Yogi Timer", and it opens standalone. Then with the server stopped and the app killed, a cold launch loads fine. Offline works.
-- **Finding:** the Home Screen app does *not* inherit the service worker Safari installed. The first launch from the Home Screen with the server off failed. It has to be opened once from the Home Screen **while online**; offline works after that. Added to issue 10.
+- **Finding:** the Home Screen app does *not* inherit the service worker Safari installed. The first launch from the Home Screen with the server off failed. It has to be opened once from the Home Screen **while online**; offline works after that. Added to issue 11.
 - `npm audit` reports 4 moderate advisories in `glob`/`minimatch` pulled in by `workbox-build`. These are build-time only, nothing ships to the phone. The suggested "fix" downgrades vite-plugin-pwa, so it was left alone.

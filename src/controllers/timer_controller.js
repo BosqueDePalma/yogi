@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus";
-import * as store from "../store.js";
+import { store } from "../app_store.js";
 import { createTimerScreen } from "../timer_screen.js";
 
 const TICK_MS = 250;

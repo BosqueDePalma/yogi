@@ -70,7 +70,7 @@ All with `now` passed in. Write them test-first, one at a time. The existing `te
   - Stop;
   - one Chime at zero;
   - no Chime when late.
-- The Simulator run is not repeated. The real-iPhone test ([issue 10](10-real-iphone-acceptance-test.md)) has a line for this rework.
+- The Simulator run is not repeated. The real-iPhone test ([issue 11](11-real-iphone-acceptance-test.md)) has a line for this rework.
 
 ## Comments
 

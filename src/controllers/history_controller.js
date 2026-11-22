@@ -1,15 +1,15 @@
 import { Controller } from "@hotwired/stimulus";
 import { deleteLesson, lessonSummaries } from "../domain/teaching.js";
 import { describeLesson, describeRun } from "../format.js";
-import { getState, setState, subscribe } from "../store.js";
+import { store } from "../app_store.js";
 
 // The History tab: past Lessons, newest first. Tapping one opens its Runs; a whole Lesson
 // can be deleted after the phone's own confirmation dialog.
 export default class extends Controller {
-  static targets = ["list", "empty"];
+  static targets = ["list", "empty", "unsaved"];
 
   connect() {
-    this.unsubscribe = subscribe(() => this.render());
+    this.unsubscribe = store.subscribe(() => this.render());
     this.render();
   }
 
@@ -19,11 +19,13 @@ export default class extends Controller {
 
   delete({ params: { id } }) {
     if (!confirm("Delete this lesson? This can't be undone.")) return;
-    setState(deleteLesson(getState(), id));
+    store.setState(deleteLesson(store.getState(), id));
   }
 
   render() {
-    const { lessons } = getState();
+    // Drawn on every change, before the early return below, so it can't get stuck.
+    this.unsavedTarget.hidden = store.saved();
+    const { lessons } = store.getState();
     // Redraw only when the Lessons change, so an open Lesson stays open.
     if (lessons === this.lessons) return;
     this.lessons = lessons;

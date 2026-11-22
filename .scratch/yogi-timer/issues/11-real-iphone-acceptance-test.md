@@ -2,7 +2,7 @@
 
 Status: ready-for-human
 Type: task
-Blocked by: 09
+Blocked by: 10
 
 **Remind the user once the whole app is built and hosted.** This is the final check on a real iPhone, ideally the Teacher's own, using the finished app installed from the GitHub Pages URL. The Simulator can't stand in for it: it has no silent switch, and it handles a locked screen differently (see [issue 01](01-chime-and-wake-lock-test.md)).
 

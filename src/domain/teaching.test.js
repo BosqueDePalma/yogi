@@ -197,3 +197,22 @@ describe("deleting a Lesson", () => {
     expect(remaining(state, t(9, 10))).toBe(5 * MIN);
   });
 });
+
+// The History tab redraws only when `lessons` is a different list, so an open Lesson
+// stays open while Runs start and stop.
+describe("the list of Lessons", () => {
+  it("is the same list when no Lesson changed", () => {
+    const state = complete(empty, 3, t(9));
+    expect(start(state, 5, t(9, 10)).lessons).toBe(state.lessons);
+    expect(stop(start(state, 5, t(9, 10)), t(9, 10, 4)).lessons).toBe(state.lessons); // Mis-tap
+    expect(check(start(state, 5, t(9, 10)), t(9, 11)).state.lessons).toBe(state.lessons); // not at zero yet
+    expect(deleteLesson(state, t(18)).lessons).toBe(state.lessons); // no such Lesson
+  });
+
+  it("is a new list when a Run is filed or a Lesson is deleted", () => {
+    const state = complete(empty, 3, t(9));
+    expect(stop(start(state, 5, t(9, 10)), t(9, 12)).lessons).not.toBe(state.lessons);
+    expect(check(start(state, 5, t(9, 10)), t(9, 15)).state.lessons).not.toBe(state.lessons);
+    expect(deleteLesson(state, t(9)).lessons).not.toBe(state.lessons);
+  });
+});

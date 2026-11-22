@@ -4,6 +4,8 @@
 //   { lessons: [{ id, runs: [Run] }], activeRun: null | { preset, startedAt, plannedEndAt } }
 //   Run = { preset, startedAt, endedAt, outcome: "completed" | "stopped" }
 // Every function is pure and takes the current time `now` (ms) instead of reading the clock.
+// `lessons` is a new list only when the Lessons changed (a Run filed, a Lesson deleted);
+// otherwise the same list is passed on. The History tab relies on this to redraw.
 
 const MIN = 60_000;
 const MIS_TAP_MS = 5_000;
@@ -62,6 +64,7 @@ export function lessonSummaries(state) {
 }
 
 export function deleteLesson(state, id) {
+  if (!state.lessons.some((lesson) => lesson.id === id)) return state;
   return { ...state, lessons: state.lessons.filter((lesson) => lesson.id !== id) };
 }
 

@@ -59,6 +59,7 @@ A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keep
 - Tapping a Lesson shows its Runs: the Preset, the actual time it ran, and whether it was completed or stopped.
 - She can delete a whole Lesson after confirming.
 - History is stored in localStorage as one JSON document on her phone only, together with the Run that is going, if any.
+- If the phone refuses to save, the app carries on from memory, and the History tab shows a quiet notice: "History isn't being saved on this phone. New runs will be lost when the app closes." The notice goes away as soon as a save works again. The Timer tab never shows it ([issue 09](issues/09-deeper-store.md)).
 
 ### Chime
 
@@ -101,7 +102,7 @@ A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keep
 - Storage sits behind a small module that reads and writes the History JSON in localStorage.
 - Stimulus controllers only connect the domain modules and storage to the page: the timer, the Preset confirmation, the History list, the Chime and the Chime selector.
 - The Timer tab's own rules (Run completion, the Replace confirmation, the 0:00 pulse, what the countdown shows, and whether the Chime rings) live in a DOM-free module that takes the time as an input. The timer controller only draws what it returns ([issue 08](issues/08-run-screen-module.md)).
-- Hosting is GitHub Pages, set up **after** the app is finished and only with the user's go-ahead ([issue 09](issues/09-github-pages-hosting.md)).
+- Hosting is GitHub Pages, set up **after** the app is finished and only with the user's go-ahead ([issue 10](issues/10-github-pages-hosting.md)).
 
 ## Open questions
 

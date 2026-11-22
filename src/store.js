@@ -1,23 +1,27 @@
-// The one in-memory copy of the Teacher's state, shared by every controller.
-// Each change is saved straight away, then listeners redraw. Keeping a single copy
-// means the Timer and History tabs can't overwrite each other's saves.
+// One in-memory copy of the Teacher's state, saved on every change. Listeners are told
+// after each change and redraw. The app makes a single store (app_store.js), so the Timer
+// and History tabs can't overwrite each other's saves.
+//
+// `storage` is localStorage in the app and a fake in tests. When the phone refuses a
+// save, the new state is still kept and listeners are still told, so the app carries
+// on from memory; `saved()` is false until a later save works.
 import { loadState, saveState } from "./storage.js";
 
-let state = null;
-const listeners = new Set();
-
-export function getState() {
-  state ??= loadState(localStorage);
-  return state;
-}
-
-export function setState(next) {
-  state = next;
-  saveState(localStorage, state);
-  for (const listener of listeners) listener(state);
-}
-
-export function subscribe(listener) {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
+export function createStore(storage) {
+  let state = loadState(storage);
+  let saved = true;
+  const listeners = new Set();
+  return {
+    getState: () => state,
+    saved: () => saved,
+    setState(next) {
+      state = next;
+      saved = saveState(storage, state);
+      for (const listener of listeners) listener();
+    },
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    },
+  };
 }
