@@ -61,7 +61,11 @@ A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keep
 
 ### Chime
 
-- A tone generated in code with Web Audio, with no audio file. The Teacher picks one of three: **Singing bowl**, **Tingsha** or **Gong**. Her choice is still pending ([issue 06](issues/06-chime.md)).
+- A tone generated in code with Web Audio, with no audio file. There are three Chimes: **Singing bowl** (the default, the Teacher's pick), **Tingsha** and **Gong**, ported from the issue 01 prototype.
+- **Chime selector** on the Timer tab: a three-option segmented control under the Presets. One tap switches, at any time:
+  - Switching during a Run changes the Chime that Run plays at zero.
+  - With no Run going, switching plays the new Chime once as a preview. During a Run there is no preview, so the class isn't disturbed.
+  - The choice is remembered on the phone (localStorage, under its own key, separate from History). History doesn't record which Chime played.
 - The chime **always plays, even with the silent switch on**: the app sets `navigator.audioSession.type = "playback"`. On her iPhone this also let the chime sound with the screen locked ([issue 01](issues/01-chime-and-wake-lock-test.md)).
 
 ### Look and install
@@ -74,17 +78,18 @@ A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keep
 ## Main screen layout
 
 ```
-┌───────────────────────┐
-│        3:00           │  ← big countdown (or "Ready")
-│       [ Stop ]        │
-├───────────────────────┤
-│  [1] [2] [3] [5] [10] │  ← Presets, tappable during a Run
-├───────────────────────┤
-│ This lesson           │
-│  3 min · completed    │
-│  5 min · stopped 2:41 │
-└───────────────────────┘
-   [ Timer ] [ History ]   ← tabs
+┌──────────────────────────────┐
+│        3:00                  │  ← big countdown (or "Ready")
+│       [ Stop ]               │
+├──────────────────────────────┤
+│  [1] [2] [3] [5] [10]        │  ← Presets, tappable during a Run
+│  Chime [Bowl|Tingsha|Gong]   │  ← Chime selector, one tap
+├──────────────────────────────┤
+│ This lesson                  │
+│  3 min · completed           │
+│  5 min · stopped 2:41        │
+└──────────────────────────────┘
+    [ Timer ] [ History ]       ← tabs
 ```
 
 ## Architecture
@@ -93,12 +98,12 @@ A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keep
 - `vite-plugin-pwa` provides the web app manifest and the offline service worker.
 - The domain rules (Lessons, Runs, Lesson Gap, Mis-tap, Replace, clock-based countdown) live in plain JavaScript modules with no DOM and no Stimulus. They take the current time as an input, so tests don't depend on the real clock. They are written test-first with Vitest.
 - Storage sits behind a small module that reads and writes the History JSON in localStorage.
-- Stimulus controllers only connect the domain modules and storage to the page: the timer, the Preset confirmation, the History list and the chime.
+- Stimulus controllers only connect the domain modules and storage to the page: the timer, the Preset confirmation, the History list, the Chime and the Chime selector.
 - Hosting is GitHub Pages, set up **after** the app is finished and only with the user's go-ahead ([issue 08](issues/08-github-pages-hosting.md)).
 
 ## Open questions
 
-- Which chime sound does the Teacher want? See issue 06.
+None right now.
 
 Resolved by issue 01: the chime ignores the silent switch (by design), and the wake lock works from the Home Screen on her phone. It is released whenever the app is hidden, so it must be requested again on return while a Run is going.
 

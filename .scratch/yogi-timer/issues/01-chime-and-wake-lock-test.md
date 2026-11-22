@@ -57,3 +57,7 @@ The prototype is at `.scratch/yogi-timer/prototypes/chime-test/` and is served b
 **Decision:** the app always sets `audioSession.type = "playback"`, so the chime ignores the silent switch and can sound while the phone is locked. The no-late-chime rule stays for phones or iOS versions that freeze the app instead. The spec and ADR 0001 have been updated.
 
 **Follow-up:** the user asked for two more yoga-style sounds so the Teacher can choose. The prototype now offers Singing bowl, Tingsha and Gong (radio buttons; the selected one plays at zero). Her pick goes into issue 06.
+
+### 2026-11-21 — Teacher's choice
+
+She chose **Singing bowl** as the default. The user asked for an in-app Chime selector so she can switch between all three at any time (see the spec, Chime section, and issue 06).

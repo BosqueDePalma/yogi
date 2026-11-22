@@ -23,6 +23,10 @@ A Run that counted all the way down to zero.
 A Run the Teacher ended before it reached zero. A Stopped Run shorter than 5 seconds is a **Mis-tap** and is not kept in History.
 _Avoid_: Cancelled, aborted
 
+**Chime**:
+The sound played once when a Run completes. The Teacher can switch at any time between Singing bowl (the default), Tingsha and Gong.
+_Avoid_: Alarm, beep, bell, notification
+
 **Replace**:
 Starting a new Run from any Preset while a Run is still going, which the Teacher confirms with a second tap. The replaced Run becomes a Stopped Run. Restarting is replacing with the same Preset.
 _Avoid_: Switch, override

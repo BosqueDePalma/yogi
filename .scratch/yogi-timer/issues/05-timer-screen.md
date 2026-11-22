@@ -14,6 +14,7 @@ The main tab, built with Stimulus controllers on top of the domain modules and s
 - At zero: the 0:00 pulse for a few seconds, then back to ready. The chime hook is left as a stub until issue 06.
 - The screen stays awake during a Run (using whatever issue 01 found works).
 - The list of current Lesson Runs, empty once the Lesson Gap has passed.
+- Leave a slot under the Presets for the Chime selector (built in issue 06).
 
 ## Done when
 
