@@ -1,0 +1,240 @@
+<!doctype html>
+<!-- Throwaway prototype for ticket 01: chime, wake lock, lock/unlock behaviour. Not app code. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Chime Test">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Chime Test</title>
+<style>
+  :root { color-scheme: light dark; --bg: #f6f3ee; --fg: #2b2622; --muted: #7a716a; --accent: #8a6d3b; --card: #ffffff; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #1b1917; --fg: #eee7df; --muted: #a59a90; --accent: #d4b27a; --card: #26231f; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.4 -apple-system, system-ui, sans-serif;
+         padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  .env { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+  #count { font-size: 88px; font-weight: 200; text-align: center; font-variant-numeric: tabular-nums; margin: 8px 0; }
+  #count.done { animation: pulse 1s ease-in-out 3; }
+  @keyframes pulse { 50% { opacity: .25; } }
+  .row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  button { flex: 1; font: inherit; padding: 14px 8px; border-radius: 12px; border: 1px solid var(--accent);
+           background: var(--card); color: var(--fg); }
+  button.primary { background: var(--accent); color: var(--bg); }
+  label { display: flex; gap: 8px; align-items: center; font-size: 14px; margin: 6px 0; }
+  fieldset { border: 1px solid var(--accent); border-radius: 12px; margin: 10px 0 0; padding: 6px 12px; }
+  legend { font-size: 13px; color: var(--muted); padding: 0 4px; }
+  fieldset label { font-size: 16px; padding: 6px 0; }
+  fieldset input { width: 22px; height: 22px; accent-color: var(--accent); }
+  #log { font: 11px/1.35 ui-monospace, Menlo, monospace; background: var(--card); border-radius: 10px; padding: 8px;
+         max-height: 38vh; overflow: auto; white-space: pre-wrap; margin-top: 8px; }
+</style>
+</head>
+<body>
+  <h1>Chime &amp; wake-lock test</h1>
+  <div class="env" id="env"></div>
+  <div id="count">0:30</div>
+  <div class="row">
+    <button class="primary" id="start">Start 30 s</button>
+    <button id="start10">Start 10 s</button>
+    <button id="stop">Stop</button>
+  </div>
+  <div class="row">
+    <button id="chime">Play chime now</button>
+    <button id="clear">Clear log</button>
+  </div>
+  <label><input type="checkbox" id="session"> audioSession.type = "playback" (ignore silent switch)</label>
+  <label><input type="checkbox" id="prescheduled"> Also pre-schedule chime on the audio clock at start</label>
+  <fieldset id="sounds">
+    <legend>Chime sound: tap to hear, the selected one plays at zero</legend>
+    <label><input type="radio" name="sound" value="bowl"> Singing bowl: warm, long hum</label>
+    <label><input type="radio" name="sound" value="tingsha"> Tingsha: two bright cymbals</label>
+    <label><input type="radio" name="sound" value="gong"> Gong: deep, slow bloom</label>
+  </fieldset>
+  <div id="log"></div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const LOG_KEY = 'chime-test-log';
+  let ctx = null, run = null, wakeLock = null, tick = null, prescheduled = [];
+
+  // ---- log (persisted, so lock/unlock history survives a reload) ----
+  const stamp = () => new Date().toISOString().slice(11, 23);
+  function log(msg) {
+    const line = `${stamp()} ${msg}`;
+    let lines = [];
+    try { lines = JSON.parse(localStorage.getItem(LOG_KEY) || '[]'); } catch {}
+    lines.push(line);
+    try { localStorage.setItem(LOG_KEY, JSON.stringify(lines.slice(-200))); } catch {}
+    render(lines);
+  }
+  function render(lines) { $('log').textContent = lines.slice().reverse().join('\n'); }
+  try { render(JSON.parse(localStorage.getItem(LOG_KEY) || '[]')); } catch {}
+  addEventListener('error', (e) => log(`ERROR ${e.message} @${e.lineno}`));
+  addEventListener('unhandledrejection', (e) => log(`REJECTION ${e.reason}`));
+  document.addEventListener('pointerdown', (e) => log(`pointerdown on ${e.target.id || e.target.tagName}`), true);
+
+  // ---- environment ----
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  $('env').textContent = [
+    standalone ? 'mode: HOME SCREEN (standalone)' : 'mode: Safari tab',
+    'wakeLock: ' + ('wakeLock' in navigator ? 'yes' : 'no'),
+    'audioSession: ' + ('audioSession' in navigator ? 'yes (' + navigator.audioSession.type + ')' : 'no'),
+  ].join(' · ');
+  log(`page load · ${$('env').textContent}`);
+
+  // ---- audio ----
+  function ensureAudio() {
+    if (!ctx) {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      ctx.onstatechange = () => log(`AudioContext state → ${ctx.state}`);
+      // Silent buffer inside the user gesture unlocks audio on iOS.
+      const b = ctx.createBuffer(1, 1, 22050), s = ctx.createBufferSource();
+      s.buffer = b; s.connect(ctx.destination); s.start(0);
+    }
+    if (ctx.state !== 'running') ctx.resume().then(() => log(`resume() ok, state=${ctx.state}`), (e) => log(`resume() failed: ${e}`));
+    return ctx;
+  }
+
+  // Each sound is a set of sine partials: [frequency Hz, peak gain, attack s, decay s, start offset s].
+  // Inharmonic ratios + slightly detuned twins give the "beating" shimmer of real metal.
+  const SOUNDS = {
+    // Singing bowl: D4, warm inharmonic partials, long ring.
+    bowl: { gain: 0.6, partials: [293.66, 0.55, 0.015, 7.0, 0], spread: [[1, 1, 1], [2.71, 0.51, 0.71], [5.15, 0.22, 0.43], [8.43, 0.09, 0.26]], detune: 0.8 },
+    // Tingsha: two small cymbals struck together: bright, high, two hits 0.12 s apart, the second slightly detuned.
+    tingsha: { gain: 0.22, partials: [2349, 0.5, 0.003, 4.0, 0], spread: [[1, 1, 1], [1.47, 0.45, 0.8], [2.09, 0.25, 0.6], [2.71, 0.12, 0.45]], detune: 3, hits: [[0, 1, 1], [0.12, 0.8, 1.012]] },
+    // Gong: low A2 with upper partials that bloom in slowly, very long decay.
+    gong: { gain: 0.55, partials: [110, 0.55, 0.04, 9.0, 0], spread: [[1, 1, 1], [1.52, 0.5, 0.85], [2.0, 0.45, 0.8], [2.66, 0.35, 0.65], [3.4, 0.22, 0.5], [4.1, 0.14, 0.4]], detune: 0.4, bloom: 0.9 },
+  };
+  let sound = 'bowl';
+  try { sound = localStorage.getItem('chime-test-sound') || 'bowl'; } catch {}
+
+  function chime(at, name = sound) {
+    const c = ensureAudio();
+    const t0 = at ?? c.currentTime + 0.02;
+    const s = SOUNDS[name];
+    const [base, amp, attack, decay] = s.partials;
+    const master = c.createGain(); master.gain.value = s.gain;
+    // Soft low-pass so nothing sounds harsh on a phone speaker.
+    const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = name === 'tingsha' ? 9000 : 4000;
+    master.connect(lp); lp.connect(c.destination);
+    const nodes = [];
+    for (const [hitAt, hitAmp, hitTune] of (s.hits || [[0, 1, 1]])) {
+      s.spread.forEach(([ratio, relAmp, relDecay], i) => {
+        for (const detune of [0, s.detune]) {
+          const o = c.createOscillator(), g = c.createGain();
+          const start = t0 + hitAt;
+          // Gong "bloom": higher partials take longer to swell in.
+          const att = s.bloom ? attack + s.bloom * (i / s.spread.length) : attack;
+          o.type = 'sine'; o.frequency.value = (base * ratio + detune) * hitTune;
+          g.gain.setValueAtTime(0, start);
+          g.gain.linearRampToValueAtTime((amp * relAmp * hitAmp) / 2, start + att);
+          g.gain.exponentialRampToValueAtTime(0.0001, start + att + decay * relDecay);
+          o.connect(g); g.connect(master); o.start(start); o.stop(start + att + decay * relDecay + 0.1);
+          nodes.push(o);
+        }
+      });
+    }
+    return nodes;
+  }
+
+  // ---- wake lock ----
+  async function lockScreen() {
+    if (!('wakeLock' in navigator)) { log('wakeLock: not supported'); return; }
+    try {
+      wakeLock = await navigator.wakeLock.request('screen');
+      log('wakeLock: acquired');
+      wakeLock.addEventListener('release', () => log('wakeLock: released'));
+    } catch (e) { log(`wakeLock: request failed: ${e.name} ${e.message}`); }
+  }
+  function unlockScreen() { if (wakeLock) { wakeLock.release(); wakeLock = null; } }
+
+  // ---- run (clock-based: remaining = end - now) ----
+  const fmt = (ms) => { const s = Math.ceil(Math.max(0, ms) / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+  function start(seconds) {
+    ensureAudio();
+    stop(true);
+    const now = Date.now();
+    run = { start: now, end: now + seconds * 1000 };
+    log(`run start ${seconds}s · ctx=${ctx.state}`);
+    if ($('prescheduled').checked) {
+      prescheduled = chime(ctx.currentTime + seconds);
+      log(`pre-scheduled chime on audio clock at +${seconds}s`);
+    }
+    lockScreen();
+    $('count').classList.remove('done');
+    tick = setInterval(update, 200);
+    update();
+  }
+  function update() {
+    if (!run) return;
+    const left = run.end - Date.now();
+    $('count').textContent = fmt(left);
+    if (left <= 0) finish();
+  }
+  function finish() {
+    const late = Date.now() - run.end;
+    clearInterval(tick); tick = null;
+    if (late > 1500) {
+      log(`run COMPLETED, noticed ${late} ms late → no chime (late rule)`);
+    } else if (prescheduled.length) {
+      log(`run COMPLETED on time (+${late} ms) · chime was pre-scheduled · ctx=${ctx.state}`);
+    } else {
+      chime();
+      log(`run COMPLETED on time (+${late} ms) · chime played (${sound}) · ctx=${ctx.state}`);
+    }
+    prescheduled = [];
+    run = null;
+    $('count').textContent = '0:00';
+    $('count').classList.add('done');
+    unlockScreen();
+  }
+  function stop(silent) {
+    if (!run) return;
+    clearInterval(tick); tick = null;
+    for (const o of prescheduled) { try { o.stop(); } catch {} }
+    prescheduled = [];
+    if (!silent) log(`run STOPPED after ${Date.now() - run.start} ms`);
+    run = null;
+    $('count').textContent = '0:30';
+    unlockScreen();
+  }
+
+  // ---- lifecycle ----
+  document.addEventListener('visibilitychange', () => {
+    log(`visibility → ${document.visibilityState} · ctx=${ctx ? ctx.state : 'none'}`);
+    if (document.visibilityState === 'visible') {
+      if (run) { update(); if (run) lockScreen(); }
+    }
+  });
+  addEventListener('pagehide', () => log('pagehide'));
+  addEventListener('pageshow', (e) => log(`pageshow persisted=${e.persisted}`));
+
+  // ---- controls ----
+  $('start').onclick = () => start(30);
+  $('start10').onclick = () => start(10);
+  $('stop').onclick = () => stop(false);
+  $('chime').onclick = () => { chime(); log(`manual chime (${sound}) · ctx=${ctx.state}`); };
+  for (const r of document.querySelectorAll('input[name=sound]')) {
+    r.checked = r.value === sound;
+    r.onchange = () => {
+      sound = r.value;
+      try { localStorage.setItem('chime-test-sound', sound); } catch {}
+      chime();
+      log(`sound → ${sound} (preview) · ctx=${ctx.state}`);
+    };
+  }
+  $('clear').onclick = () => { try { localStorage.removeItem(LOG_KEY); } catch {} render([]); };
+  $('session').onchange = (e) => {
+    if (!('audioSession' in navigator)) { log('audioSession: not supported'); e.target.checked = false; return; }
+    navigator.audioSession.type = e.target.checked ? 'playback' : 'auto';
+    log(`audioSession.type = ${navigator.audioSession.type}`);
+  };
+})();
+</script>
+</body>
+</html>

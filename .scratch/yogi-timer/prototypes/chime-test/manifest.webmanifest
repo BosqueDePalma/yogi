@@ -1,0 +1,9 @@
+{
+  "name": "Chime Test",
+  "short_name": "Chime Test",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1b1917",
+  "theme_color": "#1b1917"
+}

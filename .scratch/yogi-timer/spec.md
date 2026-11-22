@@ -15,7 +15,7 @@ A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keep
 
 - Pause and resume.
 - Custom durations or durations in seconds.
-- A chime while the phone is locked (see ADR 0001).
+- A *guaranteed* chime while the phone is locked. It worked on her iPhone, but iOS doesn't promise it (see ADR 0001).
 - Export, backup or sync.
 - Notes or names on Lessons, charts, statistics.
 - Deleting individual Runs.
@@ -61,8 +61,8 @@ A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keep
 
 ### Chime
 
-- A singing-bowl-like tone generated in code with Web Audio, with no audio file.
-- Whether the chime plays with the silent switch on (via `navigator.audioSession`, iOS 17+) is **undecided** until the chime test ([issue 01](issues/01-chime-and-wake-lock-test.md)).
+- A tone generated in code with Web Audio, with no audio file. The Teacher picks one of three: **Singing bowl**, **Tingsha** or **Gong**. Her choice is still pending ([issue 06](issues/06-chime.md)).
+- The chime **always plays, even with the silent switch on**: the app sets `navigator.audioSession.type = "playback"`. On her iPhone this also let the chime sound with the screen locked ([issue 01](issues/01-chime-and-wake-lock-test.md)).
 
 ### Look and install
 
@@ -98,5 +98,11 @@ A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keep
 
 ## Open questions
 
-- Does the chime play with the silent switch on, and should it? Decide after issue 01.
-- Does keeping the screen awake (Screen Wake Lock) work in an app opened from the home screen on her iOS version? Check this in issue 01.
+- Which chime sound does the Teacher want? See issue 06.
+
+Resolved by issue 01: the chime ignores the silent switch (by design), and the wake lock works from the Home Screen on her phone. It is released whenever the app is hidden, so it must be requested again on return while a Run is going.
+
+## Notes from issue 01
+
+- The Home Screen app has its own storage, separate from Safari tabs. History only exists in the installed app.
+- Audio must be unlocked inside the Teacher's tap (create/resume the `AudioContext` on the Preset tap); after that the chime at zero needs no further tap.
