@@ -1,22 +1,17 @@
 import { Controller } from "@hotwired/stimulus";
-import { play, unlock } from "../audio/player.js";
-import { loadChime, saveChime } from "../chimes.js";
+import * as player from "../audio/player.js";
 import { store } from "../app_store.js";
+import { createChime } from "../chime.js";
 
-// The Chime selector, and the Chime at zero. Sits on the Timer tab next to the timer
-// controller and listens for its events: timer:started unlocks audio inside the Preset tap,
-// timer:ring plays the chosen Chime (the timer only sends it when a Run reaches zero on time).
+// The Chime selector, and the Chime at zero. The rules live in chime.js; this controller
+// forwards the selector, the timer's events (timer:started, timer:ring) and Timer-tab taps.
 export default class extends Controller {
   static targets = ["option"];
 
   connect() {
-    this.chime = loadChime(localStorage);
-    for (const option of this.optionTargets) option.checked = option.value === this.chime;
-    // If iOS closed the app mid-Run, reopening it continues the Run with audio still locked.
-    // Any tap on the Timer tab then unlocks it, so the Chime can play at zero.
-    this.onTap = () => {
-      if (store.getState().activeRun) unlock();
-    };
+    this.chime = createChime({ storage: localStorage, player, isRunning: () => Boolean(store.getState().activeRun) });
+    for (const option of this.optionTargets) option.checked = option.value === this.chime.current;
+    this.onTap = () => this.chime.tap();
     this.element.addEventListener("touchend", this.onTap, { passive: true });
     this.element.addEventListener("click", this.onTap);
   }
@@ -24,25 +19,18 @@ export default class extends Controller {
   disconnect() {
     this.element.removeEventListener("touchend", this.onTap);
     this.element.removeEventListener("click", this.onTap);
-    this.stopPreview?.();
+    this.chime.stopPreview();
   }
 
   choose({ currentTarget }) {
-    this.chime = currentTarget.value;
-    saveChime(localStorage, this.chime);
-    // A Run going means a class is going: switch quietly, no preview.
-    if (store.getState().activeRun) return;
-    this.stopPreview?.();
-    this.stopPreview = play(this.chime);
+    this.chime.choose(currentTarget.value);
   }
 
   unlock() {
-    this.stopPreview?.();
-    this.stopPreview = null;
-    unlock();
+    this.chime.unlockForRun();
   }
 
   ring() {
-    play(this.chime);
+    this.chime.ring();
   }
 }
