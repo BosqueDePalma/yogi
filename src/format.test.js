@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatCountdown, describeRun } from "./format.js";
+import { formatCountdown, describeRun, describeLesson } from "./format.js";
 
 describe("the countdown", () => {
   it("shows the full Preset when a Run starts", () => {
@@ -22,5 +22,36 @@ describe("a Run in the lesson list", () => {
 
   it("shows a Stopped Run with the whole seconds it ran", () => {
     expect(describeRun({ preset: 5, startedAt: 0, endedAt: 161_900, outcome: "stopped" })).toBe("5 min · stopped 2:41");
+  });
+});
+
+describe("a Lesson in History", () => {
+  const MIN = 60_000;
+  const at = Date.UTC(2026, 10, 21, 9, 0);
+  const uk = { locale: "en-GB", timeZone: "UTC" };
+  const lesson = (totalMs, runCount = 2, startedAt = at) => ({ id: startedAt, startedAt, runCount, totalMs });
+
+  it("totals the time timed in whole minutes, to the nearest minute", () => {
+    expect(describeLesson(lesson(5 * MIN + 41_000), uk).total).toBe("6 min");
+    expect(describeLesson(lesson(2 * MIN + 29_000), uk).total).toBe("2 min");
+    expect(describeLesson(lesson(2 * MIN + 30_000), uk).total).toBe("3 min");
+  });
+
+  it("shows a Lesson of under half a minute as <1 min, not 0 min", () => {
+    expect(describeLesson(lesson(12_000, 1), uk).total).toBe("<1 min");
+  });
+
+  it("counts its Runs", () => {
+    expect(describeLesson(lesson(MIN, 1), uk).runs).toBe("1 run");
+    expect(describeLesson(lesson(5 * MIN, 3), uk).runs).toBe("3 runs");
+  });
+
+  it("dates it by when its first Run started, in the phone's language and time zone", () => {
+    expect(describeLesson(lesson(MIN), uk)).toMatchObject({ date: "Sat 21 Nov", time: "9:00" });
+    const lateEvening = lesson(MIN, 1, Date.UTC(2026, 10, 21, 23, 30));
+    expect(describeLesson(lateEvening, { locale: "es-ES", timeZone: "Europe/Madrid" })).toMatchObject({
+      date: "dom, 22 nov",
+      time: "0:30",
+    });
   });
 });

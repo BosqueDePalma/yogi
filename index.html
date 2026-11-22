@@ -63,8 +63,14 @@
           <ol class="runs" data-timer-target="runs"></ol>
         </section>
       </section>
-      <section id="history-panel" class="panel" role="tabpanel" aria-labelledby="history-tab" data-tabs-target="panel" hidden>
-        <p class="placeholder">No lessons yet</p>
+      <section id="history-panel" class="panel history" role="tabpanel" aria-labelledby="history-tab" data-tabs-target="panel"
+        data-controller="history" hidden>
+        <h1 class="history-heading">History</h1>
+        <div class="history-empty" data-history-target="empty">
+          <p class="placeholder">No lessons yet</p>
+          <p class="history-hint">Each lesson appears here after its first Run.</p>
+        </div>
+        <ol class="history-lessons" data-history-target="list" hidden></ol>
       </section>
     </main>
 

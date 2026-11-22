@@ -11,6 +11,19 @@ export function describeRun(run) {
   return `${run.preset} min · stopped ${clock(Math.floor((run.endedAt - run.startedAt) / 1000))}`;
 }
 
+// A row in History, from lessonSummaries(). Dates follow the phone's language and time
+// zone unless `locale` and `timeZone` are given (tests pass them).
+export function describeLesson(summary, { locale, timeZone } = {}) {
+  const started = new Date(summary.startedAt);
+  const minutes = Math.round(summary.totalMs / 60_000);
+  return {
+    date: started.toLocaleDateString(locale, { timeZone, weekday: "short", day: "numeric", month: "short" }),
+    time: started.toLocaleTimeString(locale, { timeZone, hour: "numeric", minute: "2-digit" }),
+    runs: `${summary.runCount} ${summary.runCount === 1 ? "run" : "runs"}`,
+    total: minutes === 0 ? "<1 min" : `${minutes} min`,
+  };
+}
+
 function clock(totalSeconds) {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;

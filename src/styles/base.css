@@ -312,3 +312,103 @@ button {
 .runs li[data-outcome="stopped"] {
   color: var(--muted);
 }
+
+/* --- History tab ----------------------------------------------------------- */
+
+.history-heading {
+  margin: 24px 0 16px;
+  font-family: var(--font-rounded);
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.history-empty .placeholder {
+  padding-top: 22vh;
+}
+
+.history-hint {
+  margin: 8px 0 0;
+  text-align: center;
+  color: var(--muted);
+}
+
+.history-lessons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 0 24px;
+  padding: 0;
+  list-style: none;
+}
+
+.history-lesson {
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.history-lesson summary {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 44px 14px 16px;
+  list-style: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.history-lesson summary::-webkit-details-marker {
+  display: none;
+}
+
+/* A chevron that turns when the Lesson opens. */
+.history-lesson summary::after {
+  content: "";
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: translateY(-70%) rotate(45deg);
+  transition: transform 0.2s;
+}
+
+.history-lesson[open] summary::after {
+  transform: translateY(-30%) rotate(225deg);
+}
+
+.history-when {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.history-totals {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.history-lesson .runs {
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: none;
+}
+
+.history-delete {
+  display: block;
+  width: calc(100% - 32px);
+  height: 44px;
+  margin: 4px 16px 16px;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  background: none;
+  color: #b3412f;
+  font-weight: 600;
+}
+
+@media (prefers-color-scheme: dark) {
+  .history-delete {
+    color: #e8806c;
+  }
+}

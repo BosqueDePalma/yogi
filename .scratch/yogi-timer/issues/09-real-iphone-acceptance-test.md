@@ -19,6 +19,7 @@ Blocked by: 08
 - [ ] The screen stays awake during a Run.
 - [ ] Stop, Replace ("Tap again") and Mis-tap (< 5 s) all behave as in the spec.
 - [ ] A Run more than 90 minutes after the last one starts a new Lesson.
+- [ ] After an update is published, the Chime choice and History are still there (see issue 07).
 - [ ] History shows Lessons correctly, and deleting a Lesson works and sticks after closing and reopening the app.
 - [ ] Light and dark mode both look calm and readable.
 
