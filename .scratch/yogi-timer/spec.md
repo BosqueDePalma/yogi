@@ -100,7 +100,8 @@ A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keep
 - The domain rules (Lessons, Runs, Lesson Gap, Mis-tap, Replace, clock-based countdown) live in plain JavaScript modules with no DOM and no Stimulus. They take the current time as an input, so tests don't depend on the real clock. They are written test-first with Vitest.
 - Storage sits behind a small module that reads and writes the History JSON in localStorage.
 - Stimulus controllers only connect the domain modules and storage to the page: the timer, the Preset confirmation, the History list, the Chime and the Chime selector.
-- Hosting is GitHub Pages, set up **after** the app is finished and only with the user's go-ahead ([issue 08](issues/08-github-pages-hosting.md)).
+- The Timer tab's own rules (Run completion, the Replace confirmation, the 0:00 pulse, what the countdown shows, and whether the Chime rings) live in a DOM-free module that takes the time as an input. The timer controller only draws what it returns ([issue 08](issues/08-run-screen-module.md)).
+- Hosting is GitHub Pages, set up **after** the app is finished and only with the user's go-ahead ([issue 09](issues/09-github-pages-hosting.md)).
 
 ## Open questions
 

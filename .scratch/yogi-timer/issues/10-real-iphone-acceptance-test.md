@@ -2,7 +2,7 @@
 
 Status: ready-for-human
 Type: task
-Blocked by: 08
+Blocked by: 09
 
 **Remind the user once the whole app is built and hosted.** This is the final check on a real iPhone, ideally the Teacher's own, using the finished app installed from the GitHub Pages URL. The Simulator can't stand in for it: it has no silent switch, and it handles a locked screen differently (see [issue 01](01-chime-and-wake-lock-test.md)).
 
@@ -17,6 +17,7 @@ Blocked by: 08
 - [ ] Close the app fully mid-Run and reopen it, then tap the screen once: the Chime still plays at zero.
 - [ ] Lock the phone mid-Run: the chime sounds at zero, or if iOS froze the app, the Run shows as Completed on unlock with no late chime.
 - [ ] The screen stays awake during a Run.
+- [ ] After the Run screen rework (issue 08): one Chime at zero on time, the 0:00 pulse, then Ready; "Tap again" lasts about 3 s.
 - [ ] Stop, Replace ("Tap again") and Mis-tap (< 5 s) all behave as in the spec.
 - [ ] A Run more than 90 minutes after the last one starts a new Lesson.
 - [ ] After an update is published, the Chime choice and History are still there (see issue 07).
