@@ -20,7 +20,7 @@
   <body data-controller="tabs">
     <main class="panels">
       <section id="timer-panel" class="panel timer" role="tabpanel" aria-labelledby="timer-tab" data-tabs-target="panel"
-        data-controller="timer" data-ready>
+        data-controller="timer chime" data-action="timer:started->chime#unlock timer:completed->chime#ring" data-ready>
         <div class="dial">
           <p class="countdown" role="timer" data-timer-target="countdown">Ready</p>
           <button class="stop" type="button" data-action="timer#stop">Stop</button>
@@ -47,7 +47,17 @@
             <span class="preset-label" aria-hidden="true">10<small>min</small></span><span class="preset-confirm" aria-hidden="true">Tap again</span>
           </button>
         </div>
-        <div class="chime-slot"><!-- Chime selector, issue 06 --></div>
+        <div class="chime" role="radiogroup" aria-labelledby="chime-heading">
+          <span id="chime-heading" class="chime-heading">Chime</span>
+          <div class="chime-options">
+            <label class="chime-option"><input type="radio" name="chime" value="bowl" data-chime-target="option" data-action="chime#choose"
+              aria-label="Singing bowl"><span aria-hidden="true">Bowl</span></label>
+            <label class="chime-option"><input type="radio" name="chime" value="tingsha" data-chime-target="option" data-action="chime#choose"
+              aria-label="Tingsha"><span aria-hidden="true">Tingsha</span></label>
+            <label class="chime-option"><input type="radio" name="chime" value="gong" data-chime-target="option" data-action="chime#choose"
+              aria-label="Gong"><span aria-hidden="true">Gong</span></label>
+          </div>
+        </div>
         <section class="lesson" aria-labelledby="lesson-heading" data-timer-target="lesson" hidden>
           <h2 id="lesson-heading">This lesson</h2>
           <ol class="runs" data-timer-target="runs"></ol>

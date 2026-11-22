@@ -13,6 +13,8 @@ Blocked by: 08
 - [ ] Each Preset (1, 2, 3, 5, 10) starts a Run with one tap, and the countdown is readable from across the room.
 - [ ] The chime sounds at zero with the **silent switch on**.
 - [ ] The Chime selector switches between Singing bowl, Tingsha and Gong, a mid-Run switch changes what plays at zero, and the choice is still there after reopening the app.
+- [ ] With music playing from another app (e.g. a class playlist), tap a Preset: note whether the music pauses. The `playback` audio session may stop other audio (see issue 06).
+- [ ] Close the app fully mid-Run and reopen it, then tap the screen once: the Chime still plays at zero.
 - [ ] Lock the phone mid-Run: the chime sounds at zero, or if iOS froze the app, the Run shows as Completed on unlock with no late chime.
 - [ ] The screen stays awake during a Run.
 - [ ] Stop, Replace ("Tap again") and Mis-tap (< 5 s) all behave as in the spec.

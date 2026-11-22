@@ -111,4 +111,4 @@ Resolved by issue 01: the chime ignores the silent switch (by design), and the w
 ## Notes from issue 01
 
 - The Home Screen app has its own storage, separate from Safari tabs. History only exists in the installed app. This includes the offline cache: the app must be opened once from the Home Screen while online before it works offline (found in issue 02).
-- Audio must be unlocked inside the Teacher's tap (create/resume the `AudioContext` on the Preset tap); after that the chime at zero needs no further tap.
+- Audio must be unlocked inside the Teacher's tap (create/resume the `AudioContext` on the Preset tap); after that the chime at zero needs no further tap. If iOS closed the app mid-Run, reopening it continues the Run with audio locked: any tap on the Timer tab unlocks it again (issue 06).

@@ -8,6 +8,7 @@
 const MIN = 60_000;
 const MIS_TAP_MS = 5_000;
 const LESSON_GAP_MS = 90 * MIN;
+const LATE_MS = 1_500;
 
 export const PRESETS = [1, 2, 3, 5, 10];
 
@@ -32,12 +33,13 @@ export function replace(state, preset, now) {
 }
 
 // Files the Run as Completed once it has reached zero. However late this is noticed
-// (app suspended or closed), it ends at its planned end time.
+// (app suspended or closed), it ends at its planned end time. `late` means the end was
+// noticed more than 1.5 s after it, so the Chime must not play.
 export function check(state, now) {
   const run = state.activeRun;
-  if (!run || now < run.plannedEndAt) return { state, completed: null };
+  if (!run || now < run.plannedEndAt) return { state, completed: null, late: false };
   const completed = finished(run, run.plannedEndAt, "completed");
-  return { state: file(state, completed), completed };
+  return { state: file(state, completed), completed, late: now - run.plannedEndAt > LATE_MS };
 }
 
 // The latest Lesson, unless the Lesson Gap has passed. A Run that is going counts

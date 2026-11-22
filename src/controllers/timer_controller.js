@@ -6,11 +6,10 @@ import { getState, setState, subscribe } from "../store.js";
 const TICK_MS = 250;
 const CONFIRM_MS = 3_000; // how long a Preset shows "Tap again"
 const PULSE_MS = 4_000; // how long 0:00 pulses after a Run completes
-const LATE_MS = 1_500; // an end noticed later than this was missed (app suspended)
 
 // The Timer tab: countdown, Stop, Presets and the current Lesson's Runs.
-// Dispatches timer:started (inside the tap, so issue 06 can unlock audio) and
-// timer:completed with { run, late } (issue 06 plays the Chime unless late).
+// Dispatches timer:started (inside the tap, so the Chime can unlock audio) and
+// timer:completed with { run, late } (the Chime plays unless late).
 export default class extends Controller {
   static targets = ["countdown", "preset", "lesson", "runs"];
 
@@ -61,10 +60,9 @@ export default class extends Controller {
 
   tick() {
     const now = Date.now();
-    const { state, completed } = teaching.check(getState(), now);
+    const { state, completed, late } = teaching.check(getState(), now);
     if (completed) {
       this.disarm();
-      const late = now - completed.endedAt > LATE_MS;
       if (!late) this.pulse();
       setState(state);
       this.dispatch("completed", { detail: { run: completed, late } });

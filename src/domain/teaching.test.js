@@ -55,7 +55,19 @@ describe("completing a Run", () => {
   });
 
   it("with no Run going, nothing completes", () => {
-    expect(check(empty, t(9))).toEqual({ state: empty, completed: null });
+    expect(check(empty, t(9))).toEqual({ state: empty, completed: null, late: false });
+  });
+});
+
+describe("the Chime at zero", () => {
+  it("is on time when the end is noticed within 1.5 seconds", () => {
+    expect(check(start(empty, 1, t(9)), t(9, 1)).late).toBe(false);
+    expect(check(start(empty, 1, t(9)), t(9, 1, 1) + 500).late).toBe(false);
+  });
+
+  it("is late, so it doesn't play, when the end is noticed more than 1.5 seconds after it", () => {
+    expect(check(start(empty, 1, t(9)), t(9, 1, 1) + 501).late).toBe(true);
+    expect(check(start(empty, 10, t(9)), t(13, 30)).late).toBe(true);
   });
 });
 
