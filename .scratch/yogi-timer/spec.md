@@ -34,6 +34,7 @@ A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keep
 - **Stop** ends the Run, which is saved as a Stopped Run.
 - A Stopped Run shorter than 5 seconds is a **Mis-tap** and is not saved.
 - The countdown is based on the clock: remaining time = planned end time − now, never counted tick by tick. If the app is suspended (screen locked, app in the background), the countdown is correct when it comes back.
+- The Run that is going is saved on the phone along with History. If iOS closes the app completely mid-Run, reopening it continues the countdown, or, if the end has already passed, files the Run as Completed with no late chime.
 - The screen stays awake while a Run is going.
 
 ### Completion
@@ -57,7 +58,7 @@ A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keep
 - A second tab lists past Lessons, newest first. Each row shows the date, start time, number of Runs and total minutes timed (the sum of the actual time each Run ran).
 - Tapping a Lesson shows its Runs: the Preset, the actual time it ran, and whether it was completed or stopped.
 - She can delete a whole Lesson after confirming.
-- History is stored in localStorage as one JSON document on her phone only.
+- History is stored in localStorage as one JSON document on her phone only, together with the Run that is going, if any.
 
 ### Chime
 
@@ -109,5 +110,5 @@ Resolved by issue 01: the chime ignores the silent switch (by design), and the w
 
 ## Notes from issue 01
 
-- The Home Screen app has its own storage, separate from Safari tabs. History only exists in the installed app.
+- The Home Screen app has its own storage, separate from Safari tabs. History only exists in the installed app. This includes the offline cache: the app must be opened once from the Home Screen while online before it works offline (found in issue 02).
 - Audio must be unlocked inside the Teacher's tap (create/resume the `AudioContext` on the Preset tap); after that the chime at zero needs no further tap.
