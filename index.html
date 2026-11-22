@@ -19,8 +19,39 @@
   </head>
   <body data-controller="tabs">
     <main class="panels">
-      <section id="timer-panel" class="panel" role="tabpanel" aria-labelledby="timer-tab" data-tabs-target="panel">
-        <p class="placeholder">Ready</p>
+      <section id="timer-panel" class="panel timer" role="tabpanel" aria-labelledby="timer-tab" data-tabs-target="panel"
+        data-controller="timer" data-ready>
+        <div class="dial">
+          <p class="countdown" role="timer" data-timer-target="countdown">Ready</p>
+          <button class="stop" type="button" data-action="timer#stop">Stop</button>
+        </div>
+        <div class="presets" role="group" aria-label="Presets">
+          <button class="preset" type="button" data-timer-target="preset" data-action="timer#tapPreset" data-timer-preset-param="1"
+            aria-label="1 minute">
+            <span class="preset-label" aria-hidden="true">1<small>min</small></span><span class="preset-confirm" aria-hidden="true">Tap again</span>
+          </button>
+          <button class="preset" type="button" data-timer-target="preset" data-action="timer#tapPreset" data-timer-preset-param="2"
+            aria-label="2 minutes">
+            <span class="preset-label" aria-hidden="true">2<small>min</small></span><span class="preset-confirm" aria-hidden="true">Tap again</span>
+          </button>
+          <button class="preset" type="button" data-timer-target="preset" data-action="timer#tapPreset" data-timer-preset-param="3"
+            aria-label="3 minutes">
+            <span class="preset-label" aria-hidden="true">3<small>min</small></span><span class="preset-confirm" aria-hidden="true">Tap again</span>
+          </button>
+          <button class="preset" type="button" data-timer-target="preset" data-action="timer#tapPreset" data-timer-preset-param="5"
+            aria-label="5 minutes">
+            <span class="preset-label" aria-hidden="true">5<small>min</small></span><span class="preset-confirm" aria-hidden="true">Tap again</span>
+          </button>
+          <button class="preset" type="button" data-timer-target="preset" data-action="timer#tapPreset" data-timer-preset-param="10"
+            aria-label="10 minutes">
+            <span class="preset-label" aria-hidden="true">10<small>min</small></span><span class="preset-confirm" aria-hidden="true">Tap again</span>
+          </button>
+        </div>
+        <div class="chime-slot"><!-- Chime selector, issue 06 --></div>
+        <section class="lesson" aria-labelledby="lesson-heading" data-timer-target="lesson" hidden>
+          <h2 id="lesson-heading">This lesson</h2>
+          <ol class="runs" data-timer-target="runs"></ol>
+        </section>
       </section>
       <section id="history-panel" class="panel" role="tabpanel" aria-labelledby="history-tab" data-tabs-target="panel" hidden>
         <p class="placeholder">No lessons yet</p>

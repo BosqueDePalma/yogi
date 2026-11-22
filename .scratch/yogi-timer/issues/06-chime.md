@@ -28,3 +28,9 @@ Plug the Chimes generated in code into the Run completion, and add the Chime sel
 - Vitest covers loading and saving the choice, including the fallback to Singing bowl.
 
 ## Comments
+
+**2026-11-21, from issue 05:** the timer screen already provides the hooks.
+- `timer:started` (event on the Timer tab, dispatched inside the Preset tap): create or resume the `AudioContext` here.
+- `timer:completed` with `detail: { run, late }`: play the selected Chime unless `late`. `late` uses a 1.5 s rule kept in `timer_controller.js` (`LATE_MS`); move it into a tested function here.
+- The wake lock, including asking again on `visibilitychange → visible`, is already done in issue 05.
+- The selector goes in the empty `.chime-slot` under the Presets.
