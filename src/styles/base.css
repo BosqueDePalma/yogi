@@ -1,0 +1,108 @@
+/* Colour tokens: a calm sand palette by day, warm charcoal by night.
+   Follows the phone's light/dark setting. */
+:root {
+  color-scheme: light dark;
+
+  --bg: #f3ece1;
+  --surface: #fbf7f1;
+  --text: #2e2823;
+  --muted: #7a6e62;
+  --line: #e2d7c7;
+  --accent: #b5793b;
+  --accent-text: #ffffff;
+
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  --font-rounded: ui-rounded, "SF Pro Rounded", -apple-system, system-ui, sans-serif;
+  --radius: 14px;
+  --tabbar-height: 56px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1d1a17;
+    --surface: #27231f;
+    --text: #efe6da;
+    --muted: #a39686;
+    --line: #3a342e;
+    --accent: #d9a35f;
+    --accent-text: #1d1a17;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  overscroll-behavior: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  touch-action: manipulation;
+}
+
+.panels {
+  height: 100%;
+  padding: env(safe-area-inset-top) 16px calc(var(--tabbar-height) + env(safe-area-inset-bottom));
+  overflow-y: auto;
+}
+
+.panel {
+  min-height: 100%;
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+.placeholder {
+  margin: 0;
+  padding-top: 30vh;
+  text-align: center;
+  font-family: var(--font-rounded);
+  font-size: 2rem;
+  color: var(--muted);
+}
+
+.tabbar {
+  position: fixed;
+  inset: auto 0 0 0;
+  display: flex;
+  gap: 8px;
+  padding: 6px 16px calc(6px + env(safe-area-inset-bottom));
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+}
+
+.tab {
+  flex: 1;
+  height: 44px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.tab[aria-selected="true"] {
+  background: var(--accent);
+  color: var(--accent-text);
+}

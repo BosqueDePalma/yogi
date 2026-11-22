@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Yogi Timer</title>
+    <meta name="description" content="One-tap countdown timer for teaching yoga." />
+    <meta name="theme-color" content="#f3ece1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1d1a17" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Yogi Timer" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/icon.svg" sizes="any" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
+    <script type="module" src="/src/main.js"></script>
+  </head>
+  <body data-controller="tabs">
+    <main class="panels">
+      <section id="timer-panel" class="panel" role="tabpanel" aria-labelledby="timer-tab" data-tabs-target="panel">
+        <p class="placeholder">Ready</p>
+      </section>
+      <section id="history-panel" class="panel" role="tabpanel" aria-labelledby="history-tab" data-tabs-target="panel" hidden>
+        <p class="placeholder">No lessons yet</p>
+      </section>
+    </main>
+
+    <nav class="tabbar" role="tablist" aria-label="Sections">
+      <button id="timer-tab" class="tab" role="tab" type="button" aria-controls="timer-panel" aria-selected="true"
+        data-tabs-target="tab" data-action="tabs#select">Timer</button>
+      <button id="history-tab" class="tab" role="tab" type="button" aria-controls="history-panel" aria-selected="false"
+        data-tabs-target="tab" data-action="tabs#select">History</button>
+    </nav>
+  </body>
+</html>

@@ -9,7 +9,7 @@ Blocked by: 08
 ## Checks
 
 - [ ] Install from Safari → Share → Add to Home Screen. The icon and the name "Yogi Timer" look right.
-- [ ] Airplane mode on: the app opens and works fully offline.
+- [ ] Open the installed app **once from the Home Screen while online** (the Home Screen app does not reuse the offline cache Safari downloaded, see issue 02). Then turn Airplane mode on, close the app fully, and reopen it: it opens and works fully offline.
 - [ ] Each Preset (1, 2, 3, 5, 10) starts a Run with one tap, and the countdown is readable from across the room.
 - [ ] The chime sounds at zero with the **silent switch on**.
 - [ ] The Chime selector switches between Singing bowl, Tingsha and Gong, a mid-Run switch changes what plays at zero, and the choice is still there after reopening the app.
