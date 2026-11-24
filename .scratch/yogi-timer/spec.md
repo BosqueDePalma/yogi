@@ -13,7 +13,6 @@ A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keep
 
 ## Non-goals (v1)
 
-- Pause and resume.
 - Custom durations or durations in seconds.
 - A *guaranteed* chime while the phone is locked. It worked on her iPhone, but iOS doesn't promise it (see ADR 0001).
 - Backup or sync. An Export of History may come after v1 ([issue 18](issues/18-history-export.md)).
@@ -31,11 +30,15 @@ A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keep
   - The tapped button changes to "Tap again" for about 3 seconds.
   - A second tap within that window **Replaces** the Run: the current Run is saved as a Stopped Run and a new one starts.
   - If she doesn't tap again, nothing changes.
-- **Stop** ends the Run, which is saved as a Stopped Run.
-- A Stopped Run shorter than 5 seconds is a **Mis-tap** and is not saved.
+- A tap on the Lotus dial **Pauses** the Run and another tap **Resumes** it, as often as she likes ([issue 22](issues/22-pause.md)). The tap acts at once; there is no double tap. In Ready and during 0:00 the dial does nothing. A dial tap while a Preset shows "Tap again" pauses and cancels the confirmation.
+- While paused the countdown holds still and breathes slowly, with "Paused" under it, and the Lotus dial freezes. With Reduce Motion on it only dims. VoiceOver reads the dial as "Pause, 2:41 left" or "Resume, 2:41 left".
+- **Stop** shows only while a Run is paused, in a place under the dial kept free while it counts, so nothing moves. It ends the Run, which is saved as a Stopped Run. Replace works the same from a pause.
+- Paused time doesn't count: the time a Run ran is only the time it was counting. History shows no sign of pauses.
+- A Run still paused when the Lesson Gap has passed since the pause becomes a Stopped Run, ending when it was paused.
+- A Stopped Run that counted for less than 5 seconds is a **Mis-tap** and is not saved.
 - The countdown is based on the clock: remaining time = planned end time − now, never counted tick by tick. If the app is suspended (screen locked, app in the background), the countdown is correct when it comes back.
 - The Run that is going is saved on the phone along with History. If iOS closes the app completely mid-Run, reopening it continues the countdown, or, if the end has already passed, files the Run as Completed with no late chime.
-- The screen stays awake while a Run is going.
+- The screen stays awake while a Run is going, paused included. A Paused Run is saved too, and reopening the app shows it paused at the same point.
 
 ### Completion
 
@@ -93,7 +96,7 @@ A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keep
 │                         [⚙]  │  ← Settings, both tabs
 │    ( lotus timer )          │  ← Lotus dial, Om + "Ready" when idle
 │        3:00                  │  ← big countdown over the lotus
-│       [ Stop ]               │
+│       [ Stop ]               │  ← only while paused; tap the lotus to pause
 ├──────────────────────────────┤
 │  [1] [2] [3] [5] [10]        │  ← Presets, tappable during a Run
 ├──────────────────────────────┤
@@ -122,10 +125,10 @@ Settings open (over the Timer tab, covering the tab bar):
 
 - Built with Vite, Stimulus (`@hotwired/stimulus`), plain HTML, plain modern JavaScript and modern CSS. No TypeScript, no UI framework.
 - `vite-plugin-pwa` provides the web app manifest and the offline service worker.
-- The domain rules (Lessons, Runs, Lesson Gap, Mis-tap, Replace, clock-based countdown) live in plain JavaScript modules with no DOM and no Stimulus. They take the current time as an input, so tests don't depend on the real clock. They are written test-first with Vitest.
+- The domain rules (Lessons, Runs, Pause, Lesson Gap, Mis-tap, Replace, clock-based countdown) live in plain JavaScript modules with no DOM and no Stimulus. They take the current time as an input, so tests don't depend on the real clock. They are written test-first with Vitest.
 - Storage sits behind a small module that reads and writes the History JSON in localStorage.
 - Stimulus controllers only connect the domain modules and storage to the page: the timer, the Preset confirmation, the History list, the Chime and the Chime selector, and the Settings sheet.
-- The Timer tab's own rules (Run completion, the Replace confirmation, the 0:00 pulse, what the countdown shows, and whether the Chime rings) live in a DOM-free module that takes the time as an input. The timer controller only draws what it returns ([issue 08](issues/08-run-screen-module.md)).
+- The Timer tab's own rules (Run completion, Pause, the Replace confirmation, the 0:00 pulse, what the countdown shows, and whether the Chime rings) live in a DOM-free module that takes the time as an input. The timer controller only draws what it returns ([issue 08](issues/08-run-screen-module.md)).
 - The Chime's rules (her saved choice, no preview during a Run, unlocking audio inside a tap) live in a module with no DOM and no Web Audio. The Web Audio player sits behind a seam, so tests use a fake ([issue 10](issues/10-chime-module.md)).
 - The History tab's rows (newest first, date and time, Run count, total, and each Run line) are built by a DOM-free module. The History controller only draws them and asks before a delete ([issue 11](issues/11-history-screen-module.md)).
 - The Lotus dial is drawn with SVG and the Web Animations API, behind `createLotusDial(svg)` in `lotus_dial.js`. The Timer screen module tells it which Run to show and how far it has gone; it keeps no clock of its own ([issue 12](issues/12-lotus-dial.md)).

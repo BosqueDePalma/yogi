@@ -13,15 +13,22 @@ One of the fixed durations that starts a Run with a single tap: 1, 2, 3, 5 or 10
 _Avoid_: Button, option, timer length
 
 **Run**:
-One countdown from a Preset's duration toward zero. A Run belongs to exactly one Lesson.
+One countdown from a Preset's duration toward zero. A Run belongs to exactly one Lesson. While it is going it can be paused and resumed any number of times.
 _Avoid_: Timer, session, round
 
 **Completed Run**:
 A Run that counted all the way down to zero.
 
 **Stopped Run**:
-A Run the Teacher ended before it reached zero. A Stopped Run shorter than 5 seconds is a **Mis-tap** and is not kept in History.
+A Run the Teacher ended before it reached zero, from a pause or by Replacing it. A Stopped Run that counted for less than 5 seconds is a **Mis-tap** and is not kept in History.
 _Avoid_: Cancelled, aborted
+
+**Pause**:
+Holding a Run's countdown where it is, with a tap on the Lotus dial; another tap **Resumes** it. Time spent paused doesn't count as time the Run ran. The Teacher can stop a Run only while it is paused.
+_Avoid_: Hold, freeze
+
+**Paused Run**:
+A Run whose countdown is on hold. A Paused Run still left paused when the Lesson Gap has passed becomes a Stopped Run, ending when it was paused.
 
 **Chime**:
 The sound played once when a Run completes. The Teacher can switch at any time between Singing bowl (the default), Tingsha and Gong.
@@ -32,7 +39,7 @@ The look the Teacher chooses for the app: Glow (the default) or Bead. Each Theme
 _Avoid_: Skin, style, colour scheme
 
 **Replace**:
-Starting a new Run from any Preset while a Run is still going, which the Teacher confirms with a second tap. The replaced Run becomes a Stopped Run. Restarting is replacing with the same Preset.
+Starting a new Run from any Preset while a Run is still going or paused, which the Teacher confirms with a second tap. The replaced Run becomes a Stopped Run. Restarting is replacing with the same Preset.
 _Avoid_: Switch, override
 
 **Lesson**:
