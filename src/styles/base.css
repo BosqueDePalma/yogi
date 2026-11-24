@@ -1,15 +1,16 @@
-/* Colour tokens: a calm sand palette by day, warm charcoal by night.
+/* Colour tokens: Glow, the mala's final glow (pale blue) on a blue-white page by day, deep
+   navy by night (from the theme trial on 2026-11-23, after paleta-c2-mala.jpg).
    Follows the phone's light/dark setting. */
 :root {
   color-scheme: light dark;
 
-  --bg: #f3ece1;
-  --surface: #fbf7f1;
-  --text: #2e2823;
-  --muted: #7a6e62;
-  --line: #e2d7c7;
-  --accent: #b5793b;
-  --accent-text: #ffffff;
+  --bg: #f4f7fe;
+  --surface: #fdfdff;
+  --text: #26345e;
+  --muted: #5d6a96;
+  --line: #dce5fb;
+  --accent: #bcd0f6;
+  --accent-text: #26345e;
 
   /* The Lotus dial's own palette (issue 12): pink lotus, blue mala, gold heart. */
   --lotus-disc: #fffcfa;
@@ -38,15 +39,15 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #1d1a17;
-    --surface: #27231f;
-    --text: #efe6da;
-    --muted: #a39686;
-    --line: #3a342e;
-    --accent: #d9a35f;
-    --accent-text: #1d1a17;
+    --bg: #171a26;
+    --surface: #20243a;
+    --text: #e8edfb;
+    --muted: #9aa6c6;
+    --line: #323a55;
+    --accent: #bcd0f6;
+    --accent-text: #171a26;
 
-    --lotus-disc: #262024;
+    --lotus-disc: #20243a;
     --lotus-thread: #5b3f4a;
     --lotus-bead: #4c3742;
     --lotus-lit: #7f9be0;

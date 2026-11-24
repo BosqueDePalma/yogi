@@ -1,8 +1,8 @@
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
-// Light/dark background colours, kept in step with src/styles/base.css.
-const SAND = "#f3ece1";
+// The light background colour, kept in step with src/styles/base.css.
+const BACKGROUND = "#f4f7fe";
 
 export default defineConfig({
   plugins: [
@@ -19,8 +19,8 @@ export default defineConfig({
         orientation: "portrait",
         start_url: ".",
         scope: ".",
-        background_color: SAND,
-        theme_color: SAND,
+        background_color: BACKGROUND,
+        theme_color: BACKGROUND,
         icons: [
           { src: "pwa-64x64.png", sizes: "64x64", type: "image/png" },
           { src: "pwa-192x192.png", sizes: "192x192", type: "image/png" },

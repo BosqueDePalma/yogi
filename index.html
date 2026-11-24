@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Yogi Timer</title>
     <meta name="description" content="One-tap countdown timer for teaching yoga." />
-    <meta name="theme-color" content="#f3ece1" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#1d1a17" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f4f7fe" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#171a26" media="(prefers-color-scheme: dark)" />
     <meta name="color-scheme" content="light dark" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -15,6 +15,13 @@
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" href="/icon.svg" sizes="any" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
+    <!-- Applies the Teacher's saved theme before the page draws (see src/controllers/theme_controller.js). -->
+    <script>
+      try {
+        const theme = localStorage.getItem("yogi-timer.theme");
+        if (theme === "bead") document.documentElement.dataset.theme = theme;
+      } catch {}
+    </script>
     <script type="module" src="/src/main.js"></script>
   </head>
   <body data-controller="tabs">
@@ -60,6 +67,13 @@
               aria-label="Tingsha"><span aria-hidden="true">Tingsha</span></label>
             <label class="chime-option"><input type="radio" name="chime" value="gong" data-chime-target="option" data-action="chime#choose"
               aria-label="Gong"><span aria-hidden="true">Gong</span></label>
+          </div>
+        </div>
+        <div class="theme" role="radiogroup" aria-labelledby="theme-heading" data-controller="theme">
+          <span id="theme-heading" class="chime-heading">Theme</span>
+          <div class="chime-options">
+            <label class="chime-option"><input type="radio" name="theme" value="glow" data-theme-target="option" data-action="theme#choose"><span>Glow</span></label>
+            <label class="chime-option"><input type="radio" name="theme" value="bead" data-theme-target="option" data-action="theme#choose"><span>Bead</span></label>
           </div>
         </div>
         <section class="lesson" aria-labelledby="lesson-heading" data-timer-target="lesson" hidden>

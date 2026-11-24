@@ -1,0 +1,38 @@
+/* The app's second theme, Bead, chosen with the Theme selector on the Timer tab
+   (theme_controller.js) and applied as <html data-theme="bead">. Glow, the default, is in
+   base.css. Both come from the user's palette, paleta-c2-mala.jpg (2026-11-23). */
+
+/* Bead: the lit beads' blue (#93afed) on a light periwinkle page. */
+:root[data-theme="bead"] {
+  --bg: #eef2fd;
+  --surface: #f8faff;
+  --text: #1e2a52;
+  --muted: #56628c;
+  --line: #d3def8;
+  --accent: #93afed;
+  --accent-text: #1e2a52;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="bead"] {
+    --bg: #141a2e;
+    --surface: #1d2440;
+    --text: #e6ecfc;
+    --muted: #97a4cc;
+    --line: #2f3a5e;
+    --accent: #93afed;
+    --accent-text: #141a2e;
+    --lotus-disc: #1d2440;
+  }
+}
+
+/* The Theme selector, styled like the Chime selector. */
+.theme {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.theme .chime-options {
+  grid-template-columns: repeat(2, 1fr);
+}
