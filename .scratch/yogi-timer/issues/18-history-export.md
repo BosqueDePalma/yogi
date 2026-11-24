@@ -2,7 +2,7 @@
 
 Status: needs-triage
 Type: feature
-Blocked by: 17
+Blocked by: 17, 21
 Blocks: None
 
 **Why:** History lives only on the Teacher's phone. If she removes the app from her Home Screen, or iOS clears its storage, every Lesson is gone, and today there is no way to keep a copy ([ADR 0001](../../../docs/adr/0001-static-home-screen-web-app.md): "there is no backup until an Export feature exists"). An Export in the Settings sheet (issue 17) would let her keep one.

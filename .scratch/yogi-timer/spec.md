@@ -52,6 +52,7 @@ A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keep
 - Calendar days don't matter, so a class running past midnight stays one Lesson.
 - The Teacher never starts or ends a Lesson by hand.
 - The main screen's list of current Lesson Runs is empty once the Lesson Gap has passed since the last Run.
+- On the main screen, "This lesson" lists the current Lesson's Runs newest first, as many as fit, under a heading that counts them all ("This lesson · 5 runs · 14 min"). The Timer tab never scrolls ([issue 21](issues/21-timer-tab-never-scrolls.md)).
 
 ### History
 
@@ -90,15 +91,15 @@ A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keep
 ```
 ┌──────────────────────────────┐
 │                         [⚙]  │  ← Settings, both tabs
-│    ( lotus + mala )          │  ← Lotus dial, Om + "Ready" when idle
+│    ( lotus timer )          │  ← Lotus dial, Om + "Ready" when idle
 │        3:00                  │  ← big countdown over the lotus
 │       [ Stop ]               │
 ├──────────────────────────────┤
 │  [1] [2] [3] [5] [10]        │  ← Presets, tappable during a Run
 ├──────────────────────────────┤
-│ This lesson                  │
-│  3 min · completed           │
+│ This lesson · 2 runs · 6 min │  ← newest first, as many as fit
 │  5 min · stopped 2:41        │
+│  3 min · completed           │
 └──────────────────────────────┘
     [ Timer ] [ History ]       ← tabs
 ```
