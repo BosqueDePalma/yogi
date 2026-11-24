@@ -44,3 +44,72 @@
 .theme .chime-options {
   grid-template-columns: repeat(2, 1fr);
 }
+
+/* Changing theme, or the phone switching between light and dark, eases the colours across.
+   The colour tokens are registered as colours so they can be animated, and :root eases
+   them whenever their values change. Taps that change an element's look ("Tap again", a
+   Run starting, a tab) swap which token it uses rather than a token's value, so they still
+   change at once, and elements keep their own transitions. With Reduce Motion on, or in a
+   browser without @property, the change is instant. Every colour token belongs here. */
+@property --bg { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --surface { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --text { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --muted { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --line { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --accent { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --accent-text { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --selector-track { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --selector-chosen { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --edge { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lotus-disc { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lotus-thread { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lotus-bead { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lotus-lit { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lotus-glow { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lotus-ripple { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lotus-petal-1 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lotus-petal-2 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lotus-petal-3 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lotus-petal-4 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lotus-gold-1 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lotus-gold-2 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lotus-blue-1 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lotus-blue-2 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lotus-blue-3 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lotus-text { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lotus-zero { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lotus-shine { syntax: "<color>"; inherits: true; initial-value: transparent; }
+
+@media (prefers-reduced-motion: no-preference) {
+  :root {
+    transition:
+      --bg 0.25s ease,
+      --surface 0.25s ease,
+      --text 0.25s ease,
+      --muted 0.25s ease,
+      --line 0.25s ease,
+      --accent 0.25s ease,
+      --accent-text 0.25s ease,
+      --selector-track 0.25s ease,
+      --selector-chosen 0.25s ease,
+      --edge 0.25s ease,
+      --lotus-disc 0.25s ease,
+      --lotus-thread 0.25s ease,
+      --lotus-bead 0.25s ease,
+      --lotus-lit 0.25s ease,
+      --lotus-glow 0.25s ease,
+      --lotus-ripple 0.25s ease,
+      --lotus-petal-1 0.25s ease,
+      --lotus-petal-2 0.25s ease,
+      --lotus-petal-3 0.25s ease,
+      --lotus-petal-4 0.25s ease,
+      --lotus-gold-1 0.25s ease,
+      --lotus-gold-2 0.25s ease,
+      --lotus-blue-1 0.25s ease,
+      --lotus-blue-2 0.25s ease,
+      --lotus-blue-3 0.25s ease,
+      --lotus-text 0.25s ease,
+      --lotus-zero 0.25s ease,
+      --lotus-shine 0.25s ease;
+  }
+}

@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Yogi Timer</title>
     <meta name="description" content="One-tap countdown timer for teaching yoga." />
-    <!-- Glow's page colours (--bg in base.css); theme_controller.js switches them for Bead. -->
-    <meta name="theme-color" content="#f4f7fe" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#15171e" media="(prefers-color-scheme: dark)" />
+    <!-- The status bar: each theme's page colour (--bg in base.css and themes.css; keep in step).
+         Glow's is the default; the head script below and theme_controller.js switch to Bead's. -->
+    <meta name="theme-color" content="#f4f7fe" data-glow="#f4f7fe" data-bead="#eef2fd" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#15171e" data-glow="#15171e" data-bead="#111634" media="(prefers-color-scheme: dark)" />
     <meta name="color-scheme" content="light dark" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -16,11 +17,15 @@
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" href="/icon.svg" sizes="any" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
-    <!-- Applies the Teacher's saved theme before the page draws (see src/controllers/theme_controller.js). -->
+    <!-- Applies the Teacher's saved theme and its status bar colour before the page draws.
+         Keep the key and theme names in step with src/controllers/theme_controller.js. -->
     <script>
       try {
         const theme = localStorage.getItem("yogi-timer.theme");
-        if (theme === "bead") document.documentElement.dataset.theme = theme;
+        if (theme === "bead") {
+          document.documentElement.dataset.theme = theme;
+          for (const meta of document.querySelectorAll('meta[name="theme-color"]')) meta.content = meta.dataset.bead;
+        }
       } catch {}
     </script>
     <script type="module" src="/src/main.js"></script>
