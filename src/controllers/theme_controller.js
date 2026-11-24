@@ -1,10 +1,11 @@
 import { Controller } from "@hotwired/stimulus";
 
-// The Theme selector on the Timer tab: Glow (the default, in base.css) or Bead (themes.css).
+// The Theme selector in Settings: Glow (the default, in base.css) or Bead (themes.css).
 // Sets <html data-theme>, keeps the status bar colour in step, and remembers the choice on
 // this phone. The head script in index.html applies the saved theme, status bar included,
 // before the page draws; keep it in step with KEY and THEMES here. The colours ease across
-// in CSS (themes.css).
+// in CSS (themes.css). While the Settings sheet (a modal <dialog>) is open, iOS keeps the
+// status bar colour it had when the sheet opened; it catches up when the sheet closes.
 const KEY = "yogi-timer.theme";
 const DEFAULT = "glow";
 const THEMES = ["glow", "bead"];

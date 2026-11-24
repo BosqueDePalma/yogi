@@ -1,8 +1,22 @@
+import { execSync } from "node:child_process";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
 // The light background colour, kept in step with src/styles/base.css.
 const BACKGROUND = "#f4f7fe";
+
+// The version line in Settings, e.g. "24 Nov 2026 · 304be28": the build date means something
+// to the Teacher, the short commit tells us what her phone has installed. index.html shows it
+// as %VITE_APP_VERSION%, which Vite fills in from the environment.
+function version() {
+  const date = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" }).format(new Date());
+  try {
+    return `${date} · ${execSync("git rev-parse --short HEAD", { encoding: "utf8" }).trim()}`;
+  } catch {
+    return date; // not built from a git checkout
+  }
+}
+process.env.VITE_APP_VERSION = version();
 
 export default defineConfig({
   plugins: [

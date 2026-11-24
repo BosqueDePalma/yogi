@@ -38,8 +38,8 @@ export function createChime({ storage, player, isRunning }) {
       player.unlock();
     },
 
-    // Any tap on the Timer tab. If iOS closed the app mid-Run, reopening it continues the
-    // Run with audio locked; this tap unlocks it so the Chime can play at zero.
+    // Any tap in the app. If iOS closed the app mid-Run, reopening it continues the Run
+    // with audio locked; this tap unlocks it so the Chime can play at zero.
     tap() {
       if (isRunning()) player.unlock();
     },

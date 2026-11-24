@@ -14,6 +14,7 @@
   --selector-track: #cdd8f5; /* the Chime and Theme selectors' background */
   --selector-chosen: var(--surface); /* the chosen option on it: 1.4:1, plus darker text */
   --edge: #7885b5; /* outlines of controls that stand on the page: 3.4:1 on the page */
+  --scrim: rgb(20 26 50 / 0.32); /* dims the page behind the Settings sheet */
 
   /* The Lotus dial's own palette (issue 12): pink lotus, blue mala, gold heart. */
   --lotus-disc: #fffcfa;
@@ -41,6 +42,14 @@
   --font-rounded: ui-rounded, "SF Pro Rounded", -apple-system, system-ui, sans-serif;
   --radius: 14px;
   --tabbar-height: 56px;
+
+  /* The Settings sheet (src/sheet/sheet.css) in the app's colours. */
+  --sheet-bg: var(--surface);
+  --sheet-text: var(--text);
+  --sheet-action: var(--text);
+  --sheet-grabber: var(--edge);
+  --sheet-backdrop: var(--scrim);
+  --sheet-radius: 20px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -57,6 +66,7 @@
     --selector-track: var(--line);
     --selector-chosen: #4a5370; /* lighter than the track, as on iOS: 1.6:1 */
     --edge: #646d8c; /* 3.5:1 on the page */
+    --scrim: rgb(0 0 0 / 0.4); /* a dark page needs a deeper dim to read as dimmed */
 
     --lotus-disc: #1f222d;
     --lotus-thread: #5b3f4a;
@@ -115,6 +125,7 @@ button {
 }
 
 .panel {
+  position: relative;
   min-height: 100%;
 }
 
@@ -157,12 +168,51 @@ button {
   color: var(--accent-text);
 }
 
+/* The gear that opens Settings: top right, in the same place on both tabs, out of the
+   thumb's way. On the Timer tab it sits in the dial's empty corner. */
+.settings-open {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-right: -10px; /* the icon, not the tap area, lines up with the page's edge */
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--muted);
+}
+
+/* Holds the icons' <symbol>s; draws nothing itself. */
+.icons {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.settings-open svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+
+.settings-open:focus-visible {
+  outline: 2px solid var(--text);
+}
+
+.timer > .settings-open {
+  position: absolute;
+  top: 4px;
+  right: 0;
+  z-index: 1;
+}
+
 /* --- Timer tab ------------------------------------------------------------ */
 
 .timer {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px;
   padding-bottom: 24px;
 }
 
@@ -170,14 +220,15 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding-top: 8px;
+  gap: 4px;
 }
 
-/* The Lotus dial, with the countdown laid over the middle of the lotus. */
+/* The Lotus dial, with the countdown laid over the middle of the lotus. The viewBox is cropped
+   to the drawing (index.html), so the lotus fills the screen's width; the gaps above and below
+   are tight, so the Presets sit where they did when the selectors were under them. */
 .lotus-frame {
   position: relative;
-  width: min(100%, 56svh, 460px);
+  width: min(100%, 52svh, 460px);
   container-type: inline-size;
 }
 
@@ -185,17 +236,18 @@ button {
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 1;
+  aspect-ratio: 524 / 556;
+  overflow: visible;
 }
 
 .countdown {
   position: absolute;
   left: 50%;
-  top: 47.3%; /* the middle of the mala, which sits a little above the SVG's middle */
+  top: 43.1%; /* the middle of the mala; the tassel below makes the SVG taller than wide */
   translate: -50% -50%;
   margin: 0;
   font-family: var(--font-rounded);
-  font-size: 22cqi;
+  font-size: 25.2cqi;
   font-weight: 600;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -205,8 +257,8 @@ button {
 }
 
 .timer[data-ready] .countdown {
-  top: 61%;
-  font-size: 9.5cqi;
+  top: 57.9%;
+  font-size: 10.9cqi;
   font-weight: 600;
   letter-spacing: 0.02em;
   color: var(--lotus-text);
@@ -370,7 +422,22 @@ button {
   display: block;
 }
 
-/* Chime selector: a segmented control under the Presets. */
+/* --- Settings sheet ---------------------------------------------------------- */
+
+.settings-rows {
+  display: grid;
+  gap: 16px;
+}
+
+.settings-version {
+  margin: 24px 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Chime selector: a segmented control. */
 .chime {
   display: flex;
   align-items: center;
@@ -460,8 +527,16 @@ button {
 
 /* --- History tab ----------------------------------------------------------- */
 
+/* The heading shares its line with the gear, which sits where it does on the Timer tab. */
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 4px 0 16px;
+}
+
 .history-heading {
-  margin: 24px 0 16px;
+  margin: 0;
   font-family: var(--font-rounded);
   font-size: 2rem;
   font-weight: 700;

@@ -1,6 +1,6 @@
 # Settings sheet
 
-Status: ready-for-agent
+Status: resolved
 Type: feature
 Blocked by: None (can start immediately)
 Blocks: 19
@@ -41,21 +41,70 @@ The sheet is its own module, built so it can be dropped into another app:
 
 ## Acceptance criteria
 
-- [ ] The Timer tab no longer shows the Chime or Theme selector; the dial is bigger and the Presets haven't moved.
-- [ ] The gear opens Settings from the Timer tab and from the History tab.
-- [ ] Settings closes by swiping down, by tapping the backdrop, by tapping "Done" and with Escape. A short swipe that doesn't pass the threshold springs back.
-- [ ] Tapping a Preset above the open sheet only closes the sheet; no Run starts and none is Replaced.
-- [ ] Choosing a Chime with no Run going previews it once; during a Run it switches quietly and that Chime plays at zero. The choice survives a reopen.
+- [x] The Timer tab no longer shows the Chime or Theme selector; the dial is bigger and the Presets haven't moved.
+- [x] The gear opens Settings from the Timer tab and from the History tab.
+- [x] Settings closes by swiping down, by tapping the backdrop, by tapping "Done" and with Escape. A short swipe that doesn't pass the threshold springs back.
+- [x] Tapping a Preset above the open sheet only closes the sheet; no Run starts and none is Replaced.
+- [x] Choosing a Chime with no Run going previews it once; during a Run it switches quietly and that Chime plays at zero. The choice survives a reopen.
 - [ ] Choosing a Theme changes the page behind the sheet straight away, the status bar included, and survives a reopen.
-- [ ] A Run keeps counting while Settings is open, and the Chime plays at zero with the sheet still open.
-- [ ] After the app is reopened mid-Run, opening Settings counts as the tap that unlocks audio.
-- [ ] The version line shows the build date and the short commit.
-- [ ] On a regular iPhone the sheet's top edge sits below the Presets. On iPhone SE it may cover them and still fits on the screen, scrolling inside if needed.
+- [x] A Run keeps counting while Settings is open, and the Chime plays at zero with the sheet still open.
+- [x] After the app is reopened mid-Run, opening Settings counts as the tap that unlocks audio.
+- [x] The version line shows the build date and the short commit.
+- [x] On a regular iPhone the sheet's top edge sits below the Presets. On iPhone SE it may cover them and still fits on the screen, scrolling inside if needed.
 - [ ] With Reduce Motion on, it fades instead of sliding.
 - [ ] VoiceOver reads the gear as "Settings", focus moves into the sheet when it opens and back to the gear when it closes.
-- [ ] The sheet's files import nothing from the rest of the app.
-- [ ] Looks calm in Glow and Bead, light and dark.
-- [ ] Checked in the browser pane at iPhone size.
-- [ ] **Checked in the iOS Simulator as the installed PWA:** in the Simulator's Safari open the Vite dev server on `localhost`, Share → Add to Home Screen, then launch it from the icon. Check the gear clears the notch, the sheet clears the home indicator, swipe-down works with a real touch drag, and the steps above behave the same. Screenshots in the done comment.
+- [x] The sheet's files import nothing from the rest of the app.
+- [x] Looks calm in Glow and Bead, light and dark.
+- [x] Checked in the browser pane at iPhone size.
+- [x] **Checked in the iOS Simulator as the installed PWA:** in the Simulator's Safari open the Vite dev server on `localhost`, Share → Add to Home Screen, then launch it from the icon. Check the gear clears the notch, the sheet clears the home indicator, swipe-down works with a real touch drag, and the steps above behave the same. Screenshots in the done comment.
 
 ## Comments
+
+### 2026-11-24, done.
+
+- **The sheet**, in `src/sheet/`. It imports nothing from Yogi Timer.
+  - `sheet_controller.js` wraps a native `<dialog>` opened with `showModal()`.
+  - `sheet.css` sets the colours, radius, spacing and duration as `--sheet-*` properties.
+  - `swipe.js` follows the finger and decides on lift (8 tests in `swipe.test.js`):
+    - 8 px of wobble is still a tap.
+    - It never moves above its open position.
+    - A slow drag past 30 % of the sheet's height closes it; a shorter one springs back.
+    - A flick of more than 0.5 px/ms closes it.
+    - A finger that rests before lifting springs back.
+    - Moving up at lift springs back.
+  - The controller adds:
+    - swipe down to close;
+    - a backdrop tap to close;
+    - Escape slides it down;
+    - a 600 ms fallback, because animations stall while the page isn't drawn;
+    - a guard that stops the drag's click from choosing the option it ends on.
+  - When the content is too tall and scrolls, only the grabber and the header drag the sheet.
+  - Focus moves into the sheet on open (to Done). On close it goes back to the gear when the sheet was opened from the keyboard or VoiceOver (a click with no pointer behind it). After a finger tap nothing is focused, so iOS draws no ring.
+- **The app.**
+  - There is one gear `<symbol>` with a button on each tab, 4 px below the safe area. On History it shares a line with the heading, so the heading moved up about 20 px.
+  - The chime controller moved to `<body>`, so it reaches the selector in the sheet. Every tap in the app now unlocks audio after a reopen, the gear and the sheet included.
+  - `--sheet-backdrop` comes from a new `--scrim` token, deeper in dark mode.
+  - The version line is `%VITE_APP_VERSION%`. `vite.config.js` fills it in from the build date (`en-GB`) and `git rev-parse --short HEAD`.
+- **The bigger dial.** The lotus was already as wide as the screen at 375 and 402. To grow it, the viewBox is cropped to the drawing (`-262 -256 524 556`), which makes it about 14 % bigger, and the gaps around it are tighter.
+  - The Presets' top edge is at 435 px at 375×667, the same as before, and 464 px at 402×874, 2 px lower than the 462 px before.
+  - The countdown keeps its place and its size relative to the lotus.
+- **Checked in the browser pane** at 375×667 and 402×874:
+  - The sheet top is at 433 px on the SE, over the top edge of the Presets, and at 640 px on the iPhone 17, below them.
+  - The backdrop, Done and Escape each close it, and focus returns.
+  - A Preset tapped above the open sheet only closes it.
+  - A Chime previews with no Run going, and switches quietly during one.
+  - A Run reaches zero with the sheet open and the Chime rings (`timer:ring`, plus one audio graph).
+  - The Theme changes the page and the theme-color metas, and is saved.
+  - A drag closes it, and a drag that starts on Bowl doesn't choose Bowl.
+  - Tapping the History gear after a reopen mid-Run unlocks audio.
+- **Checked in the iOS Simulator** (iPhone 17) as the installed PWA, from `http://127.0.0.1:5173`:
+  - The gear clears the Dynamic Island, and the sheet clears the home indicator.
+  - Real touch drags behave as designed: a short slow drag springs back, a long one closes, and a flick closes.
+  - Bead dark during a Run, Bead light at 0:00 (the Chime rang, shown in the Dynamic Island), and Glow dark all look calm.
+  - Screenshots: [Glow dark](17-settings-sheet/glow-dark-ready.png), [Bead dark, Run](17-settings-sheet/bead-dark-run.png), [Bead light, 0:00](17-settings-sheet/bead-light-zero.png).
+- **Not met: the status bar while the sheet is open.** While a modal `<dialog>` is open, iOS keeps the status bar colour it had when the sheet opened. A Theme chosen in the sheet changes the page straight away, but the status bar only catches up when the sheet closes ([screenshot](17-settings-sheet/status-bar-held.png)). Two fixes didn't help: moving the backdrop below the safe area, and re-presenting the dialog after the change. The way around it would be a non-modal dialog with a hand-made backdrop and `inert`, which gives up what `showModal()` provides. This needs the user's call.
+- **Not checked on a device: Reduce Motion.** The rules parse, and they fade instead of sliding. The Simulator's Settings app wouldn't respond to taps, so I couldn't turn Reduce Motion on.
+- **Not checked: VoiceOver.** Leave it for the real-iPhone test (ticket 20).
+- **Leftovers:**
+  - `data-scrolls` is measured only when the sheet opens.
+  - The lotus crop lives in three places: the viewBox in `index.html`, the percentages in `base.css`, and the comment in `lotus_dial.js`.

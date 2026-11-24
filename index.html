@@ -30,13 +30,20 @@
     </script>
     <script type="module" src="/src/main.js"></script>
   </head>
-  <body data-controller="tabs">
+  <body data-controller="tabs sheet chime" data-action="timer:started->chime#unlock timer:ring->chime#ring">
+    <!-- The gear on the Settings buttons (one on each tab). -->
+    <svg class="icons" aria-hidden="true">
+      <symbol id="gear" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M10.3 4.08L10.59 1.49A10.6 10.6 0 0 1 13.41 1.49L13.7 4.08A8.1 8.1 0 0 1 16.39 5.2L18.43 3.57A10.6 10.6 0 0 1 20.43 5.57L18.8 7.61A8.1 8.1 0 0 1 19.92 10.3L22.51 10.59A10.6 10.6 0 0 1 22.51 13.41L19.92 13.7A8.1 8.1 0 0 1 18.8 16.39L20.43 18.43A10.6 10.6 0 0 1 18.43 20.43L16.39 18.8A8.1 8.1 0 0 1 13.7 19.92L13.41 22.51A10.6 10.6 0 0 1 10.59 22.51L10.3 19.92A8.1 8.1 0 0 1 7.61 18.8L5.57 20.43A10.6 10.6 0 0 1 3.57 18.43L5.2 16.39A8.1 8.1 0 0 1 4.08 13.7L1.49 13.41A10.6 10.6 0 0 1 1.49 10.59L4.08 10.3A8.1 8.1 0 0 1 5.2 7.61L3.57 5.57A10.6 10.6 0 0 1 5.57 3.57L7.61 5.2A8.1 8.1 0 0 1 10.3 4.08ZM15.4 12A3.4 3.4 0 1 0 8.6 12A3.4 3.4 0 1 0 15.4 12Z"/></symbol>
+    </svg>
     <main class="panels">
       <section id="timer-panel" class="panel timer" role="tabpanel" aria-labelledby="timer-tab" data-tabs-target="panel"
-        data-controller="timer chime" data-action="timer:started->chime#unlock timer:ring->chime#ring" data-ready>
+        data-controller="timer" data-ready>
+        <button class="settings-open" type="button" aria-label="Settings" data-action="sheet#open">
+          <svg aria-hidden="true"><use href="#gear"/></svg>
+        </button>
         <div class="dial">
           <div class="lotus-frame">
-            <svg class="lotus" viewBox="-300 -300 600 600" role="img" data-timer-target="lotus"
+            <svg class="lotus" viewBox="-262 -256 524 556" role="img" data-timer-target="lotus"
               aria-label="A mala of 108 beads lights up blue one by one around a blooming lotus; the blue lotus tassel opens when the Run completes"></svg>
             <p class="countdown" role="timer" data-timer-target="countdown">Ready</p>
           </div>
@@ -64,6 +71,44 @@
             <span class="preset-label" aria-hidden="true">10<small>min</small></span><span class="preset-confirm" aria-hidden="true">Tap again</span>
           </button>
         </div>
+        <section class="lesson" aria-labelledby="lesson-heading" data-timer-target="lesson" hidden>
+          <h2 id="lesson-heading">This lesson</h2>
+          <ol class="runs" data-timer-target="runs"></ol>
+        </section>
+      </section>
+      <section id="history-panel" class="panel history" role="tabpanel" aria-labelledby="history-tab" data-tabs-target="panel"
+        data-controller="history" hidden>
+        <header class="history-header">
+          <h1 class="history-heading">History</h1>
+          <button class="settings-open" type="button" aria-label="Settings" data-action="sheet#open">
+            <svg aria-hidden="true"><use href="#gear"/></svg>
+          </button>
+        </header>
+        <p class="history-unsaved" role="status" data-history-target="unsaved" hidden>
+          <strong>History isn't being saved on this phone.</strong> New runs will be lost when the app closes.
+        </p>
+        <div class="history-empty" data-history-target="empty">
+          <p class="placeholder">No lessons yet</p>
+          <p class="history-hint">Each lesson appears here after its first Run.</p>
+        </div>
+        <ol class="history-lessons" data-history-target="list" hidden></ol>
+      </section>
+    </main>
+
+    <nav class="tabbar" role="tablist" aria-label="Sections">
+      <button id="timer-tab" class="tab" role="tab" type="button" aria-controls="timer-panel" aria-selected="true"
+        data-tabs-target="tab" data-action="tabs#select">Timer</button>
+      <button id="history-tab" class="tab" role="tab" type="button" aria-controls="history-panel" aria-selected="false"
+        data-tabs-target="tab" data-action="tabs#select">History</button>
+    </nav>
+
+    <dialog class="sheet settings" data-sheet-target="dialog" aria-labelledby="settings-title">
+      <div class="sheet-grabber" aria-hidden="true"></div>
+      <header class="sheet-header">
+        <h2 id="settings-title" class="sheet-title">Settings</h2>
+        <button class="sheet-done" type="button" data-action="sheet#close">Done</button>
+      </header>
+      <div class="settings-rows">
         <div class="chime" role="radiogroup" aria-labelledby="chime-heading">
           <span id="chime-heading" class="chime-heading">Chime</span>
           <div class="chime-options">
@@ -82,30 +127,8 @@
             <label class="chime-option"><input type="radio" name="theme" value="bead" data-theme-target="option" data-action="theme#choose"><span>Bead</span></label>
           </div>
         </div>
-        <section class="lesson" aria-labelledby="lesson-heading" data-timer-target="lesson" hidden>
-          <h2 id="lesson-heading">This lesson</h2>
-          <ol class="runs" data-timer-target="runs"></ol>
-        </section>
-      </section>
-      <section id="history-panel" class="panel history" role="tabpanel" aria-labelledby="history-tab" data-tabs-target="panel"
-        data-controller="history" hidden>
-        <h1 class="history-heading">History</h1>
-        <p class="history-unsaved" role="status" data-history-target="unsaved" hidden>
-          <strong>History isn't being saved on this phone.</strong> New runs will be lost when the app closes.
-        </p>
-        <div class="history-empty" data-history-target="empty">
-          <p class="placeholder">No lessons yet</p>
-          <p class="history-hint">Each lesson appears here after its first Run.</p>
-        </div>
-        <ol class="history-lessons" data-history-target="list" hidden></ol>
-      </section>
-    </main>
-
-    <nav class="tabbar" role="tablist" aria-label="Sections">
-      <button id="timer-tab" class="tab" role="tab" type="button" aria-controls="timer-panel" aria-selected="true"
-        data-tabs-target="tab" data-action="tabs#select">Timer</button>
-      <button id="history-tab" class="tab" role="tab" type="button" aria-controls="history-panel" aria-selected="false"
-        data-tabs-target="tab" data-action="tabs#select">History</button>
-    </nav>
+      </div>
+      <p class="settings-version">Version %VITE_APP_VERSION%</p>
+    </dialog>
   </body>
 </html>

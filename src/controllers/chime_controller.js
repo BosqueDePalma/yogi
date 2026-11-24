@@ -3,8 +3,9 @@ import * as player from "../audio/player.js";
 import { store } from "../app_store.js";
 import { createChime } from "../chime.js";
 
-// The Chime selector, and the Chime at zero. The rules live in chime.js; this controller
-// forwards the selector, the timer's events (timer:started, timer:ring) and Timer-tab taps.
+// The Chime selector (in Settings), and the Chime at zero. The rules live in chime.js; this
+// controller sits on <body> and forwards the selector, the timer's events (timer:started,
+// timer:ring) and every tap in the app, the Settings sheet's included.
 export default class extends Controller {
   static targets = ["option"];
 

@@ -56,7 +56,8 @@ const onCircle = (r, deg) => [r * Math.sin((deg * Math.PI) / 180), -r * Math.cos
 // A lens-shaped petal pointing up from (0, 0).
 const lens = (h, r) => `M0 0A${r} ${r} 0 0 1 0 ${-h}A${r} ${r} 0 0 1 0 0Z`;
 
-// `svg` is an empty <svg viewBox="-300 -300 600 600">. Returns { update, destroy }.
+// `svg` is an empty <svg> centred on 0,0: the drawing reaches about 250 out, and the tassel
+// hangs down to 300 (index.html crops the viewBox to that). Returns { update, destroy }.
 export function createLotusDial(svg, { reducedMotion = false } = {}) {
   const mala = draw("g", { transform: "translate(0 -16)" }, svg);
   draw("circle", { class: "lotus-disc", r: RADIUS - 16 }, mala);

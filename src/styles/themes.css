@@ -1,4 +1,4 @@
-/* The app's second theme, Bead, chosen with the Theme selector on the Timer tab
+/* The app's second theme, Bead, chosen with the Theme selector in Settings
    (theme_controller.js) and applied as <html data-theme="bead">. Glow, the default, is in
    base.css. Both come from the user's palette, paleta-c2-mala.jpg (2026-11-23). */
 
@@ -61,6 +61,7 @@
 @property --selector-track { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --selector-chosen { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --edge { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --scrim { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --lotus-disc { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --lotus-thread { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --lotus-bead { syntax: "<color>"; inherits: true; initial-value: transparent; }
@@ -93,6 +94,7 @@
       --selector-track 0.25s ease,
       --selector-chosen 0.25s ease,
       --edge 0.25s ease,
+      --scrim 0.25s ease,
       --lotus-disc 0.25s ease,
       --lotus-thread 0.25s ease,
       --lotus-bead 0.25s ease,

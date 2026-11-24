@@ -1,0 +1,123 @@
+/* A bottom sheet (sheet_controller.js): a <dialog class="sheet"> that slides up from the
+   bottom edge, as tall as its content and at most 90 % of the screen, scrolling inside if it
+   still doesn't fit. With Reduce Motion on it fades instead of sliding.
+
+   Fit it to an app by setting any of these on :root (or an ancestor of the dialog):
+     --sheet-bg         the sheet's background                    (default Canvas)
+     --sheet-text       its text                                  (default CanvasText)
+     --sheet-action     the Done button                           (default: the text colour)
+     --sheet-grabber    the grabber bar                           (default: grey)
+     --sheet-backdrop   the dimmed page behind it                 (default: 30 % black)
+     --sheet-radius     its top corners                           (default 14px)
+     --sheet-padding    its side and bottom padding               (default 16px)
+     --sheet-duration   how long it slides, or fades              (default 0.3s) */
+
+.sheet {
+  position: fixed;
+  inset: auto 0 0 0;
+  width: 100%;
+  max-width: 100%;
+  max-height: 90svh;
+  margin: 0;
+  padding: 0 var(--sheet-padding, 16px) calc(var(--sheet-padding, 16px) + env(safe-area-inset-bottom));
+  border: 0;
+  border-radius: var(--sheet-radius, 14px) var(--sheet-radius, 14px) 0 0;
+  background: var(--sheet-bg, Canvas);
+  color: var(--sheet-text, CanvasText);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  outline: none;
+  /* Follows the finger while it's dragged down (the controller sets --sheet-offset). */
+  translate: 0 var(--sheet-offset, 0px);
+  transition: translate var(--sheet-duration, 0.3s) cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* With room for it all, a drag anywhere on it moves it, not the page; when it scrolls, only
+   the top bar does. */
+.sheet:not([data-scrolls]),
+.sheet-grabber,
+.sheet-header {
+  touch-action: none;
+}
+
+.sheet[data-dragging] {
+  transition: none;
+}
+
+@starting-style {
+  .sheet[open] {
+    translate: 0 100%;
+  }
+}
+
+.sheet[data-closing] {
+  translate: 0 100%;
+}
+
+.sheet::backdrop {
+  background: var(--sheet-backdrop, rgb(0 0 0 / 0.3));
+  transition: opacity var(--sheet-duration, 0.3s) ease;
+}
+
+@starting-style {
+  .sheet[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+.sheet[data-closing]::backdrop {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet {
+    transition: opacity var(--sheet-duration, 0.3s) ease;
+  }
+
+  @starting-style {
+    .sheet[open] {
+      translate: 0 0;
+      opacity: 0;
+    }
+  }
+
+  .sheet[data-closing] {
+    translate: 0 var(--sheet-offset, 0px); /* fades where the finger left it */
+    opacity: 0;
+  }
+}
+
+.sheet-grabber {
+  width: 36px;
+  height: 5px;
+  margin: 6px auto 0;
+  border-radius: 3px;
+  background: var(--sheet-grabber, rgb(128 128 128 / 0.45));
+}
+
+.sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  margin-bottom: 8px;
+}
+
+.sheet-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.sheet-done {
+  min-width: 44px;
+  min-height: 44px;
+  margin-right: -4px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: var(--sheet-action, inherit);
+  font: inherit;
+  font-weight: 600;
+}
