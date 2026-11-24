@@ -27,6 +27,10 @@ _Avoid_: Cancelled, aborted
 The sound played once when a Run completes. The Teacher can switch at any time between Singing bowl (the default), Tingsha and Gong.
 _Avoid_: Alarm, beep, bell, notification
 
+**Theme**:
+The look the Teacher chooses for the app: Glow (the default) or Bead. Each Theme follows the phone's light or dark mode.
+_Avoid_: Skin, style, colour scheme
+
 **Replace**:
 Starting a new Run from any Preset while a Run is still going, which the Teacher confirms with a second tap. The replaced Run becomes a Stopped Run. Restarting is replacing with the same Preset.
 _Avoid_: Switch, override

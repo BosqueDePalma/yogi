@@ -34,4 +34,4 @@ Checked:
 - **Browser pane (dev server):** start, the "Tap again" confirmation and its 3 s timeout, Replace, a live completion (0:00 pulse, then Ready; event `late: false`), Mis-tap dropped, Stop, a reload after a saved Run's end (filed Completed, no pulse), a reload mid-Run (countdown continues), light and dark.
 - **iOS Simulator, installed Home Screen app (production build):** 1 min completed, 3 min stopped (0:11), Replace 2 → 10 min (2 min saved as stopped 0:28), lock 10 s mid-Run then unlock (countdown correct), app fully closed mid-Run and reopened (Run and "This lesson" list intact).
 
-**Finding (updates):** an installed app picks up a new version one launch late. The old service worker serves its cache while the new one installs, so the new version shows on the next full reopen. That's fine for her; worth knowing when we ship fixes (issue 17).
+**Finding (updates):** an installed app picks up a new version one launch late. The old service worker serves its cache while the new one installs, so the new version shows on the next full reopen. That's fine for her; worth knowing when we ship fixes (issue 19).

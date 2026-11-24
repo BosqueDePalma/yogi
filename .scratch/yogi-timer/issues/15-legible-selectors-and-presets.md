@@ -3,7 +3,7 @@
 Status: resolved
 Type: task
 Blocked by: 14
-Blocks: 17
+Blocks: 19
 
 **What to build:** in Glow and Bead, light and dark, the Teacher can always tell which Chime and which Theme are chosen, and can always see where the Presets are during a Run.
 
@@ -42,7 +42,7 @@ All contrast figures are WCAG ratios, given as Glow light / Bead light / Glow da
 - **Presets show their outline during a Run.** A new `--edge` token draws outlines for controls that stand on the page: 3.36 / 3.33 / 3.50 / 3.50 against the page, up from 1.18–1.55.
 - **The Stop button uses the same outline.** It sits right above the Presets and had the same faint border, so it was changed too. This goes slightly beyond the ticket. The History tab's delete button keeps `--line`, because it sits inside a card, not on the page.
 - **Focus ring.** Unchanged since issue 14: it uses the text colour, at 9.5–10.3 on the selectors and at least 5.4 next to the chosen option.
-- **Alignment.** The CHIME and THEME headings share a minimum width of 4.2em. Both option groups now start at 85.1 px and are 273.9 px wide at 375 px. It is em-based, so it follows the text size; to be confirmed with SF on the iPhone (issue 18).
+- **Alignment.** The CHIME and THEME headings share a minimum width of 4.2em. Both option groups now start at 85.1 px and are 273.9 px wide at 375 px. It is em-based, so it follows the text size; to be confirmed with SF on the iPhone (issue 20).
 - **Bug found during the check, then fixed.** One alias made Bead dark take Bead light's selector background: the theme block outranks the generic dark block. Bead dark now restates it. The computed colours were then checked in all four themes.
 - **Checks:**
   - In the browser at iPhone size: light Glow and Bead during a Run; dark Glow and Bead in Ready and during a Run, with screenshots.

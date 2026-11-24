@@ -3,7 +3,7 @@
 Status: resolved
 Type: task
 Blocked by: None (can start immediately)
-Blocks: 17
+Blocks: 19
 
 **What to build:** tapping Glow or Bead, or the phone switching between light and dark, eases the colours across in about a quarter of a second, not a hard cut. The status bar shows the right colour for Bead from the moment the app opens.
 
@@ -46,4 +46,4 @@ Found in the theme review of 2026-11-23:
   - A real reload with Bead saved opened in Bead with Bead's status bar colours and no fade.
   - The fade exists only under `prefers-reduced-motion: no-preference`.
   - 82 tests pass and the build is clean, with all 28 `@property` rules in the built CSS.
-- ⚠️ **For the iPhone (issue 18).** While the 0.25 s fade runs, every element using the tokens is restyled each frame, including the Lotus dial's ~400 SVG shapes. On the phone, check that a switch mid-Run doesn't stutter. Issue 18 now has this line.
+- ⚠️ **For the iPhone (issue 20).** While the 0.25 s fade runs, every element using the tokens is restyled each frame, including the Lotus dial's ~400 SVG shapes. On the phone, check that a switch mid-Run doesn't stutter. Issue 20 now has this line.

@@ -3,7 +3,7 @@
 Status: resolved
 Type: task
 Blocked by: None (can start immediately)
-Blocks: 17
+Blocks: 19
 
 **What to build:** the moment a Run reaches zero looks calm and legible in every theme, light and dark. The Teacher sees a clear **0:00** while the Lotus dial celebrates, then the picture settles into Ready without the Ready screen landing on top of the fading lotus.
 

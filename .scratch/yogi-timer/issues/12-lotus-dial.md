@@ -3,7 +3,7 @@
 Status: resolved
 Type: feature
 Blocked by: 08
-Blocks: 17
+Blocks: 19
 
 The Timer tab's countdown gets a picture: a mala of 108 beads that light up blue one by one around a pink lotus that blooms over the Run. A blue lotus tassel hangs from the guru bead and opens when the Run completes. The animation is the user's own design, kept in [prototypes/lotus-dial/mala-demo.html](../prototypes/lotus-dial/mala-demo.html). Decided in the grilling session of 2026-11-23.
 
@@ -19,7 +19,7 @@ The Timer tab's countdown gets a picture: a mala of 108 beads that light up blue
 - **Layout:** the dial replaces today's `.dial` and spans the width at the top. Below it come Stop, the Presets and the Chime selector, with "This lesson" further down (it can scroll). Check it at 375×667 (iPhone SE).
 - **Reduced motion:** with `prefers-reduced-motion`, beads and petals appear with a plain fade: no bounce, no sway, no ripples. Progress still shows.
 - **Wording:** the accessible label says "when the Run completes", not "round" (see GLOSSARY).
-- **Battery:** about 150 animated SVG elements for up to 10 minutes with the screen kept awake. Accepted for now; checked in the real-iPhone test ([issue 18](18-real-iphone-acceptance-test.md)). Fallback if it drains or stutters: redraw on the 250 ms tick instead of every frame.
+- **Battery:** about 150 animated SVG elements for up to 10 minutes with the screen kept awake. Accepted for now; checked in the real-iPhone test ([issue 20](20-real-iphone-acceptance-test.md)). Fallback if it drains or stutters: redraw on the 250 ms tick instead of every frame.
 
 ## Ready symbol
 
@@ -41,4 +41,4 @@ The other options, not chosen:
 - **Checked in the browser** at 375×667, light and dark: Ready with Om, jumping to 60 % of a 10-minute Run, one Chime at zero, the celebration, fading back to Ready at about +6 s with every Run element removed, Stop fading in about 0.6 s, Replace starting the bloom over, and a Run noticed late showing no celebration and no Chime. With `reducedMotion`, no animation moves anything (opacity only), there are no ripples and no sway. No console errors.
 - **Checked in the iOS Simulator** (Safari on iPhone 17, dev server): Ready with Om, a 1-minute Run blooming smoothly, the Chime at zero (audio indicator), and back to Ready with the Run in "This lesson".
 - **Differs from the decisions:** a Run noticed late fades out in 0.6 s like a Stop, instead of vanishing at once. There is still no celebration and no Chime.
-- **Known, left for the real-iPhone test (issue 18):** the re-seek when the picture drifts more than 300 ms may fire often if iOS throttles frames (Low Power Mode). Reduce Motion is read when the app opens, so switching it needs a reopen.
+- **Known, left for the real-iPhone test (issue 20):** the re-seek when the picture drifts more than 300 ms may fire often if iOS throttles frames (Low Power Mode). Reduce Motion is read when the app opens, so switching it needs a reopen.

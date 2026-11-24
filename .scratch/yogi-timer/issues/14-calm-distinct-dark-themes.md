@@ -3,7 +3,7 @@
 Status: resolved
 Type: task
 Blocked by: None (can start immediately)
-Blocks: 15, 17
+Blocks: 15, 19
 
 **What to build:** with the phone in dark mode, the Timer tab is calm in a dim room and the Theme selector does something you can see. Glow and Bead each have a dark version that looks like itself.
 
