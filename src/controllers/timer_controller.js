@@ -5,13 +5,13 @@ import { createTimerScreen } from "../timer_screen.js";
 
 const TICK_MS = 250;
 
-// The Timer tab. The rules live in timer_screen.js; this controller forwards taps and
-// the time to it, draws what it returns (the Lotus dial included), and keeps the screen
-// awake during a Run.
+// The Timer tab. The rules live in timer_screen.js; this controller forwards taps (on the
+// Presets, the Lotus dial and Stop) and the time to it, draws what it returns (the Lotus dial
+// included), and keeps the screen awake during a Run, paused or not.
 // Dispatches timer:started (inside the tap, so the Chime can unlock audio) and
 // timer:ring (the Run reached zero on time, so the Chime plays).
 export default class extends Controller {
-  static targets = ["countdown", "lotus", "preset", "lesson", "lessonHeading", "runs"];
+  static targets = ["countdown", "lotus", "dialToggle", "preset", "lesson", "lessonHeading", "runs"];
 
   connect() {
     this.screen = createTimerScreen(store);
@@ -41,6 +41,11 @@ export default class extends Controller {
     this.apply(this.screen.tapPreset(preset, now), now);
   }
 
+  tapDial() {
+    const now = Date.now();
+    this.apply(this.screen.tapDial(now), now);
+  }
+
   stop() {
     const now = Date.now();
     this.apply(this.screen.stop(now), now);
@@ -63,11 +68,13 @@ export default class extends Controller {
   // --- Drawing -------------------------------------------------------------------
 
   render(view) {
-    this.element.toggleAttribute("data-running", view.mode === "running");
+    this.element.toggleAttribute("data-running", view.running); // counting or paused
+    this.element.toggleAttribute("data-paused", view.mode === "paused");
     this.element.toggleAttribute("data-pulsing", view.mode === "pulsing");
     this.element.toggleAttribute("data-settling", view.mode === "settling");
     this.element.toggleAttribute("data-ready", view.mode === "ready");
     this.countdownTarget.textContent = view.countdown;
+    this.renderDialToggle(view.dialLabel);
     this.lotus.update(view.dial, view.mode);
     for (const button of this.presetTargets) {
       const armed = Number(button.dataset.timerPresetParam) === view.armedPreset;
@@ -75,6 +82,13 @@ export default class extends Controller {
       button.setAttribute("aria-label", armed ? `Tap again to replace with ${button.dataset.label}` : button.dataset.label);
     }
     this.renderLesson(view.lessonHeading, view.lessonRuns);
+  }
+
+  // A button over the whole Lotus dial, there only while a Run is going.
+  renderDialToggle(label) {
+    const toggle = this.dialToggleTarget;
+    toggle.hidden = !label;
+    if (label && toggle.getAttribute("aria-label") !== label) toggle.setAttribute("aria-label", label);
   }
 
   renderLesson(heading, lines) {

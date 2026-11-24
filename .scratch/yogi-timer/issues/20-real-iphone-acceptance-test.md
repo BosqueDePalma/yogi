@@ -22,7 +22,7 @@ Blocked by: 19
 - [ ] After the History rework (issue 11): Lessons newest first with the same text, an open Lesson stays open, and deleting still asks first.
 - [ ] The Lotus dial (issue 12): a 10-minute Run stays smooth and doesn't drain the battery noticeably; reopening mid-Run jumps to the right point; it looks right in light and dark mode, and with Reduce Motion on.
 - [ ] Stop, Replace ("Tap again") and Mis-tap (< 5 s) all behave as in the spec.
-- [ ] Pause (issue 22): a tap on the lotus pauses at once and another resumes; a paused countdown is obvious from across the room; Stop shows only while paused. With VoiceOver the dial reads "Pause, … left" and "Resume, … left", and Stop can be reached. With Reduce Motion on, the paused countdown only dims. A stray tap mid-class is easy to notice and undo.
+- [ ] Pause (issue 22): a tap on the lotus pauses at once and another resumes; a paused countdown is obvious from across the room; Stop shows only while paused. With VoiceOver the dial reads "Pause, … left" and "Resume, … left", and Stop can be reached. With Reduce Motion on, the paused countdown only dims. A stray tap mid-class is easy to notice and undo. With VoiceOver on the dial while a Run counts, check it doesn't re-read the label every second, and where focus lands after Stop and at zero.
 - [ ] A Run more than 90 minutes after the last one starts a new Lesson.
 - [ ] After an update is published, the Chime choice and History are still there (see issue 07).
 - [ ] History shows Lessons correctly, and deleting a Lesson works and sticks after closing and reopening the app.

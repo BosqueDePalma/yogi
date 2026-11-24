@@ -370,6 +370,60 @@ button {
   transition: opacity 1.5s ease-in-out;
 }
 
+/* "Paused", under the paused countdown. */
+.paused-note {
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  translate: -50% -50%;
+  margin: 0;
+  font-size: 6.5cqi;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-shadow: 0 0 0.3em var(--lotus-disc), 0 0 0.6em var(--lotus-disc);
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+
+/* A Paused Run: the countdown breathes, so a clock standing still shows from across the
+   room. With Reduce Motion on it only dims. */
+.timer[data-paused] .paused-note {
+  opacity: 1;
+}
+
+.timer[data-paused] .countdown {
+  animation: breathe 2s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timer[data-paused] .countdown {
+    animation: none;
+    opacity: 0.5;
+  }
+}
+
+/* The whole Lotus dial, tassel included, is the button that pauses and resumes a Run. */
+.dial-toggle {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+}
+
+.dial-toggle:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: -4px;
+}
+
 .stop {
   min-width: 160px;
   height: 52px;
@@ -380,7 +434,8 @@ button {
   font-weight: 600;
 }
 
-.timer:not([data-running]) .stop {
+/* Stop shows only while a Run is paused; its place stays kept, so nothing moves. */
+.timer:not([data-paused]) .stop {
   visibility: hidden;
 }
 
@@ -409,7 +464,7 @@ button {
   opacity: 0.85;
 }
 
-/* During a Run the Presets step back; they still work, with a confirmation. */
+/* During a Run, paused or not, the Presets step back; they still work, with a confirmation. */
 .timer[data-running] .preset {
   background: var(--surface);
   color: var(--text);

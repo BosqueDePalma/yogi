@@ -1,6 +1,6 @@
 # Pause
 
-Status: ready-for-agent
+Status: resolved
 Type: feature
 Blocked by: None (can start immediately)
 Blocks: 18
@@ -41,20 +41,21 @@ Pause was a v1 non-goal in the spec, with no reason written down. Nothing blocks
 
 ## Acceptance criteria
 
-- [ ] A tap on the dial pauses a counting Run at once, and another tap resumes it from the same remaining time. This works several times in one Run.
-- [ ] While counting there is no Stop button and its place is empty. While paused, Stop shows there, and a tap on it saves a Stopped Run. Nothing on the Timer tab moves between the two.
-- [ ] In Ready, at 0:00 and while settling, a tap on the dial does nothing.
-- [ ] A dial tap while a Preset shows "Tap again" pauses the Run and cancels the confirmation.
-- [ ] Replace from a Paused Run works as from a counting one ("Tap again", then the Run is Replaced and saved as Stopped).
-- [ ] Paused time is left out of the History line, the Lesson's total (History and the "This lesson" heading) and the Mis-tap rule.
-- [ ] A Run left paused past the Lesson Gap is filed as a Stopped Run ending when it was paused.
-- [ ] A Paused Run survives closing and reopening the app, still paused at the same point.
-- [ ] While paused the countdown breathes and reads "Paused", and the Lotus dial is frozen. With Reduce Motion on, the countdown only dims.
+- [x] A tap on the dial pauses a counting Run at once, and another tap resumes it from the same remaining time. This works several times in one Run.
+- [x] While counting there is no Stop button and its place is empty. While paused, Stop shows there, and a tap on it saves a Stopped Run. Nothing on the Timer tab moves between the two.
+- [x] In Ready, at 0:00 and while settling, a tap on the dial does nothing.
+- [x] A dial tap while a Preset shows "Tap again" pauses the Run and cancels the confirmation.
+- [x] Replace from a Paused Run works as from a counting one ("Tap again", then the Run is Replaced and saved as Stopped).
+- [x] Paused time is left out of the History line, the Lesson's total (History and the "This lesson" heading) and the Mis-tap rule.
+- [x] A Run left paused past the Lesson Gap is filed as a Stopped Run ending when it was paused.
+- [x] A Paused Run survives closing and reopening the app, still paused at the same point.
+- [x] While paused the countdown breathes and reads "Paused", and the Lotus dial is frozen.
+- [ ] With Reduce Motion on, the countdown only dims. (The rule is in place; not seen on a device, see the done comment.)
 - [ ] VoiceOver reads the dial as "Pause, … left" and "Resume, … left".
-- [ ] The screen stays awake while paused.
-- [ ] History saved before this change still loads and shows the same lines and totals.
-- [ ] The Timer tab still never scrolls at 375 × 667 and 402 × 874, counting and paused.
-- [ ] **Checked in the iOS Simulator as the installed web app**, launched from its Home Screen icon (not a Safari tab), with real taps. Screenshots in the done comment.
+- [x] The screen stays awake while paused. (`view()` keeps `running` true while paused, which holds the wake lock; the lock itself is for the real-iPhone test.)
+- [x] History saved before this change still loads and shows the same lines and totals.
+- [x] The Timer tab still never scrolls at 375 × 667 and 402 × 874, counting and paused.
+- [x] **Checked in the iOS Simulator as the installed web app**, launched from its Home Screen icon (not a Safari tab), with real taps. Screenshots in the done comment.
   - A tap on the lotus pauses at once and another resumes. A quick second tap doesn't zoom the page or act as a double tap.
   - While paused, Stop shows in its place and saves a Stopped Run that joins "This lesson" at the top.
   - The paused countdown breathes and the Lotus dial is frozen.
@@ -71,3 +72,45 @@ Pause was a v1 non-goal in the spec, with no reason written down. Nothing blocks
 - VoiceOver and Reduce Motion on a device go to the real-iPhone test ([issue 20](20-real-iphone-acceptance-test.md)).
 
 ## Comments
+
+### 2026-11-24, done.
+
+- **The rules**, in `teaching.js`.
+  - `pause()` and `resume()`, and `isPaused()` to ask.
+  - A paused Run keeps `pausedAt`. On Resume the planned end moves on by the time paused, and that time adds up in `pausedMs`. A Run never paused keeps exactly the shape saved before, so old History loads as it was.
+  - `ranMs()` is the time a Run counted. History's total, "This lesson" and the "stopped m:ss" line (`format.js`) all use it, and so does the Mis-tap rule.
+  - `check()` never completes a paused Run. One left paused past the Lesson Gap is filed as Stopped, ending when it was paused.
+  - 11 new tests.
+- **The Timer screen**, in `timer_screen.js`.
+  - `tapDial()` pauses or resumes, and cancels "Tap again". With no Run going it does nothing.
+  - `stop()` works only while paused.
+  - `view()` adds the mode `"paused"` and `dialLabel` ("Pause, 2:41 left" / "Resume, 2:41 left"). The Lotus dial's elapsed time stands still while paused. `running` stays true while paused, so the screen stays awake.
+  - `tick()` also saves a pause filed by the Lesson Gap.
+  - 9 new tests. The old ones that stopped a counting Run now pause it first.
+- **The page.**
+  - A transparent button covers the whole Lotus dial, tassel included. It's there only while a Run is going, labelled for VoiceOver from `dialLabel`.
+  - Stop's place is kept and Stop shows only with `data-paused`, so nothing moves.
+  - The paused countdown breathes (2 s), "PAUSED" shows under it, and with Reduce Motion on it only dims.
+  - `lotus_dial.js` pauses every animation, the tassel's sway included, and carries on from the same point on Resume.
+- **Checked in the browser pane** at 375 × 667 and 402 × 874.
+  - Pause, Resume, Stop only while paused ("3 min · stopped 0:08" for about 8 s of counting with about 4 s paused), and Replace from a pause.
+  - A reload keeps the Run paused at the same point, with the dial at the same place.
+  - The Timer panel's `scrollHeight` equals its `clientHeight`, paused too. The Presets are still at 464 px at 402 × 874.
+  - The gear stays above the dial's button.
+  - History saved before this change still loads.
+- **Checked in the iOS Simulator** (iPhone 17), as the installed web app opened from its Home Screen icon, with real taps.
+  - A tap on the lotus pauses at once. Two quick taps resume and pause again (2:56 → 2:55), with no zoom.
+  - The app was closed from the app switcher while paused and reopened from the icon: still paused at 2:55. Stop then saved "3 min · stopped 0:05" at the top of "This lesson".
+  - A 1-minute Run was paused, closed, reopened (still at 0:58), and resumed. It reached 0:00 with the celebration, and the Chime played: the speaker shows in the Dynamic Island.
+  - Replace from a pause works ("Tap again", then the new Run counts).
+  - The Settings sheet opens over a Paused Run.
+  - Screenshots: [Glow light](22-pause/glow-light-paused.png), [Glow light, reopened](22-pause/glow-light-reopened-paused.png), [Settings over a pause](22-pause/glow-light-settings-over-pause.png), [Bead dark](22-pause/bead-dark-paused.png), [Bead dark, 0:00 after reopen](22-pause/bead-dark-zero-after-reopen.png), [Bead light, Tap again](22-pause/bead-light-paused-tap-again.png), [Glow dark](22-pause/glow-dark-paused.png).
+- **Not checked on a device:**
+  - **Reduce Motion.** The rule only dims the countdown, but it wasn't seen on a phone.
+  - **VoiceOver.** The label is in the DOM ("Resume, 2:54 left"), but VoiceOver wasn't run. Two things to watch, added to [issue 20](20-real-iphone-acceptance-test.md):
+    - The label changes every second while the Run counts. VoiceOver may re-read it.
+    - After Stop, or at zero, the dial's button and Stop hide, so focus goes nowhere.
+- **Leftovers:**
+  - The view's `running` means "a Run is going, paused or not", while the mode `"running"` means counting.
+  - Stop's "only while paused" shows in the page through CSS (`data-paused`). The rule itself is in `stop()`.
+

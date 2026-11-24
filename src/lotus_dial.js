@@ -257,16 +257,32 @@ export function createLotusDial(svg, { reducedMotion = false } = {}) {
       animation.currentTime = elapsedMs;
       animation.play();
     }
+    swaying?.play();
+  }
+
+  // A paused Run: everything stops where it is, the tassel's sway included.
+  function pauseAt(elapsedMs) {
+    for (const animation of shown.animations) {
+      animation.pause();
+      animation.currentTime = elapsedMs;
+    }
+    swaying?.pause();
   }
 
   // `dial` is the Timer screen view's { preset, elapsedMs } for the Run on show (during
-  // the Run and its celebration), or null after it. `mode` is the view's mode.
+  // the Run and its celebration), or null after it. `mode` is the view's mode; while it is
+  // "paused", the picture stands still.
   function update(dial, mode) {
     if (dial) {
       const restarted = !shown || shown.preset !== dial.preset || dial.elapsedMs < shown.elapsedMs;
       if (restarted) start(dial.preset);
-      const drift = Math.abs((shown.animations[0].currentTime ?? -Infinity) - dial.elapsedMs);
-      if (restarted || drift > DRIFT_MS || shown.animations[0].playState !== "running") seek(dial.elapsedMs);
+      const first = shown.animations[0];
+      if (mode === "paused") {
+        if (restarted || first.playState !== "paused" || first.currentTime !== dial.elapsedMs) pauseAt(dial.elapsedMs);
+      } else {
+        const drift = Math.abs((first.currentTime ?? -Infinity) - dial.elapsedMs);
+        if (restarted || drift > DRIFT_MS || first.playState !== "running") seek(dial.elapsedMs);
+      }
       shown.elapsedMs = dial.elapsedMs;
       shown.celebrating = mode === "pulsing";
       return;

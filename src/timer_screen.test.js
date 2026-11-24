@@ -60,6 +60,7 @@ describe("the Lotus dial", () => {
 
     expect(screen.view(t(9, 1, 3)).dial).toEqual({ preset: 5, elapsedMs: 1_000 });
 
+    screen.tapDial(t(9, 2));
     screen.stop(t(9, 2));
     expect(screen.view(t(9, 2)).dial).toBeNull();
   });
@@ -106,11 +107,12 @@ describe("the Replace confirmation", () => {
   it("is cancelled by Stop", () => {
     const screen = createTimerScreen(memoryStore());
     screen.tapPreset(3, t(9));
+    screen.tapDial(t(9, 1));
     screen.tapPreset(5, t(9, 1));
 
     expect(screen.stop(t(9, 1, 1))).toEqual({});
     expect(screen.view(t(9, 1, 1))).toMatchObject({ countdown: "Ready", mode: "ready", armedPreset: null, running: false });
-    expect(screen.view(t(9, 1, 1)).lessonRuns).toEqual([{ text: "3 min · stopped 1:01", outcome: "stopped" }]);
+    expect(screen.view(t(9, 1, 1)).lessonRuns).toEqual([{ text: "3 min · stopped 1:00", outcome: "stopped" }]);
   });
 
   it("is cancelled when the Run completes", () => {
@@ -184,6 +186,7 @@ describe("a Mis-tap", () => {
 
     // Started while 0:00 is still pulsing, then Stopped straight away.
     screen.tapPreset(3, t(9, 1, 1));
+    screen.tapDial(t(9, 1, 3));
     screen.stop(t(9, 1, 3));
 
     expect(screen.view(t(9, 1, 3))).toMatchObject({ countdown: "Ready", mode: "ready", running: false });
@@ -197,6 +200,7 @@ describe("This lesson", () => {
     screen.tapPreset(1, t(9));
     screen.tick(t(9, 1));
     screen.tapPreset(3, t(9, 2));
+    screen.tapDial(t(9, 3, 30));
     screen.stop(t(9, 3, 30));
 
     expect(screen.view(t(9, 4)).lessonRuns).toEqual([
@@ -210,6 +214,7 @@ describe("This lesson", () => {
     screen.tapPreset(1, t(9));
     screen.tick(t(9, 1));
     screen.tapPreset(3, t(9, 2));
+    screen.tapDial(t(9, 3, 30));
     screen.stop(t(9, 3, 30));
 
     expect(screen.view(t(9, 4)).lessonHeading).toBe("This lesson · 2 runs · 3 min");
@@ -229,5 +234,119 @@ describe("This lesson", () => {
     screen.tapPreset(3, t(9));
 
     expect(screen.view(t(9, 1)).lessonHeading).toBeNull();
+  });
+});
+
+describe("pausing", () => {
+  it("a tap on the dial pauses the Run, holding its countdown, and another resumes it", () => {
+    const screen = createTimerScreen(memoryStore());
+    screen.tapPreset(3, t(9));
+
+    expect(screen.tapDial(t(9, 0, 30))).toEqual({});
+    expect(screen.view(t(9, 5))).toMatchObject({ countdown: "2:30", mode: "paused", running: true });
+
+    expect(screen.tapDial(t(9, 5))).toEqual({});
+    expect(screen.view(t(9, 5, 10))).toMatchObject({ countdown: "2:20", mode: "running", running: true });
+  });
+
+  it("Stop works only while paused, and saves the time the Run counted", () => {
+    const screen = createTimerScreen(memoryStore());
+    screen.tapPreset(3, t(9));
+
+    expect(screen.stop(t(9, 1))).toEqual({});
+    expect(screen.view(t(9, 1))).toMatchObject({ countdown: "2:00", mode: "running" });
+
+    screen.tapDial(t(9, 1));
+    screen.stop(t(9, 4));
+    expect(screen.view(t(9, 4))).toMatchObject({ countdown: "Ready", mode: "ready", running: false });
+    expect(screen.view(t(9, 4)).lessonRuns).toEqual([{ text: "3 min · stopped 1:00", outcome: "stopped" }]);
+  });
+
+  it("a tap on the dial does nothing in Ready, while 0:00 pulses, or while the picture settles", () => {
+    const screen = createTimerScreen(memoryStore());
+    expect(screen.tapDial(t(9))).toEqual({});
+    expect(screen.view(t(9))).toMatchObject({ countdown: "Ready", mode: "ready", running: false });
+
+    screen.tapPreset(1, t(9));
+    screen.tick(t(9, 1));
+    expect(screen.tapDial(t(9, 1, 1))).toEqual({});
+    expect(screen.view(t(9, 1, 1))).toMatchObject({ countdown: "0:00", mode: "pulsing", running: false });
+
+    expect(screen.tapDial(t(9, 1, 5))).toEqual({});
+    expect(screen.view(t(9, 1, 5))).toMatchObject({ mode: "settling", running: false });
+  });
+
+  it("a Paused Run is Replaced as a counting one is: Tap again, then the new Run counts", () => {
+    const screen = createTimerScreen(memoryStore());
+    screen.tapPreset(3, t(9));
+    screen.tapDial(t(9, 1));
+
+    expect(screen.tapPreset(5, t(9, 4))).toEqual({});
+    expect(screen.view(t(9, 4))).toMatchObject({ mode: "paused", countdown: "2:00", armedPreset: 5 });
+
+    expect(screen.tapPreset(5, t(9, 4, 1))).toEqual({ unlockAudio: true });
+    expect(screen.view(t(9, 4, 1))).toMatchObject({ mode: "running", countdown: "5:00", armedPreset: null });
+    expect(screen.view(t(9, 4, 1)).lessonRuns).toEqual([{ text: "3 min · stopped 1:00", outcome: "stopped" }]);
+  });
+
+  it("a tap on the dial at the moment of zero completes the Run and rings, with nothing to pause", () => {
+    const screen = createTimerScreen(memoryStore());
+    screen.tapPreset(1, t(9));
+
+    expect(screen.tapDial(t(9, 1, 0, 100))).toEqual({ ring: true });
+    expect(screen.view(t(9, 1, 0, 100)).mode).toBe("pulsing");
+  });
+
+  it("a tap on the dial cancels a Preset's Tap again", () => {
+    const screen = createTimerScreen(memoryStore());
+    screen.tapPreset(3, t(9));
+    screen.tapPreset(5, t(9, 1));
+
+    screen.tapDial(t(9, 1, 1));
+    expect(screen.view(t(9, 1, 1))).toMatchObject({ mode: "paused", armedPreset: null });
+
+    // So the next tap on 5 arms it again rather than Replacing the Run.
+    expect(screen.tapPreset(5, t(9, 1, 2))).toEqual({});
+    expect(screen.view(t(9, 1, 2))).toMatchObject({ mode: "paused", countdown: "1:59", armedPreset: 5 });
+  });
+
+  it("names the dial for VoiceOver: Pause while it counts, Resume while paused, nothing outside a Run", () => {
+    const screen = createTimerScreen(memoryStore());
+    expect(screen.view(t(9)).dialLabel).toBeNull();
+
+    screen.tapPreset(3, t(9));
+    expect(screen.view(t(9, 0, 19)).dialLabel).toBe("Pause, 2:41 left");
+
+    screen.tapDial(t(9, 0, 19));
+    expect(screen.view(t(9, 3)).dialLabel).toBe("Resume, 2:41 left");
+  });
+
+  it("holds the Lotus dial where the Run was paused, and carries on from there", () => {
+    const screen = createTimerScreen(memoryStore());
+    screen.tapPreset(1, t(9));
+    screen.tapDial(t(9, 0, 20));
+
+    expect(screen.view(t(9, 5)).dial).toEqual({ preset: 1, elapsedMs: 20_000 });
+
+    screen.tapDial(t(9, 5));
+    expect(screen.view(t(9, 5, 10)).dial).toEqual({ preset: 1, elapsedMs: 30_000 });
+
+    // Through the celebration too: zero comes at 9:05:40.
+    screen.tick(t(9, 5, 40));
+    expect(screen.view(t(9, 5, 42)).dial).toEqual({ preset: 1, elapsedMs: 62_000 });
+  });
+
+  it("files a Run left paused past the Lesson Gap as Stopped, with no ring, and shows Ready", () => {
+    const store = memoryStore();
+    const screen = createTimerScreen(store);
+    screen.tapPreset(5, t(9));
+    screen.tapDial(t(9, 2));
+
+    expect(screen.tick(t(11))).toEqual({});
+
+    expect(store.getState().activeRun).toBeNull();
+    expect(screen.view(t(11))).toMatchObject({ countdown: "Ready", mode: "ready", running: false });
+    // Lesson Gap passed since it ended at 9:02, so it is no longer "This lesson".
+    expect(store.getState().lessons[0].runs).toMatchObject([{ preset: 5, endedAt: t(9, 2), outcome: "stopped" }]);
   });
 });

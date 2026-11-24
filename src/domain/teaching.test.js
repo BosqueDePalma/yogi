@@ -4,10 +4,14 @@ import {
   start,
   stop,
   replace,
+  pause,
+  resume,
+  isPaused,
   remaining,
   check,
   currentLesson,
   lessonSummaries,
+  ranMs,
   deleteLesson,
 } from "./teaching.js";
 
@@ -93,6 +97,96 @@ describe("stopping a Run", () => {
 
 // Run a Preset from `from` all the way to zero.
 const complete = (state, preset, from) => check(start(state, preset, from), from + preset * MIN).state;
+
+describe("pausing a Run", () => {
+  it("holds its countdown where it is", () => {
+    const state = pause(start(empty, 3, t(9)), t(9, 1));
+    expect(isPaused(state)).toBe(true);
+    expect(remaining(state, t(9, 1))).toBe(2 * MIN);
+    expect(remaining(state, t(9, 30))).toBe(2 * MIN);
+  });
+
+  it("resumes from the same remaining time, as many times as she likes", () => {
+    let state = pause(start(empty, 3, t(9)), t(9, 1)); // 2:00 left
+    state = resume(state, t(9, 5));
+    expect(isPaused(state)).toBe(false);
+    expect(remaining(state, t(9, 5, 30))).toBe(90_000);
+    state = resume(pause(state, t(9, 6)), t(9, 20)); // 1:00 left
+    expect(remaining(state, t(9, 20))).toBe(MIN);
+  });
+
+  it("then stopping it saves a Stopped Run that ran only while it counted", () => {
+    let state = resume(pause(start(empty, 5, t(9)), t(9, 1)), t(9, 4)); // held 3 min
+    state = stop(pause(state, t(9, 5)), t(9, 8)); // counted 2 min, held 3 more
+    const [run] = currentLesson(state, t(9, 8)).runs;
+    expect(run).toMatchObject({ preset: 5, startedAt: t(9), endedAt: t(9, 8), outcome: "stopped" });
+    expect(ranMs(run)).toBe(2 * MIN);
+    expect(lessonSummaries(state)[0].totalMs).toBe(2 * MIN);
+  });
+
+  it("drops a Mis-tap by the time it counted, however long it was paused", () => {
+    const state = stop(pause(start(empty, 3, t(9)), t(9, 0, 4)), t(9, 1));
+    expect(state).toEqual(empty);
+  });
+
+  it("never lets a paused Run complete", () => {
+    const state = pause(start(empty, 1, t(9)), t(9, 0, 30));
+    const { state: after, completed } = check(state, t(9, 5));
+    expect(completed).toBeNull();
+    expect(after).toBe(state);
+  });
+
+  it("left paused past the Lesson Gap, is filed as a Stopped Run ending when it was paused", () => {
+    const state = pause(start(empty, 5, t(9)), t(9, 2)); // paused at 9:02
+    expect(check(state, t(10, 32)).state).toBe(state); // exactly 90 minutes on: still paused
+    const { state: after, completed, late } = check(state, t(10, 32) + 1);
+    expect(after.activeRun).toBeNull();
+    expect(completed).toBeNull();
+    expect(late).toBe(false);
+    const [run] = after.lessons[0].runs;
+    expect(run).toMatchObject({ preset: 5, startedAt: t(9), endedAt: t(9, 2), outcome: "stopped" });
+    expect(ranMs(run)).toBe(2 * MIN);
+  });
+
+  it("once resumed, completes when it has counted its whole Preset", () => {
+    const state = resume(pause(start(empty, 3, t(9)), t(9, 1)), t(9, 11)); // held 10 min
+    expect(check(state, t(9, 13) - 1).completed).toBeNull();
+    const { completed, late } = check(state, t(9, 13));
+    expect(completed).toMatchObject({ preset: 3, startedAt: t(9), endedAt: t(9, 13), outcome: "completed" });
+    expect(ranMs(completed)).toBe(3 * MIN);
+    expect(late).toBe(false);
+  });
+
+  it("can be Replaced, saving the Paused Run as Stopped", () => {
+    const state = replace(pause(start(empty, 3, t(9)), t(9, 1)), 5, t(9, 4));
+    const [run] = currentLesson(state, t(9, 4)).runs;
+    expect(run.outcome).toBe("stopped");
+    expect(ranMs(run)).toBe(MIN);
+    expect(isPaused(state)).toBe(false);
+    expect(remaining(state, t(9, 4))).toBe(5 * MIN);
+  });
+
+  it("stays paused at the same point when the app is closed and reopened", () => {
+    const saved = JSON.stringify(pause(start(empty, 5, t(9)), t(9, 2, 19)));
+    const state = JSON.parse(saved);
+    expect(isPaused(state)).toBe(true);
+    expect(remaining(state, t(9, 40))).toBe(2 * MIN + 41_000);
+  });
+
+  it("works on a Run saved before Pause existed", () => {
+    const saved = { lessons: [], activeRun: { preset: 3, startedAt: t(9), plannedEndAt: t(9, 3) } };
+    expect(isPaused(saved)).toBe(false);
+    const state = stop(resume(pause(saved, t(9, 1)), t(9, 2)), t(9, 3));
+    expect(lessonSummaries(state)[0].totalMs).toBe(2 * MIN);
+  });
+
+  it("leaves the list of Lessons as it was", () => {
+    const state = complete(empty, 3, t(8));
+    const paused = pause(start(state, 5, t(9)), t(9, 1));
+    expect(paused.lessons).toBe(state.lessons);
+    expect(resume(paused, t(9, 2)).lessons).toBe(state.lessons);
+  });
+});
 
 describe("grouping Runs into Lessons", () => {
   it("a Run started exactly 90 minutes after the last one ended joins the same Lesson", () => {

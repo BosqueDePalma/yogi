@@ -1,5 +1,6 @@
-// The Timer tab's rules, with no DOM: Run completion, the Replace confirmation
-// ("Tap again"), the 0:00 pulse, what the countdown shows, and whether the Chime rings.
+// The Timer tab's rules, with no DOM: Run completion, Pause (a tap on the Lotus dial; Stop
+// only while paused), the Replace confirmation ("Tap again"), the 0:00 pulse, what the
+// countdown shows, and whether the Chime rings.
 //
 // It reads and saves the Teacher's state through `store` ({ getState, setState }).
 // Every call takes the current time `now` (ms) and nothing here sets a timer: the
@@ -22,12 +23,14 @@ export function createTimerScreen(store) {
 
   const armedPresetAt = (now) => (armed && now < armed.until ? armed.preset : null);
 
+  // Files a Run that reached zero, or one left paused past the Lesson Gap.
   function tick(now) {
-    const { state, completed, late } = teaching.check(store.getState(), now);
-    if (!completed) return {};
+    const before = store.getState();
+    const { state, completed, late } = teaching.check(before, now);
+    if (state === before) return {};
     armed = null;
     store.setState(state);
-    if (late) return {};
+    if (!completed || late) return {};
     finish = { run: completed, until: now + PULSE_MS };
     return { ring: true };
   }
@@ -49,41 +52,66 @@ export function createTimerScreen(store) {
     return {};
   }
 
-  function stop(now) {
-    armed = null;
+  // A tap on the Lotus dial pauses a Run that is counting and resumes a paused one. It also
+  // cancels "Tap again", so no Replace is left half done. With no Run going it does nothing.
+  function tapDial(now) {
+    const effects = tick(now); // the Run may have just reached zero
     const state = store.getState();
-    if (state.activeRun) store.setState(teaching.stop(state, now));
+    if (!state.activeRun) return effects;
+    armed = null;
+    store.setState(teaching.isPaused(state) ? teaching.resume(state, now) : teaching.pause(state, now));
+    return effects;
+  }
+
+  // Stop shows only while a Run is paused, so a stray tap on it can't end a Run.
+  function stop(now) {
+    const state = store.getState();
+    if (!teaching.isPaused(state)) return {};
+    armed = null;
+    store.setState(teaching.stop(state, now));
     return {};
   }
 
-  // What to draw: countdown text, mode, the armed Preset number or null, the current
-  // Lesson's heading (or null with no Lesson) and its Runs as ready-made lines, newest first,
-  // whether a Run is going (which keeps the screen awake), and for the Lotus dial the Run
+  // What to draw: countdown text, mode, the dial's VoiceOver label ("Pause, 2:41 left", or
+  // null with no Run going), the armed Preset number or null, the current Lesson's heading
+  // (or null with no Lesson) and its Runs as ready-made lines, newest first, whether a Run
+  // is going, paused or not (which keeps the screen awake), and for the Lotus dial the Run
   // it shows and how far it has gone (also through the 0:00 pulse), or null.
-  // The mode is "running", then after a Run completes on time "pulsing" (0:00 and the
-  // celebration) and "settling" (the picture fades; Ready waits so it doesn't land on
-  // the lotus), then "ready". Stop, a Run noticed late, and a new Run skip the last two.
+  // The mode is "running" or "paused", then after a Run completes on time "pulsing" (0:00
+  // and the celebration) and "settling" (the picture fades; Ready waits so it doesn't land
+  // on the lotus), then "ready". Stop, a Run noticed late, and a new Run skip the last two.
   function view(now) {
     const state = store.getState();
     const running = Boolean(state.activeRun);
+    const paused = teaching.isPaused(state);
     const pulsing = !running && finish !== null && now < finish.until;
     const settling = !running && !pulsing && finish !== null && now < finish.until + SETTLE_MS;
-    const mode = running ? "running" : pulsing ? "pulsing" : settling ? "settling" : "ready";
+    const mode = paused ? "paused" : running ? "running" : pulsing ? "pulsing" : settling ? "settling" : "ready";
     const shown = running ? state.activeRun : pulsing ? finish.run : null;
     const lesson = teaching.currentLesson(state, now);
     const runs = lesson?.runs ?? [];
+    const remainingText = running && formatCountdown(teaching.remaining(state, now));
     return {
-      countdown: running ? formatCountdown(teaching.remaining(state, now)) : mode === "ready" ? "Ready" : "0:00",
+      countdown: running ? remainingText : mode === "ready" ? "Ready" : "0:00",
       mode,
+      dialLabel: running ? `${paused ? "Resume" : "Pause"}, ${remainingText} left` : null,
       armedPreset: armedPresetAt(now),
       lessonHeading: lesson && lessonHeading(lesson),
       lessonRuns: describeRuns([...runs].reverse()), // newest first
       running,
-      dial: shown && { preset: shown.preset, elapsedMs: now - shown.startedAt },
+      dial: shown && { preset: shown.preset, elapsedMs: dialElapsedMs(state, shown, now) },
     };
   }
 
-  return { tapPreset, stop, tick, view };
+  return { tapPreset, tapDial, stop, tick, view };
+}
+
+// How far the Lotus dial is through the Run on show: the time it has counted (standing
+// still while paused), then on past zero through the celebration.
+function dialElapsedMs(state, run, now) {
+  const durationMs = teaching.durationMs(run.preset);
+  if (run === state.activeRun) return durationMs - teaching.remaining(state, now);
+  return durationMs + (now - run.endedAt);
 }
 
 // "This lesson · 5 runs · 14 min", counted as History counts the Lesson.
