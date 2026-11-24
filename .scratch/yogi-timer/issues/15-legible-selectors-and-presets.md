@@ -23,3 +23,7 @@ Found in the theme review of 2026-11-23:
 - [ ] The keyboard focus ring is at least 3:1 against what is around it in all four themes.
 - [ ] The Chime and Theme option groups line up with each other.
 - [ ] Checked in the browser at iPhone size in all four themes, with the contrast figures noted in the ticket's done comment.
+
+## Comments
+
+- 2026-11-23: the focus-ring criterion was met in issue 14. The ring now uses the text colour, 9.5–10:1 on the selectors in every theme; check it still holds after this ticket's changes. Issue 14 also made the selected tab's fill deep in dark mode (1.4–1.7:1 against the tab bar). Its text still marks it, but look at it alongside the selectors here.

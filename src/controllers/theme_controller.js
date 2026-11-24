@@ -5,10 +5,11 @@ import { Controller } from "@hotwired/stimulus";
 // this phone. The head script in index.html applies the saved theme before the page draws.
 const KEY = "yogi-timer.theme";
 const DEFAULT = "glow";
-// The page background of each theme, light and dark, for <meta name="theme-color">.
+// The page background of each theme, light and dark, for <meta name="theme-color">. Keep in
+// step with --bg in base.css and themes.css (and the defaults in index.html).
 const BACKGROUNDS = {
-  glow: { light: "#f4f7fe", dark: "#171a26" },
-  bead: { light: "#eef2fd", dark: "#141a2e" },
+  glow: { light: "#f4f7fe", dark: "#15171e" },
+  bead: { light: "#eef2fd", dark: "#111634" },
 };
 
 export default class extends Controller {

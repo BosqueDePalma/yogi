@@ -1,5 +1,5 @@
-/* Colour tokens: Glow, the mala's final glow (pale blue) on a blue-white page by day, deep
-   navy by night (from the theme trial on 2026-11-23, after paleta-c2-mala.jpg).
+/* Colour tokens: Glow, the mala's final glow (pale blue) on a blue-white page (from the theme
+   trial on 2026-11-23, after paleta-c2-mala.jpg), with its own dark version below.
    Follows the phone's light/dark setting. */
 :root {
   color-scheme: light dark;
@@ -41,16 +41,18 @@
 }
 
 @media (prefers-color-scheme: dark) {
+  /* Glow by night: a near-neutral dark page. The Presets and the selected tab turn to deep
+     slate with soft glow-blue text, so the countdown stays the strongest thing on screen. */
   :root {
-    --bg: #171a26;
-    --surface: #20243a;
+    --bg: #15171e;
+    --surface: #1f222d;
     --text: #e8edfb;
-    --muted: #9aa6c6;
-    --line: #323a55;
-    --accent: #bcd0f6;
-    --accent-text: #171a26;
+    --muted: #9ea6bd;
+    --line: #30354a;
+    --accent: #323d5e;
+    --accent-text: #afc0ea; /* 5.9:1 on the accent */
 
-    --lotus-disc: #20243a;
+    --lotus-disc: #1f222d;
     --lotus-thread: #5b3f4a;
     --lotus-bead: #4c3742;
     --lotus-lit: #7f9be0;
@@ -66,7 +68,7 @@
     --lotus-blue-2: #5f78b8;
     --lotus-blue-3: #7690d6;
     --lotus-text: #d3a7b5;
-    --lotus-zero: #bcd0f6; /* 9.8:1 on the disc, 3.5:1 on the middle petals, halo on the darkest */
+    --lotus-zero: #bcd0f6; /* 10:1 on the disc, 3.5:1 on the middle petals, halo on the darkest */
     --lotus-shine: rgb(255 255 255 / 0.18);
   }
 }
@@ -414,7 +416,7 @@ button {
 }
 
 .chime-option:has(:focus-visible) {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--text); /* 9.5:1 or more on the selector in every theme */
   outline-offset: 2px;
 }
 

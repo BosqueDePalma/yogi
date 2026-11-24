@@ -13,16 +13,19 @@
   --accent-text: #1e2a52;
 }
 
+/* Bead by night: a deep indigo page, bluer than Glow's, with the Presets and the selected tab
+   in a deep bead blue and the mala's beads lit in Bead's own blue. */
 @media (prefers-color-scheme: dark) {
   :root[data-theme="bead"] {
-    --bg: #141a2e;
-    --surface: #1d2440;
+    --bg: #111634;
+    --surface: #1a2049;
     --text: #e6ecfc;
-    --muted: #97a4cc;
-    --line: #2f3a5e;
-    --accent: #93afed;
-    --accent-text: #141a2e;
-    --lotus-disc: #1d2440;
+    --muted: #a6b2e0;
+    --line: #2c3672;
+    --accent: #31428c;
+    --accent-text: #b8c6f3; /* 5.4:1 on the accent */
+    --lotus-disc: #1a2049;
+    --lotus-lit: #93afed;
   }
 }
 
