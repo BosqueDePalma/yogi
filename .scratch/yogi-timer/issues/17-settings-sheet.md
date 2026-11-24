@@ -46,7 +46,7 @@ The sheet is its own module, built so it can be dropped into another app:
 - [x] Settings closes by swiping down, by tapping the backdrop, by tapping "Done" and with Escape. A short swipe that doesn't pass the threshold springs back.
 - [x] Tapping a Preset above the open sheet only closes the sheet; no Run starts and none is Replaced.
 - [x] Choosing a Chime with no Run going previews it once; during a Run it switches quietly and that Chime plays at zero. The choice survives a reopen.
-- [ ] Choosing a Theme changes the page behind the sheet straight away, the status bar included, and survives a reopen.
+- [x] Choosing a Theme changes the page behind the sheet straight away, the status bar included, and survives a reopen. (Accepted: the status bar catches up when the sheet closes; see the done comment.)
 - [x] A Run keeps counting while Settings is open, and the Chime plays at zero with the sheet still open.
 - [x] After the app is reopened mid-Run, opening Settings counts as the tap that unlocks audio.
 - [x] The version line shows the build date and the short commit.
@@ -102,7 +102,7 @@ The sheet is its own module, built so it can be dropped into another app:
   - Real touch drags behave as designed: a short slow drag springs back, a long one closes, and a flick closes.
   - Bead dark during a Run, Bead light at 0:00 (the Chime rang, shown in the Dynamic Island), and Glow dark all look calm.
   - Screenshots: [Glow dark](17-settings-sheet/glow-dark-ready.png), [Bead dark, Run](17-settings-sheet/bead-dark-run.png), [Bead light, 0:00](17-settings-sheet/bead-light-zero.png).
-- **Not met: the status bar while the sheet is open.** While a modal `<dialog>` is open, iOS keeps the status bar colour it had when the sheet opened. A Theme chosen in the sheet changes the page straight away, but the status bar only catches up when the sheet closes ([screenshot](17-settings-sheet/status-bar-held.png)). Two fixes didn't help: moving the backdrop below the safe area, and re-presenting the dialog after the change. The way around it would be a non-modal dialog with a hand-made backdrop and `inert`, which gives up what `showModal()` provides. This needs the user's call.
+- **Not met: the status bar while the sheet is open.** While a modal `<dialog>` is open, iOS keeps the status bar colour it had when the sheet opened. A Theme chosen in the sheet changes the page straight away, but the status bar only catches up when the sheet closes ([screenshot](17-settings-sheet/status-bar-held.png)). Two fixes didn't help: moving the backdrop below the safe area, and re-presenting the dialog after the change. The way around it would be a non-modal dialog with a hand-made backdrop and `inert`, which gives up what `showModal()` provides. The user accepted the lag on 2026-11-24: the sheet stays modal, and the status bar catches up on close.
 - **Not checked on a device: Reduce Motion.** The rules parse, and they fade instead of sliding. The Simulator's Settings app wouldn't respond to taps, so I couldn't turn Reduce Motion on.
 - **Not checked: VoiceOver.** Leave it for the real-iPhone test (ticket 20).
 - **Leftovers:**
