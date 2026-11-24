@@ -62,6 +62,7 @@ export default class extends Controller {
   render(view) {
     this.element.toggleAttribute("data-running", view.mode === "running");
     this.element.toggleAttribute("data-pulsing", view.mode === "pulsing");
+    this.element.toggleAttribute("data-settling", view.mode === "settling");
     this.element.toggleAttribute("data-ready", view.mode === "ready");
     this.countdownTarget.textContent = view.countdown;
     this.lotus.update(view.dial, view.mode);

@@ -29,6 +29,9 @@
   --lotus-blue-2: #95b0ee;
   --lotus-blue-3: #7b9ae5;
   --lotus-text: #b07f8e;
+  /* 0:00 at the finish: 6:1 on the disc, 3:1 on the middle petals; on the darkest petals
+     the halo (text-shadow) keeps it readable. */
+  --lotus-zero: #3f5cb3;
   --lotus-shine: rgb(255 255 255 / 0.6);
 
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
@@ -63,6 +66,7 @@
     --lotus-blue-2: #5f78b8;
     --lotus-blue-3: #7690d6;
     --lotus-text: #d3a7b5;
+    --lotus-zero: #bcd0f6; /* 9.8:1 on the disc, 3.5:1 on the middle petals, halo on the darkest */
     --lotus-shine: rgb(255 255 255 / 0.18);
   }
 }
@@ -199,10 +203,17 @@ button {
   letter-spacing: 0.02em;
   color: var(--lotus-text);
   text-shadow: none;
+  transition: opacity 0.8s ease-in-out; /* fades in after settling; Stop shows it at once */
 }
 
-.timer[data-pulsing] .countdown {
-  color: var(--lotus-blue-3);
+.timer:is([data-pulsing], [data-settling]) .countdown {
+  color: var(--lotus-zero);
+}
+
+/* After the celebration 0:00 fades out with the picture, and Ready fades in once it has gone. */
+.timer[data-settling] .countdown {
+  opacity: 0;
+  transition: opacity 0.8s ease-out;
 }
 
 .lotus .lotus-turn {
@@ -272,7 +283,7 @@ button {
 .lotus .b2 { fill: var(--lotus-blue-2); }
 .lotus .b3 { fill: var(--lotus-blue-3); }
 
-/* Om shows only in Ready: it fades in as the lotus fades out, and out as a Run starts. */
+/* Om shows only in Ready: it fades in once the lotus has faded out, and out as a Run starts. */
 .lotus-om {
   fill: var(--lotus-petal-4);
   opacity: 0;

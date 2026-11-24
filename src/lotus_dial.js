@@ -259,7 +259,7 @@ export function createLotusDial(svg, { reducedMotion = false } = {}) {
   }
 
   // `dial` is the Timer screen view's { preset, elapsedMs } for the Run on show (during
-  // the Run and its celebration), or null in Ready. `mode` is the view's mode.
+  // the Run and its celebration), or null after it. `mode` is the view's mode.
   function update(dial, mode) {
     if (dial) {
       const restarted = !shown || shown.preset !== dial.preset || dial.elapsedMs < shown.elapsedMs;

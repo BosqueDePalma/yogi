@@ -14,10 +14,11 @@ import { describeRuns, formatCountdown } from "./format.js";
 
 const CONFIRM_MS = 3_000; // how long a Preset shows "Tap again"
 const PULSE_MS = 4_000; // how long 0:00 pulses after a Run completes
+const SETTLE_MS = 2_000; // then how long the Lotus dial takes to fade back to Ready (FADE_S there)
 
 export function createTimerScreen(store) {
   let armed = null; // { preset, until }: the Preset showing "Tap again"
-  let pulse = null; // { run, until }: the Run just completed on time, while 0:00 pulses
+  let finish = null; // { run, until }: the Run just completed on time; `until` is when its pulse ends
 
   const armedPresetAt = (now) => (armed && now < armed.until ? armed.preset : null);
 
@@ -27,7 +28,7 @@ export function createTimerScreen(store) {
     armed = null;
     store.setState(state);
     if (late) return {};
-    pulse = { run: completed, until: now + PULSE_MS };
+    finish = { run: completed, until: now + PULSE_MS };
     return { ring: true };
   }
 
@@ -35,7 +36,7 @@ export function createTimerScreen(store) {
     const effects = tick(now); // the Run may have just reached zero
     const state = store.getState();
     if (!state.activeRun) {
-      pulse = null; // a new Run ends the 0:00 pulse
+      finish = null; // a new Run ends the 0:00 pulse and the settling
       store.setState(teaching.start(state, preset, now));
       return { ...effects, unlockAudio: true };
     }
@@ -55,19 +56,23 @@ export function createTimerScreen(store) {
     return {};
   }
 
-  // What to draw: countdown text, mode ("running" | "pulsing" | "ready"), the armed
-  // Preset number or null, the current Lesson's Runs as ready-made lines, whether
-  // a Run is going (which keeps the screen awake), and for the Lotus dial the Run it
-  // shows and how far it has gone (also through the 0:00 pulse), or null.
+  // What to draw: countdown text, mode, the armed Preset number or null, the current
+  // Lesson's Runs as ready-made lines, whether a Run is going (which keeps the screen
+  // awake), and for the Lotus dial the Run it shows and how far it has gone (also
+  // through the 0:00 pulse), or null.
+  // The mode is "running", then after a Run completes on time "pulsing" (0:00 and the
+  // celebration) and "settling" (the picture fades; Ready waits so it doesn't land on
+  // the lotus), then "ready". Stop, a Run noticed late, and a new Run skip the last two.
   function view(now) {
     const state = store.getState();
     const running = Boolean(state.activeRun);
-    const pulsing = !running && pulse !== null && now < pulse.until;
-    const mode = running ? "running" : pulsing ? "pulsing" : "ready";
-    const shown = running ? state.activeRun : pulsing ? pulse.run : null;
+    const pulsing = !running && finish !== null && now < finish.until;
+    const settling = !running && !pulsing && finish !== null && now < finish.until + SETTLE_MS;
+    const mode = running ? "running" : pulsing ? "pulsing" : settling ? "settling" : "ready";
+    const shown = running ? state.activeRun : pulsing ? finish.run : null;
     const runs = teaching.currentLesson(state, now)?.runs ?? [];
     return {
-      countdown: running ? formatCountdown(teaching.remaining(state, now)) : mode === "pulsing" ? "0:00" : "Ready",
+      countdown: running ? formatCountdown(teaching.remaining(state, now)) : mode === "ready" ? "Ready" : "0:00",
       mode,
       armedPreset: armedPresetAt(now),
       lessonRuns: describeRuns(runs),

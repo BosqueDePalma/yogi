@@ -128,7 +128,7 @@ describe("the Replace confirmation", () => {
 });
 
 describe("reaching zero", () => {
-  it("on time: rings once, pulses 0:00 for 4 s, then shows Ready", () => {
+  it("on time: rings once, pulses 0:00 for 4 s, settles for 2 s while the picture fades, then shows Ready", () => {
     const screen = createTimerScreen(memoryStore());
     screen.tapPreset(1, t(9));
 
@@ -139,7 +139,18 @@ describe("reaching zero", () => {
     expect(screen.view(t(9, 1, 0, 450))).toMatchObject({ countdown: "0:00", mode: "pulsing", running: false });
     expect(screen.view(t(9, 1, 0, 450)).lessonRuns).toEqual([{ text: "1 min · completed", outcome: "completed" }]);
     expect(screen.view(t(9, 1, 4, 199)).mode).toBe("pulsing");
-    expect(screen.view(t(9, 1, 4, 200))).toMatchObject({ countdown: "Ready", mode: "ready" });
+    expect(screen.view(t(9, 1, 4, 200))).toMatchObject({ countdown: "0:00", mode: "settling", running: false });
+    expect(screen.view(t(9, 1, 6, 199)).mode).toBe("settling");
+    expect(screen.view(t(9, 1, 6, 200))).toMatchObject({ countdown: "Ready", mode: "ready" });
+  });
+
+  it("a Preset tapped while the picture settles: starts a Run straight away", () => {
+    const screen = createTimerScreen(memoryStore());
+    screen.tapPreset(1, t(9));
+    screen.tick(t(9, 1));
+
+    expect(screen.tapPreset(2, t(9, 1, 5))).toEqual({ unlockAudio: true });
+    expect(screen.view(t(9, 1, 5))).toMatchObject({ countdown: "2:00", mode: "running" });
   });
 
   it("late (the app was away past zero): files it Completed with no ring and no pulse", () => {
