@@ -52,15 +52,19 @@ export function currentLesson(state, now) {
   return latest && withinLessonGap(latest, at) ? latest : null;
 }
 
+// Every past Lesson, newest first, summed up as summarizeLesson() does.
 export function lessonSummaries(state) {
-  return state.lessons
-    .map((lesson) => ({
-      id: lesson.id,
-      startedAt: lesson.runs[0].startedAt,
-      runCount: lesson.runs.length,
-      totalMs: lesson.runs.reduce((sum, run) => sum + (run.endedAt - run.startedAt), 0),
-    }))
-    .reverse();
+  return state.lessons.map(summarizeLesson).reverse();
+}
+
+// A Lesson's id, when its first Run started, how many Runs it has, and the time they ran.
+export function summarizeLesson(lesson) {
+  return {
+    id: lesson.id,
+    startedAt: lesson.runs[0].startedAt,
+    runCount: lesson.runs.length,
+    totalMs: lesson.runs.reduce((sum, run) => sum + (run.endedAt - run.startedAt), 0),
+  };
 }
 
 export function deleteLesson(state, id) {

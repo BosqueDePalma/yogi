@@ -16,7 +16,8 @@ export function describeRuns(runs) {
   return runs.map((run) => ({ text: describeRun(run), outcome: run.outcome }));
 }
 
-// A row in History, from lessonSummaries(). Dates follow the phone's language and time
+// A Lesson summed up by summarizeLesson(): a row in History, and the Timer tab's
+// "This lesson" heading. Dates follow the phone's language and time
 // zone unless `locale` and `timeZone` are given (tests pass them).
 export function describeLesson(summary, { locale, timeZone } = {}) {
   const started = new Date(summary.startedAt);

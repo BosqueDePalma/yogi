@@ -10,7 +10,7 @@
 //   { ring: true }        play the Chime (only on time; never for a Run noticed late)
 //   { unlockAudio: true } a Run started inside this tap, so audio can be unlocked
 import * as teaching from "./domain/teaching.js";
-import { describeRuns, formatCountdown } from "./format.js";
+import { describeLesson, describeRuns, formatCountdown } from "./format.js";
 
 const CONFIRM_MS = 3_000; // how long a Preset shows "Tap again"
 const PULSE_MS = 4_000; // how long 0:00 pulses after a Run completes
@@ -57,9 +57,9 @@ export function createTimerScreen(store) {
   }
 
   // What to draw: countdown text, mode, the armed Preset number or null, the current
-  // Lesson's Runs as ready-made lines, whether a Run is going (which keeps the screen
-  // awake), and for the Lotus dial the Run it shows and how far it has gone (also
-  // through the 0:00 pulse), or null.
+  // Lesson's heading (or null with no Lesson) and its Runs as ready-made lines, newest first,
+  // whether a Run is going (which keeps the screen awake), and for the Lotus dial the Run
+  // it shows and how far it has gone (also through the 0:00 pulse), or null.
   // The mode is "running", then after a Run completes on time "pulsing" (0:00 and the
   // celebration) and "settling" (the picture fades; Ready waits so it doesn't land on
   // the lotus), then "ready". Stop, a Run noticed late, and a new Run skip the last two.
@@ -70,16 +70,24 @@ export function createTimerScreen(store) {
     const settling = !running && !pulsing && finish !== null && now < finish.until + SETTLE_MS;
     const mode = running ? "running" : pulsing ? "pulsing" : settling ? "settling" : "ready";
     const shown = running ? state.activeRun : pulsing ? finish.run : null;
-    const runs = teaching.currentLesson(state, now)?.runs ?? [];
+    const lesson = teaching.currentLesson(state, now);
+    const runs = lesson?.runs ?? [];
     return {
       countdown: running ? formatCountdown(teaching.remaining(state, now)) : mode === "ready" ? "Ready" : "0:00",
       mode,
       armedPreset: armedPresetAt(now),
-      lessonRuns: describeRuns(runs),
+      lessonHeading: lesson && lessonHeading(lesson),
+      lessonRuns: describeRuns([...runs].reverse()), // newest first
       running,
       dial: shown && { preset: shown.preset, elapsedMs: now - shown.startedAt },
     };
   }
 
   return { tapPreset, stop, tick, view };
+}
+
+// "This lesson · 5 runs · 14 min", counted as History counts the Lesson.
+function lessonHeading(lesson) {
+  const { runs, total } = describeLesson(teaching.summarizeLesson(lesson));
+  return `This lesson · ${runs} · ${total}`;
 }

@@ -11,7 +11,7 @@ const TICK_MS = 250;
 // Dispatches timer:started (inside the tap, so the Chime can unlock audio) and
 // timer:ring (the Run reached zero on time, so the Chime plays).
 export default class extends Controller {
-  static targets = ["countdown", "lotus", "preset", "lesson", "runs"];
+  static targets = ["countdown", "lotus", "preset", "lesson", "lessonHeading", "runs"];
 
   connect() {
     this.screen = createTimerScreen(store);
@@ -23,11 +23,14 @@ export default class extends Controller {
     };
     document.addEventListener("visibilitychange", this.onVisibility);
     this.interval = setInterval(() => this.tick(), TICK_MS);
+    this.runsObserver = new ResizeObserver(() => this.markOverflow());
+    this.runsObserver.observe(this.runsTarget);
     this.tick(); // files a Run that ended while the app was closed, with no Chime
   }
 
   disconnect() {
     clearInterval(this.interval);
+    this.runsObserver.disconnect();
     document.removeEventListener("visibilitychange", this.onVisibility);
     this.wakeLock?.release();
     this.lotus.destroy();
@@ -71,14 +74,15 @@ export default class extends Controller {
       button.toggleAttribute("data-armed", armed);
       button.setAttribute("aria-label", armed ? `Tap again to replace with ${button.dataset.label}` : button.dataset.label);
     }
-    this.renderLesson(view.lessonRuns);
+    this.renderLesson(view.lessonHeading, view.lessonRuns);
   }
 
-  renderLesson(lines) {
-    const key = JSON.stringify(lines);
+  renderLesson(heading, lines) {
+    const key = JSON.stringify([heading, lines]);
     if (key === this.lessonKey) return;
     this.lessonKey = key;
     this.lessonTarget.hidden = lines.length === 0;
+    this.lessonHeadingTarget.textContent = heading ?? "";
     this.runsTarget.replaceChildren(
       ...lines.map(({ text, outcome }) => {
         const item = document.createElement("li");
@@ -87,6 +91,14 @@ export default class extends Controller {
         return item;
       }),
     );
+    this.markOverflow();
+  }
+
+  // When the Runs don't all fit, the oldest fade out at the bottom (base.css). Checked when
+  // the list changes, and when its room does (the tab shown again, a new screen size).
+  markOverflow() {
+    const runs = this.runsTarget;
+    runs.toggleAttribute("data-overflows", runs.scrollHeight > runs.clientHeight);
   }
 
   // --- Keep the screen awake during a Run -------------------------------------------

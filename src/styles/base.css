@@ -209,11 +209,20 @@ button {
 
 /* --- Timer tab ------------------------------------------------------------ */
 
+/* The Timer tab never scrolls: it is exactly the height of the screen above the tab bar, and
+   "This lesson" takes what is left under the Presets, showing as many Runs as fit. */
 .timer {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  height: 100%;
   padding-bottom: 24px;
+  overflow: hidden;
+  container-type: size; /* the Lotus dial sizes itself by the tab's height (cqh) */
+}
+
+.timer > :not(.lesson) {
+  flex-shrink: 0;
 }
 
 .dial {
@@ -227,8 +236,14 @@ button {
    to the drawing (index.html), so the lotus fills the screen's width; the gaps above and below
    are tight, so the Presets sit where they did when the selectors were under them. */
 .lotus-frame {
+  /* What goes under the lotus, with room for two Runs: the gap, Stop, a gap, the Presets, a
+     gap, the "This lesson" heading, two rows (with a pixel or so to spare) and a glimpse of a
+     third, where the fade falls. On short screens (iPhone SE) the lotus shrinks to leave that
+     room; on an iPhone 17 and taller it is as wide as the screen. Keep it in step with those
+     sizes below. */
+  --under-lotus: calc(4px + 52px + 15px + 72px + 15px + 24px + 2 * 45px + 12px);
   position: relative;
-  width: min(100%, 52svh, 460px);
+  width: min(100%, 460px, (100cqh - var(--under-lotus)) * 524 / 556);
   container-type: inline-size;
 }
 
@@ -523,6 +538,24 @@ button {
 
 .runs li[data-outcome="stopped"] {
   color: var(--muted);
+}
+
+/* On the Timer tab, newest first, the list keeps to the room left and the oldest Runs that
+   don't fit fade out at the bottom (the controller sets data-overflows). */
+.timer .lesson {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.timer .runs {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.timer .runs[data-overflows] {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent);
 }
 
 /* --- History tab ----------------------------------------------------------- */

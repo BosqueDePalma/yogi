@@ -190,3 +190,44 @@ describe("a Mis-tap", () => {
     expect(screen.view(t(9, 1, 3)).lessonRuns).toEqual(before);
   });
 });
+
+describe("This lesson", () => {
+  it("lists the newest Run first", () => {
+    const screen = createTimerScreen(memoryStore());
+    screen.tapPreset(1, t(9));
+    screen.tick(t(9, 1));
+    screen.tapPreset(3, t(9, 2));
+    screen.stop(t(9, 3, 30));
+
+    expect(screen.view(t(9, 4)).lessonRuns).toEqual([
+      { text: "3 min · stopped 1:30", outcome: "stopped" },
+      { text: "1 min · completed", outcome: "completed" },
+    ]);
+  });
+
+  it("counts every Run in its heading, with the time they ran as History totals it", () => {
+    const screen = createTimerScreen(memoryStore());
+    screen.tapPreset(1, t(9));
+    screen.tick(t(9, 1));
+    screen.tapPreset(3, t(9, 2));
+    screen.stop(t(9, 3, 30));
+
+    expect(screen.view(t(9, 4)).lessonHeading).toBe("This lesson · 2 runs · 3 min");
+  });
+
+  it("says 1 run for one, and counts a Run that is going only once it ends", () => {
+    const screen = createTimerScreen(memoryStore());
+    screen.tapPreset(1, t(9));
+    screen.tick(t(9, 1));
+    screen.tapPreset(5, t(9, 2));
+
+    expect(screen.view(t(9, 4)).lessonHeading).toBe("This lesson · 1 run · 1 min");
+  });
+
+  it("has no heading before the first Run of a Lesson ends", () => {
+    const screen = createTimerScreen(memoryStore());
+    screen.tapPreset(3, t(9));
+
+    expect(screen.view(t(9, 1)).lessonHeading).toBeNull();
+  });
+});
