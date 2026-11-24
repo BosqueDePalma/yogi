@@ -16,7 +16,7 @@ A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keep
 - Pause and resume.
 - Custom durations or durations in seconds.
 - A *guaranteed* chime while the phone is locked. It worked on her iPhone, but iOS doesn't promise it (see ADR 0001).
-- Backup or sync. An Export of History is planned ([issue 18](issues/18-history-export.md)).
+- Backup or sync. An Export of History may come after v1 ([issue 18](issues/18-history-export.md)).
 - Notes or names on Lessons, charts, statistics.
 - Deleting individual Runs.
 - Landscape layout.
