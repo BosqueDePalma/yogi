@@ -7,10 +7,13 @@
   --bg: #f4f7fe;
   --surface: #fdfdff;
   --text: #26345e;
-  --muted: #5d6a96;
+  --muted: #4f5b87;
   --line: #dce5fb;
   --accent: #bcd0f6;
   --accent-text: #26345e;
+  --selector-track: #cdd8f5; /* the Chime and Theme selectors' background */
+  --selector-chosen: var(--surface); /* the chosen option on it: 1.4:1, plus darker text */
+  --edge: #7885b5; /* outlines of controls that stand on the page: 3.4:1 on the page */
 
   /* The Lotus dial's own palette (issue 12): pink lotus, blue mala, gold heart. */
   --lotus-disc: #fffcfa;
@@ -51,6 +54,9 @@
     --line: #30354a;
     --accent: #323d5e;
     --accent-text: #afc0ea; /* 5.9:1 on the accent */
+    --selector-track: var(--line);
+    --selector-chosen: #4a5370; /* lighter than the track, as on iOS: 1.6:1 */
+    --edge: #646d8c; /* 3.5:1 on the page */
 
     --lotus-disc: #1f222d;
     --lotus-thread: #5b3f4a;
@@ -300,7 +306,7 @@ button {
 .stop {
   min-width: 160px;
   height: 52px;
-  border: 2px solid var(--line);
+  border: 2px solid var(--edge);
   border-radius: 999px;
   background: var(--surface);
   font-size: 1.15rem;
@@ -340,7 +346,7 @@ button {
 .timer[data-running] .preset {
   background: var(--surface);
   color: var(--text);
-  box-shadow: inset 0 0 0 2px var(--line);
+  box-shadow: inset 0 0 0 2px var(--edge);
 }
 
 .preset-confirm {
@@ -372,6 +378,7 @@ button {
 }
 
 .chime-heading {
+  min-width: 4.2em; /* fits "CHIME" and "THEME", so the two selectors line up */
   font-size: 0.85rem;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -385,7 +392,7 @@ button {
   grid-template-columns: repeat(3, 1fr);
   padding: 3px;
   border-radius: var(--radius);
-  background: var(--line);
+  background: var(--selector-track);
 }
 
 .chime-option {
@@ -410,7 +417,7 @@ button {
 }
 
 .chime-option:has(:checked) {
-  background: var(--surface);
+  background: var(--selector-chosen);
   color: var(--text);
   box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
 }
@@ -549,6 +556,13 @@ button {
   background: none;
   color: #b3412f;
   font-weight: 600;
+}
+
+/* A drop shadow can't be seen on a dark page; there the chosen option is lighter instead. */
+@media (prefers-color-scheme: dark) {
+  .chime-option:has(:checked) {
+    box-shadow: none;
+  }
 }
 
 @media (prefers-color-scheme: dark) {

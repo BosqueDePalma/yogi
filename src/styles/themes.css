@@ -7,10 +7,12 @@
   --bg: #eef2fd;
   --surface: #f8faff;
   --text: #1e2a52;
-  --muted: #56628c;
+  --muted: #4a5681;
   --line: #d3def8;
   --accent: #93afed;
   --accent-text: #1e2a52;
+  --selector-track: #c5d2f3;
+  --edge: #7482b8; /* 3.3:1 on the page */
 }
 
 /* Bead by night: a deep indigo page, bluer than Glow's, with the Presets and the selected tab
@@ -24,6 +26,9 @@
     --line: #2c3672;
     --accent: #31428c;
     --accent-text: #b8c6f3; /* 5.4:1 on the accent */
+    --selector-track: var(--line); /* restated: Bead's light value above would win otherwise */
+    --selector-chosen: #4a5aa6; /* 1.8:1 on the track */
+    --edge: #5c6bad; /* 3.5:1 on the page */
     --lotus-disc: #1a2049;
     --lotus-lit: #93afed;
   }
