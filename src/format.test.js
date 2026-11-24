@@ -24,6 +24,15 @@ describe("a Run in the lesson list", () => {
     expect(describeRun({ preset: 5, startedAt: 0, endedAt: 161_900, outcome: "stopped" })).toBe("5 min · stopped 2:41");
   });
 
+  it("shows an Adjusted Run by its own time, as m:ss", () => {
+    expect(describeRun({ preset: 1, startedAt: 0, endedAt: 90_000, outcome: "completed", durationMs: 90_000 })).toBe("1:30 · completed");
+    expect(describeRun({ preset: 1, startedAt: 0, endedAt: 48_000, outcome: "stopped", durationMs: 90_000 })).toBe("1:30 · stopped 0:48");
+  });
+
+  it("shows an Adjusted Run of whole minutes as minutes, whatever its Preset", () => {
+    expect(describeRun({ preset: 1, startedAt: 0, endedAt: 120_000, outcome: "completed", durationMs: 120_000 })).toBe("2 min · completed");
+  });
+
   it("lists a Lesson's Runs as lines ready to draw, with their outcome", () => {
     const runs = [
       { preset: 3, startedAt: 0, endedAt: 180_000, outcome: "completed" },

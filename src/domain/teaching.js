@@ -1,10 +1,12 @@
 // The Teacher's Runs and Lessons (see GLOSSARY.md).
 //
 // State is plain data, so it can be saved as JSON and reloaded as-is:
-//   { lessons: [{ id, runs: [Run] }], activeRun: null | { preset, startedAt, plannedEndAt, pausedAt?, pausedMs? } }
-//   Run = { preset, startedAt, endedAt, outcome: "completed" | "stopped", pausedMs? }
+//   { lessons: [{ id, runs: [Run] }], activeRun: null | { preset, startedAt, plannedEndAt, durationMs?, pausedAt?, pausedMs? } }
+//   Run = { preset, startedAt, endedAt, outcome: "completed" | "stopped", durationMs?, pausedMs? }
+// `durationMs` is the time an Adjusted Run counts down for, set only when it isn't its Preset's.
 // `pausedAt` is set while the Run is paused; `pausedMs` is the time spent in its earlier
-// pauses, left out of the time it ran. Both are absent on a Run never paused, as saved before Pause.
+// pauses, left out of the time it ran. All three are absent on a Run never Adjusted nor
+// paused, as saved before either existed.
 // Every function is pure and takes the current time `now` (ms) instead of reading the clock.
 // `lessons` is a new list only when the Lessons changed (a Run filed, a Lesson deleted);
 // otherwise the same list is passed on. The History tab relies on this to redraw.
@@ -16,9 +18,34 @@ const LATE_MS = 1_500;
 
 export const PRESETS = [1, 2, 3, 5, 10];
 
-export function start(state, preset, now) {
+// `timeMs` is how long it counts down for: the Preset's own duration, or an Adjusted one.
+export function start(state, preset, now, timeMs = durationMs(preset)) {
   if (!PRESETS.includes(preset)) throw new RangeError(`Not a Preset: ${preset}`);
-  return { ...state, activeRun: { preset, startedAt: now, plannedEndAt: now + durationMs(preset) } };
+  const run = { preset, startedAt: now, plannedEndAt: now + timeMs };
+  return { ...state, activeRun: timeMs === durationMs(preset) ? run : { ...run, durationMs: timeMs } };
+}
+
+// The Adjust step for each Preset, in seconds, and the shortest and longest time it allows.
+const STEP_S = { 1: 5, 2: 5, 3: 10, 5: 15, 10: 30 };
+const SHORTEST_S = 5;
+const LONGEST_S = 59 * 60 + 59;
+
+// How many seconds one Adjust step is for this Preset.
+export function adjustStepSeconds(preset) {
+  return STEP_S[preset];
+}
+
+// A Selected Preset's time `timeMs` Adjusted one step up (+1) or down (-1), to the next
+// multiple of its step, so the time stays round. At a limit it stays where it is.
+export function adjust(preset, timeMs, direction) {
+  const step = STEP_S[preset];
+  const steps = direction > 0 ? Math.floor(timeMs / 1000 / step) + 1 : Math.ceil(timeMs / 1000 / step) - 1;
+  return Math.min(LONGEST_S, Math.max(SHORTEST_S, steps * step)) * 1000;
+}
+
+// How long a Run counts down for in all: its Adjusted time, or else its Preset's.
+export function runDurationMs(run) {
+  return run.durationMs ?? durationMs(run.preset);
 }
 
 // How long a Run of this Preset counts down for.
@@ -59,10 +86,6 @@ export function stop(state, now) {
   const run = finished(resume(state, now).activeRun, now, "stopped");
   if (ranMs(run) < MIS_TAP_MS) return { ...state, activeRun: null };
   return file(state, run);
-}
-
-export function replace(state, preset, now) {
-  return start(stop(state, now), preset, now);
 }
 
 // Files the Run as Completed once it has reached zero. However late this is noticed
@@ -113,10 +136,12 @@ export function deleteLesson(state, id) {
   return { ...state, lessons: state.lessons.filter((lesson) => lesson.id !== id) };
 }
 
-// A Run that was never paused keeps the shape Runs had before Pause existed.
+// A Run that was never paused, nor Adjusted, keeps the shape Runs had before either existed.
 function finished(run, endedAt, outcome) {
   const done = { preset: run.preset, startedAt: run.startedAt, endedAt, outcome };
-  return run.pausedMs ? { ...done, pausedMs: run.pausedMs } : done;
+  if (run.durationMs != null) done.durationMs = run.durationMs;
+  if (run.pausedMs) done.pausedMs = run.pausedMs;
+  return done;
 }
 
 function withinLessonGap(lesson, at) {

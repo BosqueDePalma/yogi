@@ -22,7 +22,7 @@ const BEADS = 108;
 const GAP = 14; // degrees left for the guru bead
 
 // The demo's lotus, on its 90-second scale: t = when the ring starts, w = how long its
-// petals take to all start, d = how long one petal takes to grow. Stretched to each Preset.
+// petals take to all start, d = how long one petal takes to grow. Stretched to each Run's time.
 const DEMO_S = 90;
 const RINGS = [
   { n: 12, turn: 0, h: 250, r: 215, tone: "p1", t: 1, w: 32, d: 14 },
@@ -100,15 +100,15 @@ export function createLotusDial(svg, { reducedMotion = false } = {}) {
   // Om, shown in Ready (base.css fades it in and out).
   draw("path", { class: "lotus-om", d: OM, transform: "translate(0 -38) scale(1.45)" }, mala);
 
-  let shown = null; // { preset, elapsedMs, layers, animations, celebrating }: the Run on show
+  let shown = null; // { durationMs, elapsedMs, layers, animations, celebrating }: the Run on show
   let leaving = null; // a Run still fading out
 
-  function start(preset) {
+  function start(durationMs) {
     if (shown) dispose(shown);
     if (leaving) dispose(leaving);
     shown = leaving = null;
     const layers = [draw("g", {}, glowSlot), draw("g", {}, runSlot)];
-    shown = { preset, elapsedMs: 0, layers, animations: buildRun(preset, layers), celebrating: false };
+    shown = { durationMs, elapsedMs: 0, layers, animations: buildRun(durationMs, layers), celebrating: false };
     swaying?.play();
   }
 
@@ -133,8 +133,8 @@ export function createLotusDial(svg, { reducedMotion = false } = {}) {
   }
 
   // Everything one Run animates, on one timeline from its start to the end of the fade.
-  function buildRun(preset, [glowLayer, layer]) {
-    const D = preset * 60;
+  function buildRun(durationMs, [glowLayer, layer]) {
+    const D = durationMs / 1000;
     const F = D + CELEBRATE_S;
     const T = F + FADE_S;
     const k = D / DEMO_S;
@@ -269,19 +269,20 @@ export function createLotusDial(svg, { reducedMotion = false } = {}) {
     swaying?.pause();
   }
 
-  // `dial` is the Timer screen view's { preset, elapsedMs } for the Run on show (during
-  // the Run and its celebration), or null after it. `mode` is the view's mode; while it is
-  // "paused", the picture stands still.
+  // `dial` is the Timer screen view's { durationMs, elapsedMs } for the Run on show (a
+  // Selected Preset's Run before it starts, then the Run and its celebration), or null after
+  // it. `mode` is the view's mode; while it is "paused" or "selected", the picture stands still.
   function update(dial, mode) {
     if (dial) {
       // Resuming builds the picture afresh at the right point, as reopening the app does. Safari
       // restarts animations that were paused with a stale clock: for a few frames the lotus ran
       // ahead by the length of the pause, then jumped back.
-      const resuming = shown && mode !== "paused" && shown.animations[0].playState === "paused";
-      const restarted = !shown || resuming || shown.preset !== dial.preset || dial.elapsedMs < shown.elapsedMs;
-      if (restarted) start(dial.preset);
+      const still = mode === "paused" || mode === "selected";
+      const resuming = shown && !still && shown.animations[0].playState === "paused";
+      const restarted = !shown || resuming || shown.durationMs !== dial.durationMs || dial.elapsedMs < shown.elapsedMs;
+      if (restarted) start(dial.durationMs);
       const first = shown.animations[0];
-      if (mode === "paused") {
+      if (still) {
         if (restarted || first.playState !== "paused" || first.currentTime !== dial.elapsedMs) pauseAt(dial.elapsedMs);
       } else {
         const drift = Math.abs((first.currentTime ?? -Infinity) - dial.elapsedMs);

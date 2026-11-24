@@ -3,7 +3,6 @@ import {
   PRESETS,
   start,
   stop,
-  replace,
   pause,
   resume,
   isPaused,
@@ -13,6 +12,8 @@ import {
   lessonSummaries,
   ranMs,
   deleteLesson,
+  runDurationMs,
+  adjust,
 } from "./teaching.js";
 
 const MIN = 60_000;
@@ -157,15 +158,6 @@ describe("pausing a Run", () => {
     expect(late).toBe(false);
   });
 
-  it("can be Replaced, saving the Paused Run as Stopped", () => {
-    const state = replace(pause(start(empty, 3, t(9)), t(9, 1)), 5, t(9, 4));
-    const [run] = currentLesson(state, t(9, 4)).runs;
-    expect(run.outcome).toBe("stopped");
-    expect(ranMs(run)).toBe(MIN);
-    expect(isPaused(state)).toBe(false);
-    expect(remaining(state, t(9, 4))).toBe(5 * MIN);
-  });
-
   it("stays paused at the same point when the app is closed and reopened", () => {
     const saved = JSON.stringify(pause(start(empty, 5, t(9)), t(9, 2, 19)));
     const state = JSON.parse(saved);
@@ -185,6 +177,59 @@ describe("pausing a Run", () => {
     const paused = pause(start(state, 5, t(9)), t(9, 1));
     expect(paused.lessons).toBe(state.lessons);
     expect(resume(paused, t(9, 2)).lessons).toBe(state.lessons);
+  });
+});
+
+describe("an Adjusted Run", () => {
+  it("counts down from the time it was started with, not its Preset's", () => {
+    const state = start(empty, 1, t(9), 90_000);
+    expect(remaining(state, t(9))).toBe(90_000);
+    expect(check(state, t(9, 1)).completed).toBeNull();
+  });
+
+  it("is filed with its own time", () => {
+    const { completed } = check(start(empty, 1, t(9), 90_000), t(9, 1, 30));
+    expect(completed).toEqual({ preset: 1, startedAt: t(9), endedAt: t(9, 1, 30), outcome: "completed", durationMs: 90_000 });
+    expect(runDurationMs(completed)).toBe(90_000);
+  });
+
+  it("paused and resumed, completes once it has counted all of its own time", () => {
+    let state = pause(start(empty, 1, t(9), 90_000), t(9, 0, 30));
+    state = resume(state, t(9, 1));
+    expect(check(state, t(9, 1, 59)).completed).toBeNull();
+    expect(check(state, t(9, 2)).completed).toMatchObject({ durationMs: 90_000, pausedMs: 30_000 });
+  });
+
+  it("stopped, is filed with its own time too", () => {
+    const state = stop(start(empty, 1, t(9), 90_000), t(9, 0, 40));
+    expect(state.lessons[0].runs[0]).toEqual({ preset: 1, startedAt: t(9), endedAt: t(9, 0, 40), outcome: "stopped", durationMs: 90_000 });
+  });
+
+  it("survives being saved and reloaded mid-Run", () => {
+    const reloaded = JSON.parse(JSON.stringify(start(empty, 1, t(9), 90_000)));
+    expect(check(reloaded, t(9, 1, 30)).completed.durationMs).toBe(90_000);
+  });
+});
+
+describe("Adjusting a Selected Preset", () => {
+  it("steps by its Preset: 5 s for 1 and 2 min, 10 s for 3, 15 s for 5, 30 s for 10", () => {
+    expect([1, 2, 3, 5, 10].map((p) => adjust(p, p * MIN, +1) - p * MIN)).toEqual([5_000, 5_000, 10_000, 15_000, 30_000]);
+    expect([1, 2, 3, 5, 10].map((p) => p * MIN - adjust(p, p * MIN, -1))).toEqual([5_000, 5_000, 10_000, 15_000, 30_000]);
+  });
+
+  it("snaps to the step, so the time stays round", () => {
+    expect(adjust(1, 63_000, +1)).toBe(65_000);
+    expect(adjust(1, 63_000, -1)).toBe(60_000);
+    expect(adjust(10, 10 * MIN + 10_000, +1)).toBe(10 * MIN + 30_000);
+  });
+
+  it("never goes below 0:05 or above 59:59", () => {
+    expect(adjust(1, 8_000, -1)).toBe(5_000);
+    expect(adjust(1, 5_000, -1)).toBe(5_000);
+    expect(adjust(10, 20_000, -1)).toBe(5_000);
+    expect(adjust(10, 59 * MIN + 40_000, +1)).toBe(59 * MIN + 59_000);
+    expect(adjust(10, 59 * MIN + 59_000, +1)).toBe(59 * MIN + 59_000);
+    expect(adjust(10, 59 * MIN + 59_000, -1)).toBe(59 * MIN + 30_000);
   });
 });
 
@@ -230,27 +275,6 @@ describe("the current Lesson", () => {
     let state = complete(empty, 3, t(9)); // ends 9:03
     state = start(state, 10, t(11));
     expect(currentLesson(state, t(11, 1))).toBeNull();
-  });
-});
-
-describe("replacing a Run", () => {
-  it("saves the current Run as Stopped and starts the new Preset", () => {
-    const state = replace(start(empty, 3, t(9)), 5, t(9, 1));
-    expect(currentLesson(state, t(9, 1)).runs).toEqual([
-      { preset: 3, startedAt: t(9), endedAt: t(9, 1), outcome: "stopped" },
-    ]);
-    expect(remaining(state, t(9, 1))).toBe(5 * MIN);
-  });
-
-  it("restarting with the same Preset begins its countdown again", () => {
-    const state = replace(start(empty, 3, t(9)), 3, t(9, 2));
-    expect(remaining(state, t(9, 2))).toBe(3 * MIN);
-  });
-
-  it("drops the replaced Run if it was a Mis-tap", () => {
-    const state = replace(start(empty, 1, t(9)), 2, t(9, 0, 2));
-    expect(state.lessons).toEqual([]);
-    expect(remaining(state, t(9, 0, 2))).toBe(2 * MIN);
   });
 });
 

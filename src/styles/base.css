@@ -116,6 +116,7 @@ button {
   font: inherit;
   color: inherit;
   touch-action: manipulation;
+  -webkit-touch-callout: none; /* a long touch shows no iOS menu or loupe */
 }
 
 .panels {
@@ -370,13 +371,15 @@ button {
   transition: opacity 1.5s ease-in-out;
 }
 
-/* "Paused", under the paused countdown. */
-.paused-note {
+/* "Paused", under the paused countdown, and "Tap to start" under a Selected Preset's time. */
+.paused-note,
+.start-note {
   position: absolute;
   left: 50%;
   top: 60%;
   translate: -50% -50%;
   margin: 0;
+  white-space: nowrap; /* placed from the middle, it would otherwise wrap at half the width */
   font-size: 6.5cqi;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -388,7 +391,8 @@ button {
 
 /* A Paused Run: the countdown breathes, so a clock standing still shows from across the
    room. With Reduce Motion on it only dims. */
-.timer[data-paused] .paused-note {
+.timer[data-paused] .paused-note,
+.timer[data-selected] .start-note {
   opacity: 1;
 }
 
@@ -434,13 +438,54 @@ button {
   font-weight: 600;
 }
 
-/* Stop shows only while a Run is paused; its place stays kept, so nothing moves. It fades in
-   and out with "Paused"; hidden, it can't be tapped or reached by VoiceOver. */
-.stop {
+/* − and + either side of Stop's place, as round as Stop is tall, their signs drawn (not
+   typed) so they sit exactly in the middle. Dimmed at a limit, they still read as buttons. */
+.stop-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.adjust-step {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.adjust-step svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.adjust-step:active:not(:disabled) {
+  background: var(--edge);
+}
+
+.adjust-step:disabled {
+  opacity: 0.35;
+}
+
+/* Stop shows only while a Run is paused, and as Cancel with a Selected Preset, when − and +
+   show too; their places stay kept, so nothing moves. They fade in and out with "Paused" and
+   "Tap to start"; hidden, they can't be tapped or reached by VoiceOver. */
+.stop,
+.adjust-step {
   transition: opacity 0.3s ease-out, visibility 0s;
 }
 
-.timer:not([data-paused]) .stop {
+.timer:not([data-paused]):not([data-selected]) .stop,
+.timer:not([data-selected]) .adjust-step {
   visibility: hidden;
   opacity: 0;
   transition: opacity 0.3s ease-out, visibility 0s 0.3s;
@@ -448,7 +493,9 @@ button {
 
 @media (prefers-reduced-motion: reduce) {
   .stop,
-  .timer:not([data-paused]) .stop {
+  .adjust-step,
+  .timer:not([data-paused]):not([data-selected]) .stop,
+  .timer:not([data-selected]) .adjust-step {
     transition: none;
   }
 }
@@ -492,7 +539,9 @@ button {
   line-height: 1.1;
 }
 
-.timer .preset[data-armed] {
+/* "Tap again", and the Selected Preset, which looks pressed in the same strong colours. */
+.timer .preset[data-armed],
+.timer .preset[data-selected] {
   background: var(--text);
   color: var(--bg);
   box-shadow: none;

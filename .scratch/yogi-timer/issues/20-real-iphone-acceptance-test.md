@@ -23,7 +23,7 @@ Blocked by: 19
 - [ ] The Lotus dial (issue 12): a 10-minute Run stays smooth and doesn't drain the battery noticeably; reopening mid-Run jumps to the right point; it looks right in light and dark mode, and with Reduce Motion on.
 - [ ] Stop, Replace ("Tap again") and Mis-tap (< 5 s) all behave as in the spec.
 - [ ] Pause (issue 22): a tap on the lotus pauses at once and another resumes; a paused countdown is obvious from across the room; Stop shows only while paused. With VoiceOver the dial reads "Pause, … left" and "Resume, … left", and Stop can be reached. With Reduce Motion on, the paused countdown only dims. A stray tap mid-class is easy to notice and undo. With VoiceOver on the dial while a Run counts, check it doesn't re-read the label every second, and where focus lands after Stop and at zero.
-- [ ] Adjust (issue 24): a tapped Preset shows "Tap to start" and Cancel, and − / + change its time in steps, repeating when held. Mid-class, is the extra tap before every Run fine, or does it slow her down? With VoiceOver, − and + read "Remove 5 seconds" and "Add 5 seconds", and the selected Preset reads "selected".
+- [ ] Adjust (issue 24): a tapped Preset shows "Tap to start" and Cancel, and − / + change its time in steps, repeating when held. Mid-class, is the extra tap before every Run fine, or does it slow her down? With VoiceOver, − and + read "Remove 5 seconds" and "Add 5 seconds", a double-tap on them steps once, and the selected Preset reads "selected".
 - [ ] A Run more than 90 minutes after the last one starts a new Lesson.
 - [ ] After an update is published, the Chime choice and History are still there (see issue 07).
 - [ ] History shows Lessons correctly, and deleting a Lesson works and sticks after closing and reopening the app.

@@ -1,6 +1,6 @@
 # Adjust a Selected Preset
 
-Status: ready-for-agent
+Status: resolved
 Type: feature
 Blocked by: None (can start immediately)
 Blocks: 18
@@ -61,20 +61,20 @@ What the prototype showed:
 
 ## Acceptance criteria
 
-- [ ] A tap on a Preset with no Run going selects it: its time shows with "Tap to start", nothing counts, and − / + and Cancel show. Another Preset tapped selects that one instead.
-- [ ] A tap on the lotus, or on the Selected Preset again, starts its Run from the selected time.
-- [ ] Cancel drops the selection and goes back to Ready, with nothing saved.
-- [ ] − and + step by the Preset's step and snap to its multiples. They never go below 0:05 or above 59:59, and are dimmed at the limit. Held, they repeat.
-- [ ] The Preset's own time doesn't change: the next selection starts from 1, 2, 3, 5 or 10 minutes.
-- [ ] With a Run going, paused or not, a Preset tap shows "Tap again". The second tap saves the Run as Stopped and selects the Preset without starting it.
-- [ ] An Adjusted Run counts down from its own time, the Lotus dial follows that time, and it is saved with it. History and "This lesson" read "1:30 · completed" or "2 min · completed".
-- [ ] History saved before this change loads and reads the same.
-- [ ] A selection survives a switch to History and back, and opening Settings. After a reopen the app shows Ready.
-- [ ] The screen isn't kept awake by a selection alone.
-- [ ] "Tap to start", "Cancel" and the − and + signs are centred, and their colours read well in Glow and Bead, light and dark.
-- [ ] The Timer tab doesn't scroll at 375 × 667 and 402 × 874, with a Preset selected.
-- [ ] VoiceOver reads the selected Preset, the lotus ("Start, 1:05") and − / + ("Remove 5 seconds").
-- [ ] **Checked in the iOS Simulator as the installed web app**, launched from its Home Screen icon, with real taps:
+- [x] A tap on a Preset with no Run going selects it: its time shows with "Tap to start", nothing counts, and − / + and Cancel show. Another Preset tapped selects that one instead.
+- [x] A tap on the lotus, or on the Selected Preset again, starts its Run from the selected time.
+- [x] Cancel drops the selection and goes back to Ready, with nothing saved.
+- [x] − and + step by the Preset's step and snap to its multiples. They never go below 0:05 or above 59:59, and are dimmed at the limit. Held, they repeat.
+- [x] The Preset's own time doesn't change: the next selection starts from 1, 2, 3, 5 or 10 minutes.
+- [x] With a Run going, paused or not, a Preset tap shows "Tap again". The second tap saves the Run as Stopped and selects the Preset without starting it.
+- [x] An Adjusted Run counts down from its own time, the Lotus dial follows that time, and it is saved with it. History and "This lesson" read "1:30 · completed" or "2 min · completed".
+- [x] History saved before this change loads and reads the same.
+- [x] A selection survives a switch to History and back, and opening Settings. After a reopen the app shows Ready.
+- [x] The screen isn't kept awake by a selection alone. (`view()` gives `running: false` for a selection, which releases the wake lock; the lock itself is for the real-iPhone test.)
+- [x] "Tap to start", "Cancel" and the − and + signs are centred, and their colours read well in Glow and Bead, light and dark.
+- [x] The Timer tab doesn't scroll at 375 × 667 and 402 × 874, with a Preset selected.
+- [ ] VoiceOver reads the selected Preset, the lotus ("Start, 1:05") and − / + ("Remove 5 seconds"). (The labels are in the DOM; VoiceOver itself is for the real-iPhone test.)
+- [x] **Checked in the iOS Simulator as the installed web app**, launched from its Home Screen icon, with real taps:
   - Select, Adjust with taps and by holding, and start from the lotus and from the Preset.
   - Two quick taps on a Preset start it with no zoom. A long touch on a Preset or − / + shows no iOS menu or loupe.
   - Cancel, and Replace from a Run and from a pause.
@@ -97,3 +97,55 @@ What the prototype showed:
 - TDD for the History line in `format.js` ("1:30", "2 min").
 - The hold to repeat, the centring and the colours are the controller and CSS: checked in the browser at both sizes, then in the iOS Simulator as the installed web app.
 - VoiceOver on a device goes to the real-iPhone test ([issue 20](20-real-iphone-acceptance-test.md)).
+
+## Comments
+
+### 2026-11-24, done.
+
+- **The rules**, in `teaching.js`.
+  - `start()` takes the Run's time (`timeMs`), and an Adjusted Run keeps it as `durationMs`, set only when it isn't its Preset's own time. So a Run never Adjusted, or Adjusted back, keeps the shape saved before, and old History loads as it was.
+  - `runDurationMs()` gives a Run's time either way. The Lotus dial, the countdown and the History line use it.
+  - `adjust(preset, timeMs, direction)` takes one step, snapped to the step's multiples, within 0:05 and 59:59. `adjustStepSeconds()` gives the step for VoiceOver.
+  - `replace()` is gone: a Replace now ends the Run and selects, which is the Timer screen's job.
+  - 8 new tests. The domain Replace tests moved to the Timer screen.
+- **The History line**, in `format.js`: "1:30 · completed", or "2 min" when the time is whole minutes. 2 new tests.
+- **The Timer screen**, in `timer_screen.js`.
+  - A tap on a Preset selects it. A second tap on it, or a tap on the lotus, starts it. Stop's button is Cancel while a Preset is selected.
+  - `adjust()` is − and +.
+  - `view()` adds the mode `"selected"`, `selectedPreset` and `adjust` (`{ step, canRemove, canAdd }`, null without a selection). While a Preset is selected, the dial shows the start of the Run over the Preset's own time, so the lotus stands still while she Adjusts.
+  - The selection lives only here and is never saved.
+  - 10 new tests. The tests that started a Run with one tap now select and tap again (`startRun`). Those for Replace now expect a selection.
+- **The page.**
+  - − and + sit either side of Stop's place, with drawn signs so they sit exactly in the middle. They are dimmed at a limit and named "Remove 5 seconds" or "Add 5 seconds" with the Preset's step.
+  - A finger steps once on touch, then repeats every 200 ms after 500 ms. The repeat stops at a limit. A click with no pointer behind it (keyboard, VoiceOver) steps once.
+  - "Tap to start" sits in the place and style of "Paused", and the Selected Preset uses the "Tap again" colours.
+  - `white-space: nowrap` keeps both notes on one line and centred. Placed from the middle, they wrapped at half the width.
+  - No button shows the iOS callout on a long touch.
+  - The Lotus dial now takes `{ durationMs, elapsedMs }` and stands still for `"selected"` as for `"paused"`.
+- **Checked in the browser pane.**
+  - Select, re-select, Adjust (taps and hold), the limits and dimming, Cancel, and start from the lotus and from the Preset.
+  - Replace from a paused Run.
+  - A selection survives a switch to History and back.
+  - "Tap to start", the countdown, Stop's row and the − / + signs share one centre, to the pixel. Their colour is the Theme's text colour, as "Paused" and Stop.
+  - The Timer panel's `scrollHeight` equals its `clientHeight` with a selection at 375 × 667 and 402 × 874.
+- **Checked in the iOS Simulator** (iPhone 17), as the installed web app opened from its Home Screen icon, with real taps.
+  - Select the 1, hold − to 0:30 (about 5 steps a second), and hold on to 0:05, where − dims.
+  - + to 0:10, then start from the lotus. It reached 0:00 with the celebration, the Chime played (the speaker shows in the Dynamic Island), and "0:10 · completed" joined "This lesson" at the top.
+  - Replace from a pause: "3 min · stopped 0:16", and the 5 is selected without counting.
+  - Two quick taps on a Preset during an armed "Tap again" Replace, then start.
+  - Cancel goes back to Ready, with nothing saved.
+  - Settings opens over a selection and keeps it.
+  - Glow and Bead, each in light and dark.
+  - Screenshots:
+    - [Glow light, 0:05](24-adjust-a-selected-preset/glow-light-at-0-05.png)
+    - [Glow light, the Adjusted Run completed](24-adjust-a-selected-preset/glow-light-adjusted-run-completed.png)
+    - [Glow light, Replace from a pause](24-adjust-a-selected-preset/glow-light-replace-from-pause.png)
+    - [Glow dark](24-adjust-a-selected-preset/glow-dark-selected.png)
+    - [Bead dark](24-adjust-a-selected-preset/bead-dark-selected.png)
+    - [Bead light](24-adjust-a-selected-preset/bead-light-selected.png)
+  - A few Simulator taps were lost while the page was changing (the sheet opening or closing, a reload). The same tap repeated a moment later worked.
+- **Not checked on a device:** VoiceOver (the labels, and that a double-tap on − or + steps once), and the wake lock. Both go to [issue 20](20-real-iphone-acceptance-test.md).
+- **Leftovers:**
+  - `view()` builds the selection's object apart from the Run's, so the two list the same keys.
+  - Stop's "Cancel" label is chosen in the controller from the mode, not given by `view()`.
+  - Over a 10-second Run the beads light faster at the start than the time left suggests. The Lotus dial's own timing does this on very short Runs.

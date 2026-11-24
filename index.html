@@ -47,9 +47,23 @@
               aria-label="A mala of 108 beads lights up blue one by one around a blooming lotus; the blue lotus tassel opens when the Run completes"></svg>
             <p class="countdown" role="timer" data-timer-target="countdown">Ready</p>
             <p class="paused-note" aria-hidden="true">Paused</p>
+            <p class="start-note" aria-hidden="true">Tap to start</p>
             <button class="dial-toggle" type="button" data-timer-target="dialToggle" data-action="timer#tapDial" hidden></button>
           </div>
-          <button class="stop" type="button" data-action="timer#stop">Stop</button>
+          <!-- Stop while a Run is paused, Cancel with a Selected Preset; − and + Adjust that Preset. -->
+          <div class="stop-row">
+            <button class="adjust-step" type="button" data-timer-target="adjustStep" data-timer-direction-param="-1"
+              data-action="pointerdown->timer#pressAdjust pointerup->timer#releaseAdjust pointercancel->timer#releaseAdjust pointerleave->timer#releaseAdjust click->timer#clickAdjust"
+              aria-label="Remove 5 seconds" inert>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>
+            </button>
+            <button class="stop" type="button" data-action="timer#stop">Stop</button>
+            <button class="adjust-step" type="button" data-timer-target="adjustStep" data-timer-direction-param="1"
+              data-action="pointerdown->timer#pressAdjust pointerup->timer#releaseAdjust pointercancel->timer#releaseAdjust pointerleave->timer#releaseAdjust click->timer#clickAdjust"
+              aria-label="Add 5 seconds" inert>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
         </div>
         <div class="presets" role="group" aria-label="Presets">
           <button class="preset" type="button" data-timer-target="preset" data-action="timer#tapPreset" data-timer-preset-param="1"

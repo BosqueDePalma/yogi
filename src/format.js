@@ -1,5 +1,5 @@
 // Text shown on screen. No DOM here, so it can be tested directly.
-import { ranMs } from "./domain/teaching.js";
+import { ranMs, runDurationMs } from "./domain/teaching.js";
 
 // m:ss, with part-seconds rounded up: a Run reads 0:01 until it really is zero.
 export function formatCountdown(ms) {
@@ -7,9 +7,12 @@ export function formatCountdown(ms) {
 }
 
 // "3 min · completed" or "5 min · stopped 2:41" (the whole seconds it counted, pauses left out).
+// An Adjusted Run shows its own time: "1:30 · completed", or "2 min" when it is whole minutes.
 export function describeRun(run) {
-  if (run.outcome === "completed") return `${run.preset} min · completed`;
-  return `${run.preset} min · stopped ${clock(Math.floor(ranMs(run) / 1000))}`;
+  const seconds = Math.round(runDurationMs(run) / 1000);
+  const time = seconds % 60 === 0 ? `${seconds / 60} min` : clock(seconds);
+  if (run.outcome === "completed") return `${time} · completed`;
+  return `${time} · stopped ${clock(Math.floor(ranMs(run) / 1000))}`;
 }
 
 // A Lesson's Runs as lines ready to draw: [{ text, outcome }]. Used by both tabs.

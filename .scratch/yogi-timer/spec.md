@@ -129,10 +129,10 @@ Settings open (over the Timer tab, covering the tab bar):
 
 - Built with Vite, Stimulus (`@hotwired/stimulus`), plain HTML, plain modern JavaScript and modern CSS. No TypeScript, no UI framework.
 - `vite-plugin-pwa` provides the web app manifest and the offline service worker.
-- The domain rules (Lessons, Runs, Pause, Lesson Gap, Mis-tap, Replace, clock-based countdown) live in plain JavaScript modules with no DOM and no Stimulus. They take the current time as an input, so tests don't depend on the real clock. They are written test-first with Vitest.
+- The domain rules (Lessons, Runs, Pause, Adjust, Lesson Gap, Mis-tap, clock-based countdown) live in plain JavaScript modules with no DOM and no Stimulus. They take the current time as an input, so tests don't depend on the real clock. They are written test-first with Vitest.
 - Storage sits behind a small module that reads and writes the History JSON in localStorage.
 - Stimulus controllers only connect the domain modules and storage to the page: the timer, the Preset confirmation, the History list, the Chime and the Chime selector, and the Settings sheet.
-- The Timer tab's own rules (Run completion, Pause, the Replace confirmation, the 0:00 pulse, what the countdown shows, and whether the Chime rings) live in a DOM-free module that takes the time as an input. The timer controller only draws what it returns ([issue 08](issues/08-run-screen-module.md)).
+- The Timer tab's own rules (the Selected Preset, Run completion, Pause, Replace and its confirmation, the 0:00 pulse, what the countdown shows, and whether the Chime rings) live in a DOM-free module that takes the time as an input. The timer controller only draws what it returns ([issue 08](issues/08-run-screen-module.md)).
 - The Chime's rules (her saved choice, no preview during a Run, unlocking audio inside a tap) live in a module with no DOM and no Web Audio. The Web Audio player sits behind a seam, so tests use a fake ([issue 10](issues/10-chime-module.md)).
 - The History tab's rows (newest first, date and time, Run count, total, and each Run line) are built by a DOM-free module. The History controller only draws them and asks before a delete ([issue 11](issues/11-history-screen-module.md)).
 - The Lotus dial is drawn with SVG and the Web Animations API, behind `createLotusDial(svg)` in `lotus_dial.js`. The Timer screen module tells it which Run to show and how far it has gone; it keeps no clock of its own ([issue 12](issues/12-lotus-dial.md)).
