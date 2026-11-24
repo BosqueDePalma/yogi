@@ -109,7 +109,7 @@ A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keep
 - The Chime's rules (her saved choice, no preview during a Run, unlocking audio inside a tap) live in a module with no DOM and no Web Audio. The Web Audio player sits behind a seam, so tests use a fake ([issue 10](issues/10-chime-module.md)).
 - The History tab's rows (newest first, date and time, Run count, total, and each Run line) are built by a DOM-free module. The History controller only draws them and asks before a delete ([issue 11](issues/11-history-screen-module.md)).
 - The Lotus dial is drawn with SVG and the Web Animations API, behind `createLotusDial(svg)` in `lotus_dial.js`. The Timer screen module tells it which Run to show and how far it has gone; it keeps no clock of its own ([issue 12](issues/12-lotus-dial.md)).
-- Hosting is GitHub Pages, set up **after** the app is finished and only with the user's go-ahead ([issue 13](issues/13-github-pages-hosting.md)).
+- Hosting is GitHub Pages, set up **after** the app is finished and only with the user's go-ahead ([issue 17](issues/17-github-pages-hosting.md)).
 
 ## Open questions
 

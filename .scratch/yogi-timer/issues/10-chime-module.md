@@ -25,7 +25,7 @@ Her saved choice lives in a separate, shallow `chimes.js`. This came out of cand
   - `tap()`: unlock audio only while a Run is going.
 - **Seam at the player:** `player` is `{ play(name) → stopFn, unlock() }`.
   - The app passes `audio/player.js`, the real Web Audio adapter. Tests pass a fake that records its calls.
-  - `player.js` itself stays untested; the real-iPhone test ([issue 14](14-real-iphone-acceptance-test.md)) covers how it sounds.
+  - `player.js` itself stays untested; the real-iPhone test ([issue 18](18-real-iphone-acceptance-test.md)) covers how it sounds.
 - **Is a Run going?** The module takes an `isRunning: () => boolean` function, wired to the store in the controller. It never sees the saved state's shape.
 - **`audio/sounds.js` stays as is.** It's tuning data, not behaviour.
 - **What `chime_controller.js` keeps:**
@@ -65,4 +65,4 @@ These use a fake player, fake storage and a switchable `isRunning`. Write them t
 - `src/chime.test.js` has the seven tests, written one at a time, with a fake player, fake storage and a switchable `isRunning`. Test 1 keeps the fallback cases from `chimes.test.js`. Test 4 passed with no new code, because `ring` came with test 3; it stays as a guard. `chimes.js` and `chimes.test.js` are deleted.
 - `chime_controller.js` only builds the module (wiring `isRunning` to the store), checks the saved radio, and forwards the selector, `timer:started`, `timer:ring` and Timer-tab taps.
 - Checked in the browser pane with the clock sped up: switching with no Run going played one preview and saved the choice; switching during a Run saved it silently; the Chime played at zero; the choice was still checked after a reload. No console errors.
-- Also checked in the Simulator on request (Home Screen app on iPhone 17, after a full relaunch to pick up the new build): choosing Gong with no Run going lit the audio indicator once; switching to Bowl during a 1-minute Run was silent; at zero the audio indicator showed with the 0:00 pulse and "1 min · completed"; after another full relaunch Bowl was still selected. How it sounds is left to the real-iPhone check (issue 14).
+- Also checked in the Simulator on request (Home Screen app on iPhone 17, after a full relaunch to pick up the new build): choosing Gong with no Run going lit the audio indicator once; switching to Bowl during a 1-minute Run was silent; at zero the audio indicator showed with the 0:00 pulse and "1 min · completed"; after another full relaunch Bowl was still selected. How it sounds is left to the real-iPhone check (issue 18).

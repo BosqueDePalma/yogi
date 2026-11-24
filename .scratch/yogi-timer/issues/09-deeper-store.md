@@ -3,7 +3,7 @@
 Status: resolved
 Type: task
 Blocked by: 08
-Blocks: 10, 11, 13
+Blocks: 10, 11, 17
 
 A small refactor, plus one thing the Teacher can see. `src/store.js` keeps the one shared copy of her state, and the deletion test says it earns its place. Its gaps are:
 - it is hard-wired to `localStorage`, so it can't be tested;

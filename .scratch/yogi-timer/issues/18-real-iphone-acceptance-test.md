@@ -2,7 +2,7 @@
 
 Status: ready-for-human
 Type: task
-Blocked by: 13
+Blocked by: 17
 
 **Remind the user once the whole app is built and hosted.** This is the final check on a real iPhone, ideally the Teacher's own, using the finished app installed from the GitHub Pages URL. The Simulator can't stand in for it: it has no silent switch, and it handles a locked screen differently (see [issue 01](01-chime-and-wake-lock-test.md)).
 
@@ -26,5 +26,6 @@ Blocked by: 13
 - [ ] After an update is published, the Chime choice and History are still there (see issue 07).
 - [ ] History shows Lessons correctly, and deleting a Lesson works and sticks after closing and reopening the app.
 - [ ] Light and dark mode both look calm and readable.
+- [ ] Themes (issues 13–16): Glow and Bead, each in light and dark, look calm on the real screen. 0:00 is readable across the room and hands off cleanly to Ready. The chosen Chime and Theme are easy to spot. The status bar follows the theme from the first frame, including in the Home Screen app.
 
 ## Comments
