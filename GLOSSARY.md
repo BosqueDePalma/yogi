@@ -1,6 +1,6 @@
 # Yogi Timer
 
-A one-tap countdown timer a yoga teacher uses while teaching, which keeps a history of her lessons.
+A countdown timer a yoga teacher uses while teaching, which keeps a history of her lessons.
 
 ## Language
 
@@ -9,11 +9,11 @@ The person running the app on her phone while leading a class. The app has exact
 _Avoid_: User, yogi master, instructor
 
 **Preset**:
-One of the fixed durations that starts a Run with a single tap: 1, 2, 3, 5 or 10 minutes.
+One of the fixed durations a Run starts from: 1, 2, 3, 5 or 10 minutes. A tap on a Preset makes it the **Selected Preset**; it doesn't start a Run.
 _Avoid_: Button, option, timer length
 
 **Run**:
-One countdown from a Preset's duration toward zero. A Run belongs to exactly one Lesson. While it is going it can be paused and resumed any number of times.
+One countdown from a Preset's duration, or from that duration once Adjusted, toward zero. A Run belongs to exactly one Lesson. While it is going it can be paused and resumed any number of times.
 _Avoid_: Timer, session, round
 
 **Completed Run**:
@@ -30,6 +30,14 @@ _Avoid_: Hold, freeze
 **Paused Run**:
 A Run whose countdown is on hold. A Paused Run still left paused when the Lesson Gap has passed becomes a Stopped Run, ending when it was paused.
 
+**Selected Preset**:
+The Preset the Teacher has tapped and not yet started. She can Adjust its time, then start its Run with a tap on the Lotus dial. Nothing is kept of a Selected Preset that is never started.
+_Avoid_: Draft, pending Run, armed Preset
+
+**Adjust**:
+Changing a Selected Preset's time before its Run starts, a step at a time, up or down. Only that Run changes; the Preset stays the same.
+_Avoid_: Tweak, edit, fine-tune
+
 **Chime**:
 The sound played once when a Run completes. The Teacher can switch at any time between Singing bowl (the default), Tingsha and Gong.
 _Avoid_: Alarm, beep, bell, notification
@@ -39,7 +47,7 @@ The look the Teacher chooses for the app: Glow (the default) or Bead. Each Theme
 _Avoid_: Skin, style, colour scheme
 
 **Replace**:
-Starting a new Run from any Preset while a Run is still going or paused, which the Teacher confirms with a second tap. The replaced Run becomes a Stopped Run. Restarting is replacing with the same Preset.
+Ending the Run that is going, paused or not, to select a Preset, which the Teacher confirms with a second tap on that Preset. The replaced Run becomes a Stopped Run and the Preset becomes the Selected Preset; its Run starts like any other. Restarting is replacing with the same Preset.
 _Avoid_: Switch, override
 
 **Lesson**:

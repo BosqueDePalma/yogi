@@ -2,18 +2,18 @@
 
 Status: ready-for-agent
 
-A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keeps a History of her Lessons. Terms follow [GLOSSARY.md](../../GLOSSARY.md); the architecture decision is [ADR 0001](../../docs/adr/0001-static-home-screen-web-app.md).
+A countdown timer the Teacher uses on her iPhone while teaching. It keeps a History of her Lessons. Terms follow [GLOSSARY.md](../../GLOSSARY.md); the architecture decision is [ADR 0001](../../docs/adr/0001-static-home-screen-web-app.md).
 
 ## Goals
 
-- From a cold app open, a single tap starts a Run.
+- From a cold app open, two taps start a Run: a Preset, then the lotus or the same Preset again.
 - She can read the countdown from across the room.
 - Every Lesson is recorded without her ever opening or closing one.
 - It works fully offline after it has been installed once.
 
 ## Non-goals (v1)
 
-- Custom durations or durations in seconds.
+- Custom Presets: the five Presets are fixed. A Selected Preset can be Adjusted, for that one Run only ([issue 24](issues/24-adjust-a-selected-preset.md)).
 - A *guaranteed* chime while the phone is locked. It worked on her iPhone, but iOS doesn't promise it (see ADR 0001).
 - Backup or sync. An Export of History may come after v1 ([issue 18](issues/18-history-export.md)).
 - Notes or names on Lessons, charts, statistics.
@@ -25,12 +25,16 @@ A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keep
 ### Presets and Runs
 
 - There are five Presets: 1, 2, 3, 5 and 10 minutes.
-- With no Run going, tapping a Preset starts a Run immediately.
+- With no Run going, tapping a Preset makes it the **Selected Preset** ([issue 24](issues/24-adjust-a-selected-preset.md)). Nothing counts yet:
+  - The countdown shows its time with "Tap to start" under it, and the lotus shows the start of the Run.
+  - − and + either side of the Stop place **Adjust** its time in steps (5 s for 1 and 2 min, 10 s for 3 min, 15 s for 5 min, 30 s for 10 min), down to 0:05 and up to 59:59. Held, they repeat.
+  - "Cancel", in Stop's place, drops the selection; tapping another Preset selects that one instead.
+  - A tap on the lotus, or on the Selected Preset again, starts the Run.
 - With a Run going, tapping any Preset (the same one included) asks for confirmation first:
   - The tapped button changes to "Tap again" for about 3 seconds.
-  - A second tap within that window **Replaces** the Run: the current Run is saved as a Stopped Run and a new one starts.
+  - A second tap within that window **Replaces** the Run: the current Run is saved as a Stopped Run and the tapped Preset becomes the Selected Preset, to start like any other.
   - If she doesn't tap again, nothing changes.
-- A tap on the Lotus dial **Pauses** the Run and another tap **Resumes** it, as often as she likes ([issue 22](issues/22-pause.md)). The tap acts at once; there is no double tap. In Ready and during 0:00 the dial does nothing. A dial tap while a Preset shows "Tap again" pauses and cancels the confirmation.
+- A tap on the Lotus dial **Pauses** the Run and another tap **Resumes** it, as often as she likes ([issue 22](issues/22-pause.md)). The tap acts at once; there is no double tap. In Ready and during 0:00 the dial does nothing; with a Selected Preset it starts the Run. A dial tap while a Preset shows "Tap again" pauses and cancels the confirmation.
 - While paused the countdown holds still and breathes slowly, with "Paused" under it, and the Lotus dial freezes. With Reduce Motion on it only dims. VoiceOver reads the dial as "Pause, 2:41 left" or "Resume, 2:41 left".
 - **Stop** shows only while a Run is paused, in a place under the dial kept free while it counts, so nothing moves. It ends the Run, which is saved as a Stopped Run. Replace works the same from a pause.
 - Paused time doesn't count: the time a Run ran is only the time it was counting. History shows no sign of pauses.
@@ -60,7 +64,7 @@ A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keep
 ### History
 
 - A second tab lists past Lessons, newest first. Each row shows the date, start time, number of Runs and total minutes timed (the sum of the actual time each Run ran).
-- Tapping a Lesson shows its Runs: the Preset, the actual time it ran, and whether it was completed or stopped.
+- Tapping a Lesson shows its Runs: the Preset (or its Adjusted time, such as 1:30), the actual time it ran, and whether it was completed or stopped.
 - She can delete a whole Lesson after confirming.
 - History is stored in localStorage as one JSON document on her phone only, together with the Run that is going, if any.
 - If the phone refuses to save, the app carries on from memory, and the History tab shows a quiet notice: "History isn't being saved on this phone. New runs will be lost when the app closes." The notice goes away as soon as a save works again. The Timer tab never shows it ([issue 09](issues/09-deeper-store.md)).
@@ -96,9 +100,9 @@ A one-tap countdown timer the Teacher uses on her iPhone while teaching. It keep
 │                         [⚙]  │  ← Settings, both tabs
 │    ( lotus timer )          │  ← Lotus dial, Om + "Ready" when idle
 │        3:00                  │  ← big countdown over the lotus
-│       [ Stop ]               │  ← only while paused; tap the lotus to pause
+│    [−] [ Stop ] [+]          │  ← Stop only while paused; − / + and Cancel only with a Selected Preset
 ├──────────────────────────────┤
-│  [1] [2] [3] [5] [10]        │  ← Presets, tappable during a Run
+│  [1] [2] [3] [5] [10]        │  ← Presets: a tap selects; during a Run, Tap again
 ├──────────────────────────────┤
 │ This lesson · 2 runs · 6 min │  ← newest first, as many as fit
 │  5 min · stopped 2:41        │
