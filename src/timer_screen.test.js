@@ -25,6 +25,46 @@ describe("starting a Run", () => {
   });
 });
 
+describe("the Lotus dial", () => {
+  it("shows nothing in Ready, and how far the Run has gone while it is going", () => {
+    const screen = createTimerScreen(memoryStore());
+    expect(screen.view(t(9)).dial).toBeNull();
+
+    screen.tapPreset(10, t(9));
+
+    expect(screen.view(t(9, 6)).dial).toEqual({ preset: 10, elapsedMs: 6 * 60_000 });
+  });
+
+  it("keeps the completed Run through the 4 s celebration, then shows nothing", () => {
+    const screen = createTimerScreen(memoryStore());
+    screen.tapPreset(1, t(9));
+    screen.tick(t(9, 1, 0, 200));
+
+    expect(screen.view(t(9, 1, 3)).dial).toEqual({ preset: 1, elapsedMs: 63_000 });
+    expect(screen.view(t(9, 1, 4, 200)).dial).toBeNull();
+  });
+
+  it("shows nothing after a Run completed while the app was away", () => {
+    const screen = createTimerScreen(memoryStore());
+    screen.tapPreset(1, t(9));
+    screen.tick(t(9, 7));
+
+    expect(screen.view(t(9, 7)).dial).toBeNull();
+  });
+
+  it("starts over for the new Run after a Replace, and shows nothing after Stop", () => {
+    const screen = createTimerScreen(memoryStore());
+    screen.tapPreset(3, t(9));
+    screen.tapPreset(5, t(9, 1));
+    screen.tapPreset(5, t(9, 1, 2));
+
+    expect(screen.view(t(9, 1, 3)).dial).toEqual({ preset: 5, elapsedMs: 1_000 });
+
+    screen.stop(t(9, 2));
+    expect(screen.view(t(9, 2)).dial).toBeNull();
+  });
+});
+
 describe("the Replace confirmation", () => {
   it("arms the tapped Preset during a Run, and a second tap within 3 s Replaces the Run", () => {
     const screen = createTimerScreen(memoryStore());

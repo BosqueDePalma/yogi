@@ -1,0 +1,193 @@
+<!doctype html>
+<!-- Issue 12: three Ready symbols for the Lotus dial, in the lotus palette, light and dark. -->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ready Symbols</title>
+<style>
+  :root {
+    --page: #f6efec;
+    --page-text: #6b4e58;
+  }
+  /* The lotus palette, light */
+  .theme-light {
+    --bg: #fff7f4;
+    --disc: #fffcfa;
+    --thread: #efc7d2;
+    --bead: #f8d6de;
+    --petal-1: #f8d3da;
+    --petal-2: #f5bccb;
+    --petal-3: #ee9fb5;
+    --petal-4: #e17f9a;
+    --gold-1: #f6d3a4;
+    --gold-2: #f0bd86;
+    --blue-1: #b6caf5;
+    --blue-2: #95b0ee;
+    --blue-3: #7b9ae5;
+    --text: #b07f8e;
+    --symbol: #e17f9a;
+  }
+  /* The lotus palette, dark: softer petals on a warm plum-black */
+  .theme-dark {
+    --bg: #1f1a1d;
+    --disc: #262024;
+    --thread: #5b3f4a;
+    --bead: #4c3742;
+    --petal-1: #5e3d48;
+    --petal-2: #774856;
+    --petal-3: #985669;
+    --petal-4: #b8667f;
+    --gold-1: #c9a46f;
+    --gold-2: #b98b5a;
+    --blue-1: #4d6299;
+    --blue-2: #5f78b8;
+    --blue-3: #7690d6;
+    --text: #d3a7b5;
+    --symbol: #e08aa3;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 16px 48px;
+    background: var(--page);
+    color: var(--page-text);
+    font: 15px/1.45 ui-rounded, "SF Pro Rounded", -apple-system, system-ui, sans-serif;
+  }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .intro { margin: 0 0 24px; max-width: 60ch; }
+  .alt { margin: 0 0 32px; }
+  .alt h2 { font-size: 18px; margin: 0 0 2px; }
+  .alt p { margin: 0 0 12px; max-width: 60ch; }
+  .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; max-width: 760px; }
+  .tile { border-radius: 18px; padding: 8px; background: var(--bg); }
+  .tile svg { display: block; width: 100%; height: auto; }
+  .tile .label { text-align: center; font-size: 12px; color: var(--text); padding-bottom: 4px; }
+
+  .disc { fill: var(--disc); }
+  .thread { fill: none; stroke: var(--thread); stroke-width: 1.2; }
+  .cord { stroke: var(--thread); stroke-width: 1.6; }
+  .bead { fill: var(--bead); }
+  .shine { fill: #fff; opacity: .6; }
+  .theme-dark .shine { opacity: .18; }
+  .guru { fill: var(--gold-1); stroke: var(--bg); stroke-width: 2; }
+  .edge { stroke: var(--bg); stroke-linejoin: round; }
+  .p1 { fill: var(--petal-1); } .p2 { fill: var(--petal-2); } .p3 { fill: var(--petal-3); } .p4 { fill: var(--petal-4); }
+  .g1 { fill: var(--gold-1); } .g2 { fill: var(--gold-2); }
+  .b1 { fill: var(--blue-1); } .b2 { fill: var(--blue-2); } .b3 { fill: var(--blue-3); }
+  .ready { fill: var(--text); font: 600 34px ui-rounded, "SF Pro Rounded", -apple-system, system-ui, sans-serif; letter-spacing: .02em; }
+  .om {
+    fill: var(--symbol);
+    font: 400 150px "Kohinoor Devanagari", "Devanagari Sangam MN", "Noto Sans Devanagari", serif;
+  }
+  .horizon { stroke: var(--petal-3); stroke-width: 3; stroke-linecap: round; }
+</style>
+</head>
+<body>
+  <h1>Ready: tres símbolos de inicio</h1>
+  <p class="intro">Cada uno dentro del mala apagado, con la paleta del loto. Izquierda claro, derecha oscuro. La borla está cerrada y quieta porque no hay ninguna Run en marcha.</p>
+
+  <section class="alt" data-symbol="om">
+    <h2>A · Om (ॐ)</h2>
+    <p>El sonido con el que se abren (y cierran) la mayoría de las clases. Es el símbolo de inicio más reconocido en yoga.</p>
+    <div class="pair"></div>
+  </section>
+
+  <section class="alt" data-symbol="bud">
+    <h2>B · Capullo de loto con bindu dorado</h2>
+    <p>La flor cerrada que la Run va a abrir; el bindu es el punto del que todo nace. Pasa directamente a la floración.</p>
+    <div class="pair"></div>
+  </section>
+
+  <section class="alt" data-symbol="sun">
+    <h2>C · Sol naciente</h2>
+    <p>Surya Namaskar, el saludo al sol con el que empiezan muchas prácticas.</p>
+    <div class="pair"></div>
+  </section>
+
+<script>
+const NS = "http://www.w3.org/2000/svg";
+const mk = (name, attrs, parent) => {
+  const el = document.createElementNS(NS, name);
+  for (const k in attrs) el.setAttribute(k, attrs[k]);
+  parent.appendChild(el);
+  return el;
+};
+const at = (r, deg) => [r * Math.sin(deg * Math.PI / 180), -r * Math.cos(deg * Math.PI / 180)];
+const lens = (h, r) => `M0 0A${r} ${r} 0 0 1 0 ${-h}A${r} ${r} 0 0 1 0 0Z`;
+const RB = 236, BEADS = 108, GAP = 14;
+
+// The unlit mala with the closed tassel, as in the demo before a Run starts.
+function mala(svg) {
+  const W = mk("g", { transform: "translate(0 -16)" }, svg);
+  mk("circle", { class: "disc", r: RB - 16 }, W);
+  mk("circle", { class: "thread", r: RB }, W);
+  mk("line", { class: "cord", y1: RB, y2: RB + 20 }, W);
+  const tassel = mk("g", { transform: `translate(0 ${RB + 16}) rotate(180)` }, W);
+  [[-72, "b1"], [72, "b1"], [-36, "b2"], [36, "b2"], [0, "b3"]].forEach(([a, c]) =>
+    mk("path", { class: `${c} edge`, d: lens(44, 38), "stroke-width": 1.5, transform: `rotate(${a / 8})` }, tassel));
+  mk("circle", { class: "guru", cy: RB, r: 9 }, W);
+  for (let i = 0; i < BEADS; i++) {
+    const [x, y] = at(RB, 180 + GAP / 2 + i * (360 - GAP) / (BEADS - 1));
+    const g = mk("g", { transform: `translate(${x} ${y})` }, W);
+    mk("circle", { class: "bead", r: 5 }, g);
+    mk("circle", { class: "shine", cx: -1.6, cy: -1.6, r: 1.4 }, g);
+  }
+  return W;
+}
+
+const symbols = {
+  om(W) {
+    const t = mk("text", { class: "om", x: 0, y: 20, "text-anchor": "middle" }, W);
+    t.textContent = "ॐ";
+    return 108;
+  },
+
+  bud(W) {
+    // A closed bud standing on a golden bindu: outer petals behind, the deepest pink in front.
+    const B = mk("g", { transform: "translate(0 52)" }, W);
+    [[-26, "p1", 128, 104], [26, "p1", 128, 104], [-14, "p2", 150, 118], [14, "p2", 150, 118], [-5, "p3", 162, 132], [5, "p3", 162, 132], [0, "p4", 170, 140]]
+      .forEach(([a, c, h, r]) => mk("path", { class: `${c} edge`, d: lens(h, r), "stroke-width": 2, transform: `rotate(${a})` }, B));
+    mk("circle", { class: "g1 edge", r: 13, "stroke-width": 3 }, B);
+    mk("circle", { class: "g2", r: 4.5 }, B);
+    return 108;
+  },
+
+  sun(W) {
+    // Half a sun rising over a line, with soft lens rays.
+    const S = mk("g", { transform: "translate(0 40)" }, W);
+    const clip = mk("clipPath", { id: `above-${Math.random().toString(36).slice(2)}` }, S);
+    mk("rect", { x: -200, y: -200, width: 400, height: 198 }, clip);
+    const rays = mk("g", { "clip-path": `url(#${clip.id})` }, S);
+    for (let i = 0; i < 9; i++) {
+      const a = -80 + i * 20;
+      mk("path", { class: `${i % 2 ? "p2" : "p3"} edge`, d: lens(42, 34), "stroke-width": 2, transform: `rotate(${a}) translate(0 -70)` }, rays);
+    }
+    const disc = mk("g", { "clip-path": `url(#${clip.id})` }, S);
+    mk("circle", { class: "g1", r: 58 }, disc);
+    mk("circle", { class: "g2", r: 34, opacity: .55 }, disc);
+    mk("line", { class: "horizon", x1: -110, x2: 110, y1: 0, y2: 0 }, S);
+    return 98;
+  },
+};
+
+for (const section of document.querySelectorAll(".alt")) {
+  const pair = section.querySelector(".pair");
+  for (const theme of ["light", "dark"]) {
+    const tile = document.createElement("div");
+    tile.className = `tile theme-${theme}`;
+    const svg = mk("svg", { viewBox: "-300 -300 600 600", role: "img", "aria-label": "Ready" }, tile);
+    const W = mala(svg);
+    const readyY = symbols[section.dataset.symbol](W);
+    const ready = mk("text", { class: "ready", x: 0, y: readyY, "text-anchor": "middle" }, W);
+    ready.textContent = "Ready";
+    const label = document.createElement("div");
+    label.className = "label";
+    label.textContent = theme === "light" ? "Claro" : "Oscuro";
+    tile.appendChild(label);
+    pair.appendChild(tile);
+  }
+}
+</script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 Status: resolved
 Type: task
 Blocked by: 07, 08, 09, 10
-Blocks: 12
+Blocks: 13
 
 A refactor with no change the Teacher can see. Today the History controller builds the list itself, in four steps:
 - it gets the Lessons from the store;
@@ -53,7 +53,7 @@ All with a fixed locale and time zone and an in-memory store. Write them test-fi
   - an open Lesson stays open when a new Run is filed on the Timer tab;
   - Cancel keeps a Lesson, OK deletes it;
   - the empty state.
-- The Simulator run is not repeated. The real-iPhone test ([issue 13](13-real-iphone-acceptance-test.md)) has a line for this rework.
+- The Simulator run is not repeated. The real-iPhone test ([issue 14](14-real-iphone-acceptance-test.md)) has a line for this rework.
 
 ## Comments
 

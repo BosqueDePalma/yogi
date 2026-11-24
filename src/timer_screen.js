@@ -17,7 +17,7 @@ const PULSE_MS = 4_000; // how long 0:00 pulses after a Run completes
 
 export function createTimerScreen(store) {
   let armed = null; // { preset, until }: the Preset showing "Tap again"
-  let pulseUntil = 0;
+  let pulse = null; // { run, until }: the Run just completed on time, while 0:00 pulses
 
   const armedPresetAt = (now) => (armed && now < armed.until ? armed.preset : null);
 
@@ -27,7 +27,7 @@ export function createTimerScreen(store) {
     armed = null;
     store.setState(state);
     if (late) return {};
-    pulseUntil = now + PULSE_MS;
+    pulse = { run: completed, until: now + PULSE_MS };
     return { ring: true };
   }
 
@@ -35,7 +35,7 @@ export function createTimerScreen(store) {
     const effects = tick(now); // the Run may have just reached zero
     const state = store.getState();
     if (!state.activeRun) {
-      pulseUntil = 0; // a new Run ends the 0:00 pulse
+      pulse = null; // a new Run ends the 0:00 pulse
       store.setState(teaching.start(state, preset, now));
       return { ...effects, unlockAudio: true };
     }
@@ -56,12 +56,15 @@ export function createTimerScreen(store) {
   }
 
   // What to draw: countdown text, mode ("running" | "pulsing" | "ready"), the armed
-  // Preset number or null, the current Lesson's Runs as ready-made lines, and whether
-  // a Run is going (which keeps the screen awake).
+  // Preset number or null, the current Lesson's Runs as ready-made lines, whether
+  // a Run is going (which keeps the screen awake), and for the Lotus dial the Run it
+  // shows and how far it has gone (also through the 0:00 pulse), or null.
   function view(now) {
     const state = store.getState();
     const running = Boolean(state.activeRun);
-    const mode = running ? "running" : now < pulseUntil ? "pulsing" : "ready";
+    const pulsing = !running && pulse !== null && now < pulse.until;
+    const mode = running ? "running" : pulsing ? "pulsing" : "ready";
+    const shown = running ? state.activeRun : pulsing ? pulse.run : null;
     const runs = teaching.currentLesson(state, now)?.runs ?? [];
     return {
       countdown: running ? formatCountdown(teaching.remaining(state, now)) : mode === "pulsing" ? "0:00" : "Ready",
@@ -69,6 +72,7 @@ export function createTimerScreen(store) {
       armedPreset: armedPresetAt(now),
       lessonRuns: describeRuns(runs),
       running,
+      dial: shown && { preset: shown.preset, elapsedMs: now - shown.startedAt },
     };
   }
 

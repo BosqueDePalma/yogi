@@ -1,0 +1,108 @@
+<!doctype html>
+<!-- The user's lotus and mala animation, kept as the reference for issue 12. -->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lotus Timer C2 – Mala</title>
+<style>
+html,body{height:100%;margin:0}
+body{display:grid;place-items:center;align-content:center;gap:10px;background:#fff7f4;font:500 13px ui-rounded,"SF Pro Rounded",system-ui,sans-serif;color:#b07f8e}
+svg{width:min(88vmin,calc(100vh - 70px),760px);height:auto;aspect-ratio:1;display:block}
+.a{transform-origin:0 0}
+.ctl{display:flex;align-items:center;gap:10px}
+.ctl input{width:min(220px,48vw);accent-color:#8fabec}
+.ctl output{min-width:5.5em;color:#5675c4;font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<svg id="m" viewBox="-300 -300 600 600" role="img" aria-label="Yoga timer: a mala of 108 beads lights up blue one by one around a blooming pink lotus; the blue lotus tassel opens when the round is complete"></svg>
+<label class="ctl">Duración <input id="dur" type="range" min="10" max="600" step="5"><output id="out"></output></label>
+<script>
+const NS='http://www.w3.org/2000/svg',E='cubic-bezier(.3,.1,.2,1)',SOFT='cubic-bezier(.45,0,.55,1)',BACK='cubic-bezier(.3,1.4,.5,1)';
+const svg=document.getElementById('m'),BG='#fff7f4';
+const DONE=4,REST=6; // seconds after the countdown: celebrate, then fade out and start over
+const mk=(n,a,p=svg)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+const at=(r,deg)=>[r*Math.sin(deg*Math.PI/180),-r*Math.cos(deg*Math.PI/180)];
+// lens-shaped petal pointing up from the centre
+const lens=(h,r)=>`M0 0A${r} ${r} 0 0 1 0 ${-h}A${r} ${r} 0 0 1 0 0Z`;
+// the original lotus; t/w/d are on the original 90 s scale and get stretched to the chosen duration
+const RINGS=[
+ {n:12,f:0,h:250,r:215,c:'#f8d3da',t:1,w:32,d:14},
+ {n:12,f:15,h:205,r:175,c:'#f5bccb',t:22,w:30,d:14},
+ {n:8,f:0,h:150,r:105,c:'#ee9fb5',t:44,w:24,d:14},
+ {n:8,f:22.5,h:100,r:75,c:'#e17f9a',t:60,w:18,d:14}
+];
+const RB=236,BEADS=108,GAP=14; // mala radius, bead count, gap (deg) left for the guru bead
+
+function build(D){
+  document.getAnimations().forEach(a=>a.cancel());
+  svg.replaceChildren();
+  const F=D+DONE,T=F+REST,k=D/90,o=t=>t/T,X={duration:T*1e3,iterations:Infinity};
+  // fade in, hold, then a soft fade-out after the celebration
+  const life=(e,s,d)=>e.animate([{offset:0,opacity:0},{offset:o(s),opacity:0,easing:'ease-out'},{offset:o(s+d*.4),opacity:1},{offset:o(F),opacity:1,easing:SOFT},{offset:o(F+4),opacity:0},{offset:1,opacity:0}],X);
+  const grow=(e,s,d,a,b)=>{e.animate([{offset:0,transform:a},{offset:o(s),transform:a,easing:E},{offset:o(s+d),transform:b},{offset:1,transform:b}],X);life(e,s,d)};
+
+  const W=mk('g',{transform:'translate(0 -16)'});
+  mk('circle',{r:RB-16,fill:'#fffcfa'},W);
+
+  // soft blue glow along the mala when the round is complete
+  const glow=mk('circle',{r:RB,fill:'none',stroke:'#bcd0f6','stroke-width':24,opacity:0},W);
+  glow.animate([{offset:0,opacity:0},{offset:o(D),opacity:0,easing:SOFT},{offset:o(D+1.2),opacity:.65,easing:SOFT},{offset:o(F+1),opacity:0},{offset:1,opacity:0}],X);
+  mk('circle',{r:RB,fill:'none',stroke:'#efc7d2','stroke-width':1.2},W); // thread
+
+  // tassel: a blue lotus bud hanging from the guru bead, swaying; it opens when the round is complete
+  mk('line',{y1:RB,y2:RB+20,stroke:'#efc7d2','stroke-width':1.6},W);
+  const sway=mk('g',{class:'a'},mk('g',{transform:`translate(0 ${RB+16}) rotate(180)`},W));
+  sway.animate([{offset:0,transform:'rotate(-3deg)',easing:SOFT},{offset:.5,transform:'rotate(3deg)',easing:SOFT},{offset:1,transform:'rotate(-3deg)'}],{duration:6000,iterations:Infinity});
+  [[-72,'#b6caf5'],[72,'#b6caf5'],[-36,'#95b0ee'],[36,'#95b0ee'],[0,'#7b9ae5']].forEach(([a,c])=>{
+    const p=mk('path',{class:'a',d:lens(44,38),fill:c,stroke:BG,'stroke-width':1.5,'stroke-linejoin':'round'},sway);
+    const r=f=>`rotate(${a*f}deg)`;
+    p.animate([{offset:0,transform:r(1/8)},{offset:o(D),transform:r(1/4),easing:BACK},{offset:o(D+1.6),transform:r(1)},{offset:o(F+1),transform:r(1),easing:SOFT},{offset:o(F+3.5),transform:r(1/8)},{offset:1,transform:r(1/8)}],X);
+  });
+  mk('circle',{cy:RB,r:9,fill:'#f6d3a4',stroke:BG,'stroke-width':2},W); // guru bead
+
+  // 108 beads, counted clockwise from the guru bead; each one lights up blue with a soft overlap,
+  // and at the end they go out again in reverse
+  const w=Math.max(.4,D*2.5/BEADS);
+  for(let i=0;i<BEADS;i++){
+    const[x,y]=at(RB,180+GAP/2+i*(360-GAP)/(BEADS-1)),g=mk('g',{transform:`translate(${x} ${y})`},W);
+    mk('circle',{r:5,fill:'#f8d6de'},g);
+    const b=mk('circle',{class:'a',r:5.4,fill:'#93afed',opacity:0},g);
+    mk('circle',{cx:-1.6,cy:-1.6,r:1.4,fill:'#fff',opacity:.6},g);
+    const s=(D-w)*i/(BEADS-1),off=F+.4+(BEADS-1-i)/(BEADS-1)*2.6;
+    b.animate([{offset:0,transform:'scale(.3)',opacity:0},{offset:o(s),transform:'scale(.3)',opacity:0,easing:BACK},{offset:o(s+w),transform:'scale(1)',opacity:1},{offset:o(off),transform:'scale(1)',opacity:1,easing:SOFT},{offset:o(off+.6),transform:'scale(.3)',opacity:0},{offset:1,transform:'scale(.3)',opacity:0}],X);
+  }
+
+  // round complete: three soft blue ripples
+  for(let j=0;j<3;j++){
+    const s=D+j*1.1,c=mk('circle',{class:'a',r:100,fill:'none',stroke:'#8fabec','stroke-width':1.8,'vector-effect':'non-scaling-stroke',opacity:0},W);
+    c.animate([{offset:0,transform:'scale(.4)'},{offset:o(s),transform:'scale(.4)',easing:'cubic-bezier(.2,.6,.3,1)'},{offset:o(s+3),transform:'scale(2.2)'},{offset:1,transform:'scale(2.2)'}],X);
+    c.animate([{offset:0,opacity:0},{offset:o(s),opacity:0},{offset:o(s+.4),opacity:.8,easing:'ease-in'},{offset:o(s+3),opacity:0},{offset:1,opacity:0}],X);
+  }
+
+  // the lotus blooming over the whole duration, with a gentle swell at the end
+  const L=mk('g',{class:'a'},W),lotus=mk('g',{transform:'scale(.8)'},L);
+  L.animate([{offset:0,transform:'scale(1)'},{offset:o(D),transform:'scale(1)',easing:SOFT},{offset:o(D+1.2),transform:'scale(1.04)',easing:SOFT},{offset:o(D+3),transform:'scale(1)'},{offset:1,transform:'scale(1)'}],X);
+  RINGS.forEach(R=>{for(let i=0;i<R.n;i++){
+    const p=mk('path',{class:'a',d:lens(R.h,R.r),fill:R.c,stroke:BG,'stroke-width':2,'stroke-linejoin':'round',opacity:0},mk('g',{transform:`rotate(${R.f+i*360/R.n})`},lotus));
+    grow(p,(R.t+i*R.w/R.n)*k,R.d*k,'scale(.3,.02)','scale(1,1)');
+  }});
+  const cd=mk('circle',{class:'a',r:24,fill:'#f6d3a4',stroke:BG,'stroke-width':3,opacity:0},lotus);
+  grow(cd,70*k,20*k,'scale(0)','scale(1)');
+  for(let i=0;i<12;i++){
+    const c=mk('circle',{class:'a',cy:-42,r:3.5,fill:'#f0bd86',opacity:0},mk('g',{transform:`rotate(${i*30})`},lotus));
+    grow(c,(76+i*8/12)*k,6*k,'scale(.1)','scale(1)');
+  }
+}
+
+// duration: 10 s – 10 min, from ?t=<seconds> or the slider
+const inp=document.getElementById('dur'),out=document.getElementById('out');
+const fmt=s=>s<60?`${s} s`:`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')} min`;
+let D=Math.min(600,Math.max(10,Math.round(+new URLSearchParams(location.search).get('t'))||60));
+inp.value=D;out.textContent=fmt(D);build(D);
+inp.addEventListener('input',()=>out.textContent=fmt(+inp.value));
+inp.addEventListener('change',()=>{D=+inp.value;try{history.replaceState(null,'','?t='+D)}catch(e){}build(D)});
+</script>
+</body>
+</html>

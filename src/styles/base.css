@@ -11,6 +11,25 @@
   --accent: #b5793b;
   --accent-text: #ffffff;
 
+  /* The Lotus dial's own palette (issue 12): pink lotus, blue mala, gold heart. */
+  --lotus-disc: #fffcfa;
+  --lotus-thread: #efc7d2;
+  --lotus-bead: #f8d6de;
+  --lotus-lit: #93afed;
+  --lotus-glow: #bcd0f6;
+  --lotus-ripple: #8fabec;
+  --lotus-petal-1: #f8d3da;
+  --lotus-petal-2: #f5bccb;
+  --lotus-petal-3: #ee9fb5;
+  --lotus-petal-4: #e17f9a;
+  --lotus-gold-1: #f6d3a4;
+  --lotus-gold-2: #f0bd86;
+  --lotus-blue-1: #b6caf5;
+  --lotus-blue-2: #95b0ee;
+  --lotus-blue-3: #7b9ae5;
+  --lotus-text: #b07f8e;
+  --lotus-shine: rgb(255 255 255 / 0.6);
+
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
   --font-rounded: ui-rounded, "SF Pro Rounded", -apple-system, system-ui, sans-serif;
   --radius: 14px;
@@ -26,6 +45,24 @@
     --line: #3a342e;
     --accent: #d9a35f;
     --accent-text: #1d1a17;
+
+    --lotus-disc: #262024;
+    --lotus-thread: #5b3f4a;
+    --lotus-bead: #4c3742;
+    --lotus-lit: #7f9be0;
+    --lotus-glow: #4d6299;
+    --lotus-ripple: #7690d6;
+    --lotus-petal-1: #5e3d48;
+    --lotus-petal-2: #774856;
+    --lotus-petal-3: #985669;
+    --lotus-petal-4: #b8667f;
+    --lotus-gold-1: #c9a46f;
+    --lotus-gold-2: #b98b5a;
+    --lotus-blue-1: #4d6299;
+    --lotus-blue-2: #5f78b8;
+    --lotus-blue-3: #7690d6;
+    --lotus-text: #d3a7b5;
+    --lotus-shine: rgb(255 255 255 / 0.18);
   }
 }
 
@@ -117,46 +154,133 @@ button {
 }
 
 .dial {
-  flex: 1;
-  min-height: 46vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 16px;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+/* The Lotus dial, with the countdown laid over the middle of the lotus. */
+.lotus-frame {
+  position: relative;
+  width: min(100%, 56svh, 460px);
+  container-type: inline-size;
+}
+
+.lotus {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
 }
 
 .countdown {
+  position: absolute;
+  left: 50%;
+  top: 47.3%; /* the middle of the mala, which sits a little above the SVG's middle */
+  translate: -50% -50%;
   margin: 0;
   font-family: var(--font-rounded);
-  font-size: clamp(5.5rem, 30vw, 11rem);
+  font-size: 22cqi;
   font-weight: 600;
   line-height: 1;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-shadow: 0 0 0.12em var(--lotus-disc), 0 0 0.3em var(--lotus-disc);
 }
 
 .timer[data-ready] .countdown {
-  font-size: clamp(3.5rem, 18vw, 7rem);
-  font-weight: 500;
-  color: var(--muted);
+  top: 61%;
+  font-size: 9.5cqi;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--lotus-text);
+  text-shadow: none;
 }
 
 .timer[data-pulsing] .countdown {
-  color: var(--accent);
-  animation: pulse 1s ease-in-out infinite;
+  color: var(--lotus-blue-3);
 }
 
-@keyframes pulse {
-  50% {
-    opacity: 0.3;
-  }
+.lotus .lotus-turn {
+  transform-origin: 0 0;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .timer[data-pulsing] .countdown {
-    animation-duration: 2s;
-  }
+.lotus-disc {
+  fill: var(--lotus-disc);
+}
+
+.lotus-thread {
+  fill: none;
+  stroke: var(--lotus-thread);
+  stroke-width: 1.4;
+}
+
+.lotus-bead {
+  fill: var(--lotus-bead);
+}
+
+.lotus-lit {
+  fill: var(--lotus-lit);
+}
+
+.lotus-shine {
+  fill: var(--lotus-shine);
+}
+
+.lotus-glow {
+  fill: none;
+  stroke: var(--lotus-glow);
+  stroke-width: 24;
+}
+
+.lotus-ripple {
+  fill: none;
+  stroke: var(--lotus-ripple);
+  stroke-width: 1.8;
+  vector-effect: non-scaling-stroke;
+}
+
+.lotus-edge {
+  stroke: var(--bg);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.lotus-edge.thin {
+  stroke-width: 1.5;
+}
+
+.lotus-edge.thick {
+  stroke-width: 3;
+}
+
+.lotus-guru {
+  fill: var(--lotus-gold-1);
+}
+
+.lotus .p1 { fill: var(--lotus-petal-1); }
+.lotus .p2 { fill: var(--lotus-petal-2); }
+.lotus .p3 { fill: var(--lotus-petal-3); }
+.lotus .p4 { fill: var(--lotus-petal-4); }
+.lotus .g1 { fill: var(--lotus-gold-1); }
+.lotus .g2 { fill: var(--lotus-gold-2); }
+.lotus .b1 { fill: var(--lotus-blue-1); }
+.lotus .b2 { fill: var(--lotus-blue-2); }
+.lotus .b3 { fill: var(--lotus-blue-3); }
+
+/* Om shows only in Ready: it fades in as the lotus fades out, and out as a Run starts. */
+.lotus-om {
+  fill: var(--lotus-petal-4);
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+
+.timer[data-ready] .lotus-om {
+  opacity: 1;
+  transition: opacity 1.5s ease-in-out;
 }
 
 .stop {

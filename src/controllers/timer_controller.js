@@ -1,18 +1,22 @@
 import { Controller } from "@hotwired/stimulus";
 import { store } from "../app_store.js";
+import { createLotusDial } from "../lotus_dial.js";
 import { createTimerScreen } from "../timer_screen.js";
 
 const TICK_MS = 250;
 
 // The Timer tab. The rules live in timer_screen.js; this controller forwards taps and
-// the time to it, draws what it returns, and keeps the screen awake during a Run.
+// the time to it, draws what it returns (the Lotus dial included), and keeps the screen
+// awake during a Run.
 // Dispatches timer:started (inside the tap, so the Chime can unlock audio) and
 // timer:ring (the Run reached zero on time, so the Chime plays).
 export default class extends Controller {
-  static targets = ["countdown", "preset", "lesson", "runs"];
+  static targets = ["countdown", "lotus", "preset", "lesson", "runs"];
 
   connect() {
     this.screen = createTimerScreen(store);
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    this.lotus = createLotusDial(this.lotusTarget, { reducedMotion });
     for (const button of this.presetTargets) button.dataset.label = button.getAttribute("aria-label");
     this.onVisibility = () => {
       if (document.visibilityState === "visible") this.tick();
@@ -26,6 +30,7 @@ export default class extends Controller {
     clearInterval(this.interval);
     document.removeEventListener("visibilitychange", this.onVisibility);
     this.wakeLock?.release();
+    this.lotus.destroy();
   }
 
   tapPreset({ params: { preset } }) {
@@ -59,6 +64,7 @@ export default class extends Controller {
     this.element.toggleAttribute("data-pulsing", view.mode === "pulsing");
     this.element.toggleAttribute("data-ready", view.mode === "ready");
     this.countdownTarget.textContent = view.countdown;
+    this.lotus.update(view.dial, view.mode);
     for (const button of this.presetTargets) {
       const armed = Number(button.dataset.timerPresetParam) === view.armedPreset;
       button.toggleAttribute("data-armed", armed);

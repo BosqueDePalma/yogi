@@ -22,7 +22,11 @@
       <section id="timer-panel" class="panel timer" role="tabpanel" aria-labelledby="timer-tab" data-tabs-target="panel"
         data-controller="timer chime" data-action="timer:started->chime#unlock timer:ring->chime#ring" data-ready>
         <div class="dial">
-          <p class="countdown" role="timer" data-timer-target="countdown">Ready</p>
+          <div class="lotus-frame">
+            <svg class="lotus" viewBox="-300 -300 600 600" role="img" data-timer-target="lotus"
+              aria-label="A mala of 108 beads lights up blue one by one around a blooming lotus; the blue lotus tassel opens when the Run completes"></svg>
+            <p class="countdown" role="timer" data-timer-target="countdown">Ready</p>
+          </div>
           <button class="stop" type="button" data-action="timer#stop">Stop</button>
         </div>
         <div class="presets" role="group" aria-label="Presets">
