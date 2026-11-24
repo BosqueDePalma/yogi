@@ -16,6 +16,8 @@ export default class extends Controller {
   connect() {
     this.screen = createTimerScreen(store);
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    this.reducedMotion = reducedMotion;
+    this.stopButton = this.element.querySelector(".stop");
     this.lotus = createLotusDial(this.lotusTarget, { reducedMotion });
     for (const button of this.presetTargets) button.dataset.label = button.getAttribute("aria-label");
     this.onVisibility = () => {
@@ -68,8 +70,14 @@ export default class extends Controller {
   // --- Drawing -------------------------------------------------------------------
 
   render(view) {
+    const resuming = this.element.hasAttribute("data-paused") && view.mode === "running";
+    const breath = resuming ? Number(getComputedStyle(this.countdownTarget).opacity) : 1;
     this.element.toggleAttribute("data-running", view.running); // counting or paused
     this.element.toggleAttribute("data-paused", view.mode === "paused");
+    if (resuming) this.easeCountdownBack(breath);
+    if (view.mode === "paused") this.countdownEase?.cancel(); // so the breathing shows at once
+    // Hidden or fading out, Stop can't be tapped or reached by VoiceOver.
+    this.stopButton.inert = view.mode !== "paused";
     this.element.toggleAttribute("data-pulsing", view.mode === "pulsing");
     this.element.toggleAttribute("data-settling", view.mode === "settling");
     this.element.toggleAttribute("data-ready", view.mode === "ready");
@@ -82,6 +90,14 @@ export default class extends Controller {
       button.setAttribute("aria-label", armed ? `Tap again to replace with ${button.dataset.label}` : button.dataset.label);
     }
     this.renderLesson(view.lessonHeading, view.lessonRuns);
+  }
+
+  // The paused countdown breathes (a CSS animation, base.css), which can't transition out:
+  // on Resume it would jump to full strength. This eases it there from where it was, as
+  // "Paused" and Stop fade out. With Reduce Motion on it changes at once.
+  easeCountdownBack(from) {
+    if (this.reducedMotion || !(from < 1)) return;
+    this.countdownEase = this.countdownTarget.animate([{ opacity: from }, { opacity: 1 }], { duration: 300, easing: "ease-out" });
   }
 
   // A button over the whole Lotus dial, there only while a Run is going.

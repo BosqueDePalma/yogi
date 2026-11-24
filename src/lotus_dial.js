@@ -274,7 +274,11 @@ export function createLotusDial(svg, { reducedMotion = false } = {}) {
   // "paused", the picture stands still.
   function update(dial, mode) {
     if (dial) {
-      const restarted = !shown || shown.preset !== dial.preset || dial.elapsedMs < shown.elapsedMs;
+      // Resuming builds the picture afresh at the right point, as reopening the app does. Safari
+      // restarts animations that were paused with a stale clock: for a few frames the lotus ran
+      // ahead by the length of the pause, then jumped back.
+      const resuming = shown && mode !== "paused" && shown.animations[0].playState === "paused";
+      const restarted = !shown || resuming || shown.preset !== dial.preset || dial.elapsedMs < shown.elapsedMs;
       if (restarted) start(dial.preset);
       const first = shown.animations[0];
       if (mode === "paused") {

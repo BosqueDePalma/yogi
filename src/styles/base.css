@@ -434,9 +434,23 @@ button {
   font-weight: 600;
 }
 
-/* Stop shows only while a Run is paused; its place stays kept, so nothing moves. */
+/* Stop shows only while a Run is paused; its place stays kept, so nothing moves. It fades in
+   and out with "Paused"; hidden, it can't be tapped or reached by VoiceOver. */
+.stop {
+  transition: opacity 0.3s ease-out, visibility 0s;
+}
+
 .timer:not([data-paused]) .stop {
   visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease-out, visibility 0s 0.3s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stop,
+  .timer:not([data-paused]) .stop {
+    transition: none;
+  }
 }
 
 .presets {
