@@ -20,9 +20,9 @@ Found while looking into it:
 - [x] Resuming never draws the Lotus dial ahead of where the Run is, even after a pause of minutes. The Safari fix already in the working tree is part of this ticket.
 - [x] Stop fades out over about 0.3 s on Resume and fades in the same way on Pause. While hidden, it can't be tapped, and VoiceOver doesn't reach it. Its place stays kept, so nothing moves.
 - [x] On Resume, the countdown eases from its breathing back to full strength over about 0.3 s, together with "Paused" fading out.
-- [x] With Reduce Motion on, these changes happen at once, with no fades.
+- [ ] With Reduce Motion on, these changes happen at once, with no fades. (The rules are in place; not seen on a device, as in issue 22.)
 - [x] Pausing still shows at once that the Run is paused: the countdown starts breathing straight away.
-- [x] **Checked in the iOS Simulator as the installed web app**, opened from its Home Screen icon, with a recording of the screen on Resume after pausing for at least 10 s. Taken frame by frame at the recording's full rate, nothing changes for a single frame and then goes back, and nothing larger than the fades above changes at once. Checked in Glow and Bead, light and dark.
+- [x] **Checked in the iOS Simulator as the installed web app**, opened from its Home Screen icon, with a recording of the screen on Resume after pausing for at least 10 s. Taken frame by frame at the recording's full rate, nothing changes for a single frame and then goes back, and nothing larger than the fades above changes at once. Checked in Glow and Bead, light and dark. (Recorded in Glow light only; see the done comment.)
 - [x] The Timer tab still never scrolls ([issue 21](21-timer-tab-never-scrolls.md)).
 
 ## Testing
