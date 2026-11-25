@@ -80,9 +80,15 @@ A countdown timer the Teacher uses on her iPhone while teaching. It keeps a Hist
 
 ### Settings
 
-- A gear button at the top right of both tabs opens the **Settings** sheet ([issue 17](issues/17-settings-sheet.md)). It slides up from the bottom, as tall as its content: on a regular iPhone its top edge sits just below the Presets, so the countdown stays in view. It holds the Chime selector, the Theme selector and a quiet version line (build date and short commit).
+- A gear button at the top right of both tabs opens the **Settings** sheet ([issue 17](issues/17-settings-sheet.md)). It slides up from the bottom, as tall as its content: on a regular iPhone its top edge sits just below the Presets, so the countdown stays in view. It holds the Chime selector, the Theme selector, the Language selector and a quiet version line (build date and short commit).
 - It closes by swiping it down, tapping the dimmed backdrop or tapping "Done". A tap on the backdrop, even over a Preset, only closes it.
 - It can be opened during a Run; the Run, the wake lock and the Chime at zero carry on behind it.
+
+### Language
+
+- The app speaks **English** or **Spanish** (Latin American, with "tú") ([issue 26](issues/26-english-and-spanish.md)). On first open it follows the phone's language: Spanish for any `es-*`, English otherwise. Once the Teacher chooses, the choice is remembered on the phone under its own key.
+- She chooses in the Settings sheet ("English" / "Español") or with the **EN · ES** switch in the top-left corner of both tabs. The change shows at once, mid-Run too.
+- Everything she sees or hears follows it, VoiceOver and History's dates included. The install guide's sheet follows the phone instead, because it describes iOS's own screens. The Spanish word for each term is in the glossary.
 
 ### Look and install
 
@@ -92,13 +98,13 @@ A countdown timer the Teacher uses on her iPhone while teaching. It keeps a Hist
 - **Theme selector** in the Settings sheet, under the Chime selector: **Glow** (the default: the mala's final glow, a pale blue, on a blue-white page; by night a near-neutral dark page with slate Presets) or **Bead** (the lit beads' stronger blue on a periwinkle page; by night a deep indigo page with deep blue Presets). Both come from the lotus palette, each in light and dark. In dark mode the countdown stays the brightest thing on screen. One tap switches; the choice is remembered on the phone under its own key, and the status bar colour follows it.
 - Named "Yogi Timer" on the home screen, with an SVG singing-bowl icon (plus the PNG sizes iOS needs).
 - Can be installed to the home screen and works offline.
-- **Install guide** ([issue 25](issues/25-install-guide.md)): opened in a browser on an iPhone or iPad, a banner at the top offers **Install**, which opens a sheet with the steps to add it to the Home Screen, each with a real Safari screenshot. The sheet follows the phone's language (English or Spanish). It never shows in the Home Screen app.
+- **Install guide** ([issue 25](issues/25-install-guide.md)): opened in a browser on an iPhone or iPad, a banner at the top offers **Install**, which opens a sheet with the steps to add it to the Home Screen, each with a real Safari screenshot. The sheet follows the phone's language (English or Spanish); the banner follows the app's. It never shows in the Home Screen app.
 
 ## Main screen layout
 
 ```
 ┌──────────────────────────────┐
-│                         [⚙]  │  ← Settings, both tabs
+│ [EN·ES]                 [⚙]  │  ← language switch and Settings, both tabs
 │    ( lotus timer )          │  ← Lotus dial, Om + "Ready" when idle
 │        3:00                  │  ← big countdown over the lotus
 │    [−] [ Stop ] [+]          │  ← Stop only while paused; − / + and Cancel only with a Selected Preset
@@ -122,6 +128,7 @@ Settings open (over the Timer tab, covering the tab bar):
 │ Settings              [Done] │
 │  Chime [Bowl|Tingsha|Gong]   │
 │  Theme [Glow|Bead]           │
+│  Language [English|Español]  │
 │ Version 24 Nov 2026 · 304be28│
 ╰──────────────────────────────╯
 ```

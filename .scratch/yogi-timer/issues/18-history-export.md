@@ -18,6 +18,7 @@ Raised in the Settings grilling session of 2026-11-24 and set aside so that sess
 - **How it leaves the phone on iOS:** the share sheet (`navigator.share` with a file: AirDrop, Files, Mail, Messages) or a plain download into Files? How each behaves in the Home Screen app has to be checked in the Simulator.
 - **Import:** is restoring from a file part of this, or later? If it is, does it replace History or merge with it, and what happens to a Run that is going?
 - **Pauses:** Pause (issue 22) changes what a saved Run holds, since paused time doesn't count. Does an export show the time ran, the wall-clock start and end, or both?
+- **Language:** the app speaks English or Spanish (issue 26). Does a readable export (CSV) follow the app's language, headings and dates included, or stay in one language so files from different phones line up?
 - **Adjusted Runs:** an Adjusted Run (issue 24) keeps its own time, which isn't its Preset's. The export has to carry it.
 - **Reminder:** should the app ever nudge her to export (say, every few weeks), or is it only there when she looks?
 - **What goes in:** Lessons and Runs only, or also the Chime and Theme?
