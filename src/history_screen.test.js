@@ -3,10 +3,11 @@ import { createHistoryScreen } from "./history_screen.js";
 import { createStore } from "./store.js";
 import { saveState } from "./storage.js";
 import { fakeStorage } from "./testing/fake_storage.js";
+import { createText } from "./language.js";
 
 // Times in ms; hours past midnight on 21 Nov 2026 (UTC).
 const t = (h, m = 0, s = 0) => Date.UTC(2026, 10, 21, h, m, s);
-const uk = { locale: "en-GB", timeZone: "UTC" };
+const uk = createText("en", { phoneLocale: "en-GB", timeZone: "UTC" });
 
 function storeWith(lessons) {
   const storage = fakeStorage();
@@ -17,7 +18,7 @@ function storeWith(lessons) {
 describe("the History tab", () => {
   it("is empty with no Lessons", () => {
     const { store } = storeWith([]);
-    expect(createHistoryScreen(store, uk).view()).toEqual({ empty: true, unsaved: false, lessons: [] });
+    expect(createHistoryScreen(store).view(uk)).toEqual({ empty: true, unsaved: false, lessons: [] });
   });
 
   it("lists Lessons newest first, with date, time, Run count and total", () => {
@@ -32,7 +33,7 @@ describe("the History tab", () => {
       },
     ]);
 
-    const { empty, lessons } = createHistoryScreen(store, uk).view();
+    const { empty, lessons } = createHistoryScreen(store).view(uk);
 
     expect(empty).toBe(false);
     expect(lessons.map(({ id, date, time, runCount, total, deleteLabel }) => ({ id, date, time, runCount, total, deleteLabel }))).toEqual([
@@ -52,7 +53,7 @@ describe("the History tab", () => {
       },
     ]);
 
-    expect(createHistoryScreen(store, uk).view().lessons[0].runs).toEqual([
+    expect(createHistoryScreen(store).view(uk).lessons[0].runs).toEqual([
       { text: "5 min · completed", outcome: "completed" },
       { text: "10 min · stopped 2:41", outcome: "stopped" },
     ]);
@@ -63,12 +64,12 @@ describe("the History tab", () => {
       { id: t(9), runs: [{ preset: 3, startedAt: t(9), endedAt: t(9, 3), outcome: "completed" }] },
       { id: t(18), runs: [{ preset: 5, startedAt: t(18), endedAt: t(18, 5), outcome: "completed" }] },
     ]);
-    const screen = createHistoryScreen(store, uk);
-    const morning = screen.view().lessons[1];
+    const screen = createHistoryScreen(store);
+    const morning = screen.view(uk).lessons[1];
 
     screen.deleteLesson(morning.id);
 
-    expect(screen.view().lessons.map((lesson) => lesson.time)).toEqual(["18:00"]);
+    expect(screen.view(uk).lessons.map((lesson) => lesson.time)).toEqual(["18:00"]);
     expect(store.getState().lessons).toHaveLength(1);
   });
 
@@ -76,11 +77,25 @@ describe("the History tab", () => {
     const { store, storage } = storeWith([
       { id: t(9), runs: [{ preset: 3, startedAt: t(9), endedAt: t(9, 3), outcome: "completed" }] },
     ]);
-    const screen = createHistoryScreen(store, uk);
+    const screen = createHistoryScreen(store);
     storage.refuseWrites(true);
 
     screen.deleteLesson(String(t(9)));
 
-    expect(screen.view()).toMatchObject({ unsaved: true, empty: true });
+    expect(screen.view(uk)).toMatchObject({ unsaved: true, empty: true });
+  });
+});
+
+describe("the History tab in Spanish", () => {
+  it("counts, dates and names each Lesson in Spanish", () => {
+    const { store } = storeWith([
+      { id: t(18), runs: [{ preset: 5, startedAt: t(18), endedAt: t(18, 5), outcome: "completed" }] },
+    ]);
+    const es = createText("es", { phoneLocale: "es-ES", timeZone: "UTC" });
+
+    const [lesson] = createHistoryScreen(store).view(es).lessons;
+
+    expect(lesson).toMatchObject({ date: "sáb, 21 nov", time: "18:00", runCount: "1 ronda", total: "5 min", deleteLabel: "Borrar la clase del sáb, 21 nov, 18:00" });
+    expect(lesson.runs).toEqual([{ text: "5 min · completada", outcome: "completed" }]);
   });
 });

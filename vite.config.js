@@ -17,6 +17,13 @@ function version() {
   }
 }
 process.env.VITE_APP_VERSION = version();
+// The same, for language_controller.js to write the date in the app's language.
+process.env.VITE_APP_BUILT = new Date().toISOString().slice(0, 10);
+try {
+  process.env.VITE_APP_COMMIT = execSync("git rev-parse --short HEAD", { encoding: "utf8" }).trim();
+} catch {
+  process.env.VITE_APP_COMMIT = "";
+}
 
 export default defineConfig({
   plugins: [

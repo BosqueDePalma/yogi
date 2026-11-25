@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createTimerScreen } from "./timer_screen.js";
+import { createText } from "./language.js";
 
 // Times in ms; hours past midnight on 22 Nov 2026 (UTC).
 const t = (h, m = 0, s = 0, ms = 0) => Date.UTC(2026, 10, 22, h, m, s, ms);
@@ -470,5 +471,35 @@ describe("selecting a Preset", () => {
 
     expect(screen.view(t(9, 2, 30))).toMatchObject({ mode: "running", countdown: "2:30" });
     expect(screen.view(t(9, 2, 30)).lessonRuns).toEqual([{ text: "3 min · stopped 2:00", outcome: "stopped" }]);
+  });
+});
+
+describe("in Spanish", () => {
+  const es = createText("es", { timeZone: "UTC" });
+
+  it("reads Lista in Ready, and names the dial in Spanish", () => {
+    const screen = createTimerScreen(memoryStore());
+    expect(screen.view(t(9), es).countdown).toBe("Lista");
+
+    screen.tapPreset(1, t(9));
+    expect(screen.view(t(9), es).dialLabel).toBe("Empezar, 1:00");
+
+    screen.tapDial(t(9));
+    expect(screen.view(t(9, 0, 19), es).dialLabel).toBe("Pausar, quedan 0:41");
+    screen.tapDial(t(9, 0, 19));
+    expect(screen.view(t(9, 0, 30), es).dialLabel).toBe("Reanudar, quedan 0:41");
+  });
+
+  it("heads the Lesson and its Runs in Spanish", () => {
+    const screen = createTimerScreen(memoryStore());
+    startRun(screen, 1, t(9));
+    screen.tick(t(9, 1));
+    startRun(screen, 3, t(9, 2));
+    screen.tick(t(9, 5));
+
+    expect(screen.view(t(9, 6), es)).toMatchObject({
+      lessonHeading: "Esta clase · 2 rondas · 4 min",
+      lessonRuns: [{ text: "3 min · completada" }, { text: "1 min · completada" }],
+    });
   });
 });

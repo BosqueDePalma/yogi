@@ -1,6 +1,6 @@
 # English and Spanish
 
-Status: needs-triage
+Status: resolved
 Type: feature
 Blocked by: None (can start immediately)
 Blocks: 19
@@ -82,18 +82,18 @@ Today the app is in English, except the install guide's sheet, which already fol
 
 ## Acceptance criteria
 
-- [ ] Settings has a Language row with "English" and "Español". The EN · ES switch is in the top-left corner of both tabs, with a 44 pt tap area. Either one changes the whole app at once, mid-Run included, and the Run carries on.
-- [ ] On first open the app is in Spanish on a phone in any Spanish, and in English otherwise. A choice, once made, survives closing and reopening the app.
-- [ ] Opening the app never shows the other language for an instant.
-- [ ] Every text and every VoiceOver label is in the chosen language, and `<html lang>` matches it.
-- [ ] History's dates and times, and the version line's date, follow the app's language, with the phone's region when the languages match.
-- [ ] Plurals read right in both languages: "1 run", "5 runs", "1 ronda", "5 rondas".
-- [ ] The Install banner and pill follow the app's language, and the install guide's sheet still follows the phone's.
-- [ ] Yogi Timer, Glow, Bead, Tingsha and Gong never change, and are marked `translate="no"`.
-- [ ] History has the switch and the gear in its first row and the heading in its second. In Safari the switch keeps its corner, with the Install pill to its right, or under the banner.
-- [ ] In Spanish, the Timer tab still never scrolls at 375 × 667 and 402 × 874, with a Run going, paused, with a Selected Preset and with "Toca otra vez" showing.
-- [ ] A test fails if a text is missing from either language.
-- [ ] **Checked in the iOS Simulator as the Home Screen app**, opened from its icon, with real taps:
+- [x] Settings has a Language row with "English" and "Español". The EN · ES switch is in the top-left corner of both tabs, with a 44 pt tap area. Either one changes the whole app at once, mid-Run included, and the Run carries on.
+- [x] On first open the app is in Spanish on a phone in any Spanish, and in English otherwise. A choice, once made, survives closing and reopening the app.
+- [x] Opening the app never shows the other language for an instant.
+- [x] Every text and every VoiceOver label is in the chosen language, and `<html lang>` matches it.
+- [x] History's dates and times, and the version line's date, follow the app's language, with the phone's region when the languages match.
+- [x] Plurals read right in both languages: "1 run", "5 runs", "1 ronda", "5 rondas".
+- [x] The Install banner and pill follow the app's language, and the install guide's sheet still follows the phone's.
+- [x] Yogi Timer, Glow, Bead, Tingsha and Gong never change, and are marked `translate="no"`.
+- [x] History has the switch and the gear in its first row and the heading in its second. In Safari the switch keeps its corner, with the Install pill to its right, or under the banner.
+- [x] In Spanish, the Timer tab still never scrolls at 375 × 667 and 402 × 874, with a Run going, paused, with a Selected Preset and with "Toca otra vez" showing.
+- [x] A test fails if a text is missing from either language.
+- [x] **Checked in the iOS Simulator as the Home Screen app**, opened from its icon, with real taps:
   - With the phone in Spanish, the first open is in Spanish; with the phone in English, in English.
   - The switch and the Settings row both change the language, mid-Run too, and the choice survives closing the app from the app switcher.
   - "Toca otra vez", "Detener" and "En pausa" fit, and History reads in Spanish, dates included.
@@ -107,3 +107,30 @@ Today the app is in English, except the install guide's sheet, which already fol
 - TDD for choosing the first language: `es-MX` and `es` give Spanish, `en-GB` and `fr` give English, and a saved choice always wins.
 - The switch's place, the two rows in History, the fit of the longer Spanish and the instant switch are checked in the browser at both sizes, then in the iOS Simulator (see the last acceptance criterion).
 - VoiceOver with a Spanish voice goes to the real-iPhone test ([issue 20](20-real-iphone-acceptance-test.md)).
+
+## Comments
+
+### 2026-11-25, done.
+
+- **The texts**, in `language.js`, with no DOM: English and Spanish under the same keys, `firstLanguage()` (the saved choice, or else the phone's: any `es-*` is Spanish), and `createText()`, which gives `t(key, values)` with placeholders and `Intl.PluralRules` plurals, and the locale for dates (the phone's own when it speaks the app's language). 7 tests, one of them checking every key is in both languages.
+- **Both tabs in a language.** `format.js`, the Timer screen's `view(now, text)` and the History screen's `view(text)` take the language and default to English. New tests in Spanish: "3 min · completada", "2 min · detenida 1:30", "1 ronda", "Esta clase · 2 rondas · 4 min", "Pausar, quedan 0:41", "Lista", dates in Spanish even on a phone in English, and the version line (`describeVersion`, the build's calendar day read in UTC). 168 tests in all.
+- **The page.**
+  - `app_language.js` holds the language in use, saves the choice under `yogi-timer.language`, and tells the Timer and History controllers to redraw.
+  - `language_controller.js` (on `<body>`) writes every `data-text` and `data-text-label`, sets `<html lang>`, and drives the EN · ES switch, the Language row and the version line.
+  - The head script sets `<html lang>` before the page draws. In Spanish it keeps the page hidden until the controller has written it; should the scripts fail, the page shows anyway after 2 s, in English.
+  - The Chime, Theme and Language rows share their columns (a subgrid), so the selectors line up whatever the headings' length.
+  - Vite now also gives the build's date and commit apart (`VITE_APP_BUILT`, `VITE_APP_COMMIT`), so the date can follow the language.
+- **Checked in the browser pane** at 375 × 667 and 402 × 874, in Spanish: the Timer panel's `scrollHeight` equals its `clientHeight`; "Toca otra vez" fits a Preset in three lines; the switch changes everything at once mid-Run; the Settings sheet's top is at 574 px at 402 × 874, below the Presets (536 px). No console errors.
+- **Checked in the iOS Simulator** (iPhone 17, phone in Spanish) as the Home Screen app:
+  - The first open was in Spanish. The switch changed the language mid-Run and the Run carried on; paused, it read "EN PAUSA" and "Detener".
+  - Switched to English and closed from the app switcher, it reopened in English on the Spanish phone.
+  - History and Settings in Spanish, the Language row switching back to English, in Glow and Bead, light and dark.
+  - Screenshots: [first open, Glow light](26-english-and-spanish/glow-light-first-open-es.png), [paused, Glow light](26-english-and-spanish/glow-light-paused-es.png), [reopened in English](26-english-and-spanish/glow-light-reopened-en-on-spanish-phone.png), [This lesson, Glow dark](26-english-and-spanish/glow-dark-lesson-es.png), [History, Glow dark](26-english-and-spanish/glow-dark-history-es.png), [Settings, Glow dark](26-english-and-spanish/glow-dark-settings-es.png), [Settings, Bead dark](26-english-and-spanish/bead-dark-settings-en.png), [History, Bead light](26-english-and-spanish/bead-light-history-en.png).
+- **Not checked:**
+  - VoiceOver with a Spanish voice: for the real-iPhone test ([issue 20](20-real-iphone-acceptance-test.md)).
+  - Starting the app with the phone in English: the Simulator's phone was in Spanish. The rule is tested (`firstLanguage`).
+  - The Install banner and pill in Spanish: they show only in Safari, not in the Home Screen app.
+- **Leftovers:**
+  - The Timer controller still builds the Presets' and − / +'s VoiceOver labels itself (as it did before); they could come from `view()` and be tested.
+  - The head script repeats `firstLanguage`'s rule; its comment says to keep them in step.
+  - "No lessons yet" and "Tu práctica empieza aquí" say different things on purpose: the yoga tone is Spanish only.

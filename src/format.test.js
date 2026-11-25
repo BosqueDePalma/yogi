@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { formatCountdown, describeRun, describeRuns, describeLesson } from "./format.js";
+import { formatCountdown, describeRun, describeRuns, describeLesson, describeVersion } from "./format.js";
+import { createText } from "./language.js";
 
 describe("the countdown", () => {
   it("shows the full Preset when a Run starts", () => {
@@ -48,7 +49,7 @@ describe("a Run in the lesson list", () => {
 describe("a Lesson in History", () => {
   const MIN = 60_000;
   const at = Date.UTC(2026, 10, 21, 9, 0);
-  const uk = { locale: "en-GB", timeZone: "UTC" };
+  const uk = createText("en", { phoneLocale: "en-GB", timeZone: "UTC" });
   const lesson = (totalMs, runCount = 2, startedAt = at) => ({ id: startedAt, startedAt, runCount, totalMs });
 
   it("totals the time timed in whole minutes, to the nearest minute", () => {
@@ -69,9 +70,41 @@ describe("a Lesson in History", () => {
   it("dates it by when its first Run started, in the phone's language and time zone", () => {
     expect(describeLesson(lesson(MIN), uk)).toMatchObject({ date: "Sat 21 Nov", time: "9:00" });
     const lateEvening = lesson(MIN, 1, Date.UTC(2026, 10, 21, 23, 30));
-    expect(describeLesson(lateEvening, { locale: "es-ES", timeZone: "Europe/Madrid" })).toMatchObject({
+    expect(describeLesson(lateEvening, createText("es", { phoneLocale: "es-ES", timeZone: "Europe/Madrid" }))).toMatchObject({
       date: "dom, 22 nov",
       time: "0:30",
     });
+  });
+});
+
+describe("in Spanish", () => {
+  const es = createText("es", { phoneLocale: "es-MX", timeZone: "UTC" });
+
+  it("names a Run's outcome", () => {
+    expect(describeRun({ preset: 3, startedAt: 0, endedAt: 180_000, outcome: "completed" }, es)).toBe("3 min · completada");
+    expect(describeRun({ preset: 2, startedAt: 0, endedAt: 90_000, outcome: "stopped" }, es)).toBe("2 min · detenida 1:30");
+    expect(describeRuns([{ preset: 1, startedAt: 0, endedAt: 60_000, outcome: "completed" }], es)[0].text).toBe("1 min · completada");
+  });
+
+  it("counts a Lesson's Runs, and dates it in the phone's region", () => {
+    const at = Date.UTC(2026, 10, 21, 18, 0);
+    expect(describeLesson({ id: at, startedAt: at, runCount: 1, totalMs: 60_000 }, es)).toMatchObject({ runs: "1 ronda", total: "1 min" });
+    expect(describeLesson({ id: at, startedAt: at, runCount: 5, totalMs: 14 * 60_000 }, es).runs).toBe("5 rondas");
+    const { date } = describeLesson({ id: at, startedAt: at, runCount: 1, totalMs: 60_000 }, es);
+    expect(date).toMatch(/sáb/);
+  });
+
+  it("dates it in the app's language even on a phone in another one", () => {
+    const at = Date.UTC(2026, 10, 21, 18, 0);
+    const onEnglishPhone = createText("es", { phoneLocale: "en-US", timeZone: "UTC" });
+    expect(describeLesson({ id: at, startedAt: at, runCount: 1, totalMs: 60_000 }, onEnglishPhone).date).toMatch(/sáb/);
+  });
+});
+
+describe("the version line", () => {
+  it("dates the build in the app's language, on its own calendar day", () => {
+    expect(describeVersion("2026-11-24", "304be28", createText("es", { phoneLocale: "es-MX", timeZone: "America/Mexico_City" }))).toBe("Versión 24 nov 2026 · 304be28");
+    expect(describeVersion("2026-11-24", "", createText("en", { phoneLocale: "en-GB" }))).toBe("Version 24 Nov 2026");
+    expect(describeVersion("%VITE_APP_BUILT%", "", createText("en"))).toBeNull();
   });
 });

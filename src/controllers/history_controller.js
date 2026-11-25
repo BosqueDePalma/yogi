@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus";
+import { appLanguage } from "../app_language.js";
 import { store } from "../app_store.js";
 import { createHistoryScreen } from "../history_screen.js";
 
@@ -10,21 +11,23 @@ export default class extends Controller {
   connect() {
     this.screen = createHistoryScreen(store);
     this.unsubscribe = store.subscribe(() => this.render());
+    this.unsubscribeLanguage = appLanguage.subscribe(() => this.render());
     this.render();
   }
 
   disconnect() {
     this.unsubscribe();
+    this.unsubscribeLanguage();
   }
 
   delete({ currentTarget }) {
-    if (!confirm("Delete this lesson? This can't be undone.")) return;
+    if (!confirm(appLanguage.text.t("deleteConfirm"))) return;
     // Read from the dataset, not a Stimulus param, which would turn the id into a number.
     this.screen.deleteLesson(currentTarget.closest("details").dataset.id);
   }
 
   render() {
-    const view = this.screen.view();
+    const view = this.screen.view(appLanguage.text);
     this.unsavedTarget.hidden = !view.unsaved;
     // Redraw the list only when what it shows changes, so an open Lesson stays open.
     const drawn = JSON.stringify(view.lessons);
@@ -62,7 +65,9 @@ export default class extends Controller {
         return row;
       }),
     );
-    item.querySelector(".history-delete").setAttribute("aria-label", lesson.deleteLabel);
+    const deleteButton = item.querySelector(".history-delete");
+    deleteButton.textContent = appLanguage.text.t("deleteLesson");
+    deleteButton.setAttribute("aria-label", lesson.deleteLabel);
     return item;
   }
 }

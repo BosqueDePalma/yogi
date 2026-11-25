@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus";
+import { appLanguage } from "../app_language.js";
 import { store } from "../app_store.js";
 import { createLotusDial } from "../lotus_dial.js";
 import { createTimerScreen } from "../timer_screen.js";
@@ -22,7 +23,7 @@ export default class extends Controller {
     this.reducedMotion = reducedMotion;
     this.stopButton = this.element.querySelector(".stop");
     this.lotus = createLotusDial(this.lotusTarget, { reducedMotion });
-    for (const button of this.presetTargets) button.dataset.label = button.getAttribute("aria-label");
+    this.unsubscribeLanguage = appLanguage.subscribe(() => this.tick()); // redraws in the new language
     this.onVisibility = () => {
       if (document.visibilityState === "visible") this.tick();
     };
@@ -37,6 +38,7 @@ export default class extends Controller {
     clearInterval(this.interval);
     this.releaseAdjust();
     this.runsObserver.disconnect();
+    this.unsubscribeLanguage();
     document.removeEventListener("visibilitychange", this.onVisibility);
     this.wakeLock?.release();
     this.lotus.destroy();
@@ -94,7 +96,7 @@ export default class extends Controller {
   apply(effects, now) {
     if (effects.unlockAudio) this.dispatch("started");
     if (effects.ring) this.dispatch("ring");
-    const view = this.screen.view(now);
+    const view = this.screen.view(now, appLanguage.text);
     this.render(view);
     this.running = view.running;
     this.syncWakeLock();
@@ -103,6 +105,7 @@ export default class extends Controller {
   // --- Drawing -------------------------------------------------------------------
 
   render(view) {
+    const { t } = appLanguage.text;
     const resuming = this.element.hasAttribute("data-paused") && view.mode === "running";
     const breath = resuming ? Number(getComputedStyle(this.countdownTarget).opacity) : 1;
     this.element.toggleAttribute("data-running", view.running); // counting or paused
@@ -114,7 +117,7 @@ export default class extends Controller {
     const selected = view.mode === "selected";
     this.element.toggleAttribute("data-selected", selected);
     this.stopButton.inert = view.mode !== "paused" && !selected;
-    this.stopButton.textContent = selected ? "Cancel" : "Stop";
+    this.stopButton.textContent = t(selected ? "cancel" : "stop");
     this.renderAdjust(view.adjust);
     this.element.toggleAttribute("data-pulsing", view.mode === "pulsing");
     this.element.toggleAttribute("data-settling", view.mode === "settling");
@@ -128,7 +131,8 @@ export default class extends Controller {
       const isSelected = preset === view.selectedPreset;
       button.toggleAttribute("data-armed", armed);
       button.toggleAttribute("data-selected", isSelected);
-      const label = armed ? `Tap again to replace with ${button.dataset.label}` : isSelected ? `${button.dataset.label}, selected` : button.dataset.label;
+      const minutes = t("presetMinutes", { n: preset });
+      const label = armed ? t("replaceWith", { preset: minutes }) : isSelected ? t("presetSelected", { preset: minutes }) : minutes;
       button.setAttribute("aria-label", label);
     }
     this.renderLesson(view.lessonHeading, view.lessonRuns);
@@ -146,10 +150,11 @@ export default class extends Controller {
   // The held button stops repeating once it hides or dims (a disabled button may not see the lift).
   renderAdjust(adjust) {
     const [remove, add] = this.adjustStepTargets;
-    for (const [button, can, verb] of [[remove, adjust?.canRemove, "Remove"], [add, adjust?.canAdd, "Add"]]) {
+    const { t } = appLanguage.text;
+    for (const [button, can, key] of [[remove, adjust?.canRemove, "removeSeconds"], [add, adjust?.canAdd, "addSeconds"]]) {
       button.inert = !adjust;
       button.disabled = !can;
-      if (adjust) button.setAttribute("aria-label", `${verb} ${adjust.step} seconds`);
+      if (adjust) button.setAttribute("aria-label", t(key, { n: adjust.step }));
     }
     const canGoOn = this.heldDirection > 0 ? adjust?.canAdd : adjust?.canRemove;
     if (this.heldDirection && !canGoOn) this.releaseAdjust();

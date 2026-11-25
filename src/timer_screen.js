@@ -14,6 +14,7 @@
 //   { unlockAudio: true } a Preset was selected or a Run started inside this tap, so audio can be unlocked
 import * as teaching from "./domain/teaching.js";
 import { describeLesson, describeRuns, formatCountdown } from "./format.js";
+import { ENGLISH } from "./language.js";
 
 const CONFIRM_MS = 3_000; // how long a Preset shows "Tap again"
 const PULSE_MS = 4_000; // how long 0:00 pulses after a Run completes
@@ -111,8 +112,10 @@ export function createTimerScreen(store) {
   // The mode is "selected" before a Run starts, "running" or "paused" during it, then after
   // a Run completes on time "pulsing" (0:00 and the celebration) and "settling" (the picture
   // fades; Ready waits so it doesn't land on the lotus), then "ready". Stop, a Run noticed
-  // late, and a selection skip the last two.
-  function view(now) {
+  // late, and a selection skip the last two. Its text is in the language `text` gives
+  // (createText() in language.js), English when not given.
+  function view(now, text = ENGLISH) {
+    const { t } = text;
     const state = store.getState();
     const running = Boolean(state.activeRun);
     const paused = teaching.isPaused(state);
@@ -120,8 +123,8 @@ export function createTimerScreen(store) {
     const runs = lesson?.runs ?? [];
     const shared = {
       armedPreset: armedPresetAt(now),
-      lessonHeading: lesson && lessonHeading(lesson),
-      lessonRuns: describeRuns([...runs].reverse()), // newest first
+      lessonHeading: lesson && lessonHeading(lesson, text),
+      lessonRuns: describeRuns([...runs].reverse(), text), // newest first
     };
     if (selected) {
       const timeText = formatCountdown(selected.timeMs);
@@ -129,7 +132,7 @@ export function createTimerScreen(store) {
         ...shared,
         countdown: timeText,
         mode: "selected",
-        dialLabel: `Start, ${timeText}`,
+        dialLabel: t("dialStart", { time: timeText }),
         selectedPreset: selected.preset,
         adjust: {
           step: teaching.adjustStepSeconds(selected.preset),
@@ -147,10 +150,10 @@ export function createTimerScreen(store) {
     const shown = running ? state.activeRun : pulsing ? finish.run : null;
     const remainingText = running && formatCountdown(teaching.remaining(state, now));
     return {
-      countdown: running ? remainingText : mode === "ready" ? "Ready" : "0:00",
+      countdown: running ? remainingText : mode === "ready" ? t("ready") : "0:00",
       mode,
       ...shared,
-      dialLabel: running ? `${paused ? "Resume" : "Pause"}, ${remainingText} left` : null,
+      dialLabel: running ? t(paused ? "dialResume" : "dialPause", { time: remainingText }) : null,
       selectedPreset: null,
       adjust: null,
       running,
@@ -170,7 +173,7 @@ function dialElapsedMs(state, run, now) {
 }
 
 // "This lesson · 5 runs · 14 min", counted as History counts the Lesson.
-function lessonHeading(lesson) {
-  const { runs, total } = describeLesson(teaching.summarizeLesson(lesson));
-  return `This lesson · ${runs} · ${total}`;
+function lessonHeading(lesson, text) {
+  const { runs, total } = describeLesson(teaching.summarizeLesson(lesson), text);
+  return text.t("lessonHeading", { runs, total });
 }

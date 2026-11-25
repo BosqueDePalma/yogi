@@ -34,14 +34,9 @@
   }
 }
 
-/* The Theme selector, styled like the Chime selector. */
-.theme {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.theme .chime-options {
+/* The Theme and Language selectors, styled like the Chime selector (two options each). */
+.theme .chime-options,
+.language .chime-options {
   grid-template-columns: repeat(2, 1fr);
 }
 

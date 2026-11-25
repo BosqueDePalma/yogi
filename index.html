@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Yogi Timer</title>
+    <title translate="no">Yogi Timer</title>
     <meta name="description" content="One-tap countdown timer for teaching yoga." />
     <!-- The status bar: each theme's page colour (--bg in base.css and themes.css; keep in step).
          Glow's is the default; the head script below and theme_controller.js switch to Bead's. -->
@@ -27,10 +27,20 @@
           for (const meta of document.querySelectorAll('meta[name="theme-color"]')) meta.content = meta.dataset.bead;
         }
       } catch {}
+      // The language, before the page draws (src/app_language.js and language.js; keep KEY and
+      // the rule in step): the Teacher's choice, or else the phone's. The page is written in
+      // English, so in Spanish it stays hidden until the language controller has written it.
+      try {
+        let language = null;
+        try { language = localStorage.getItem("yogi-timer.language"); } catch {}
+        if (language !== "en" && language !== "es") language = /^es\b/i.test(navigator.language) ? "es" : "en";
+        document.documentElement.lang = language;
+        if (language === "es") document.documentElement.dataset.languagePending = "";
+      } catch {}
     </script>
     <script type="module" src="/src/main.js"></script>
   </head>
-  <body data-controller="tabs sheet guide install chime" data-action="timer:started->chime#unlock timer:ring->chime#ring">
+  <body data-controller="language tabs sheet guide install chime" data-action="timer:started->chime#unlock timer:ring->chime#ring">
     <!-- The gear on the Settings buttons (one on each tab), and the install guide's icons. -->
     <svg class="icons" aria-hidden="true">
       <symbol id="cross" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
@@ -47,24 +57,27 @@
         <!-- The install guide's way in (install_controller.js): the banner, or the pill once it's
              hidden. Neither shows in the Home Screen app. -->
         <div class="install-banner">
-          <button class="install-hide" type="button" aria-label="Hide" data-action="install#hide">
+          <button class="install-hide" type="button" aria-label="Hide" data-text-label="hide" data-action="install#hide">
             <svg aria-hidden="true"><use href="#cross"/></svg>
           </button>
           <img class="install-icon" src="/apple-touch-icon-180x180.png" alt="" width="40" height="40" />
-          <p class="install-text"><strong>Yogi Timer</strong> <span>Add it to your Home Screen</span></p>
-          <button class="install-open" type="button" data-action="guide#open">Install</button>
+          <p class="install-text"><strong translate="no">Yogi Timer</strong> <span data-text="installAdd">Add it to your Home Screen</span></p>
+          <button class="install-open" type="button" data-action="guide#open" data-text="install">Install</button>
         </div>
-        <button class="install-open install-pill" type="button" data-install-target="pill" data-action="guide#open">Install</button>
-        <button class="settings-open" type="button" aria-label="Settings" data-action="sheet#open">
+        <button class="language-switch" type="button" data-language-target="switch" data-action="language#toggle" aria-label="Language: English">
+          <span lang="en">EN</span><span aria-hidden="true">·</span><span lang="es">ES</span>
+        </button>
+        <button class="install-open install-pill" type="button" data-install-target="pill" data-action="guide#open" data-text="install">Install</button>
+        <button class="settings-open" type="button" aria-label="Settings" data-text-label="settings" data-action="sheet#open">
           <svg aria-hidden="true"><use href="#gear"/></svg>
         </button>
         <div class="dial">
           <div class="lotus-frame">
-            <svg class="lotus" viewBox="-262 -256 524 556" role="img" data-timer-target="lotus"
+            <svg class="lotus" viewBox="-262 -256 524 556" role="img" data-timer-target="lotus" data-text-label="lotus"
               aria-label="A mala of 108 beads lights up blue one by one around a blooming lotus; the blue lotus tassel opens when the Run completes"></svg>
             <p class="countdown" role="timer" data-timer-target="countdown">Ready</p>
-            <p class="paused-note" aria-hidden="true">Paused</p>
-            <p class="start-note" aria-hidden="true">Tap to start</p>
+            <p class="paused-note" aria-hidden="true" data-text="paused">Paused</p>
+            <p class="start-note" aria-hidden="true" data-text="tapToStart">Tap to start</p>
             <button class="dial-toggle" type="button" data-timer-target="dialToggle" data-action="timer#tapDial" hidden></button>
           </div>
           <!-- Stop while a Run is paused, Cancel with a Selected Preset; − and + Adjust that Preset. -->
@@ -82,26 +95,26 @@
             </button>
           </div>
         </div>
-        <div class="presets" role="group" aria-label="Presets">
+        <div class="presets" role="group" aria-label="Presets" data-text-label="presets">
           <button class="preset" type="button" data-timer-target="preset" data-action="timer#tapPreset" data-timer-preset-param="1"
             aria-label="1 minute">
-            <span class="preset-label" aria-hidden="true">1<small>min</small></span><span class="preset-confirm" aria-hidden="true">Tap again</span>
+            <span class="preset-label" aria-hidden="true">1<small>min</small></span><span class="preset-confirm" aria-hidden="true" data-text="tapAgain">Tap again</span>
           </button>
           <button class="preset" type="button" data-timer-target="preset" data-action="timer#tapPreset" data-timer-preset-param="2"
             aria-label="2 minutes">
-            <span class="preset-label" aria-hidden="true">2<small>min</small></span><span class="preset-confirm" aria-hidden="true">Tap again</span>
+            <span class="preset-label" aria-hidden="true">2<small>min</small></span><span class="preset-confirm" aria-hidden="true" data-text="tapAgain">Tap again</span>
           </button>
           <button class="preset" type="button" data-timer-target="preset" data-action="timer#tapPreset" data-timer-preset-param="3"
             aria-label="3 minutes">
-            <span class="preset-label" aria-hidden="true">3<small>min</small></span><span class="preset-confirm" aria-hidden="true">Tap again</span>
+            <span class="preset-label" aria-hidden="true">3<small>min</small></span><span class="preset-confirm" aria-hidden="true" data-text="tapAgain">Tap again</span>
           </button>
           <button class="preset" type="button" data-timer-target="preset" data-action="timer#tapPreset" data-timer-preset-param="5"
             aria-label="5 minutes">
-            <span class="preset-label" aria-hidden="true">5<small>min</small></span><span class="preset-confirm" aria-hidden="true">Tap again</span>
+            <span class="preset-label" aria-hidden="true">5<small>min</small></span><span class="preset-confirm" aria-hidden="true" data-text="tapAgain">Tap again</span>
           </button>
           <button class="preset" type="button" data-timer-target="preset" data-action="timer#tapPreset" data-timer-preset-param="10"
             aria-label="10 minutes">
-            <span class="preset-label" aria-hidden="true">10<small>min</small></span><span class="preset-confirm" aria-hidden="true">Tap again</span>
+            <span class="preset-label" aria-hidden="true">10<small>min</small></span><span class="preset-confirm" aria-hidden="true" data-text="tapAgain">Tap again</span>
           </button>
         </div>
         <section class="lesson" aria-labelledby="lesson-heading" data-timer-target="lesson" hidden>
@@ -114,65 +127,75 @@
         <!-- The install guide's way in (install_controller.js): the banner, or the pill once it's
              hidden. Neither shows in the Home Screen app. -->
         <div class="install-banner">
-          <button class="install-hide" type="button" aria-label="Hide" data-action="install#hide">
+          <button class="install-hide" type="button" aria-label="Hide" data-text-label="hide" data-action="install#hide">
             <svg aria-hidden="true"><use href="#cross"/></svg>
           </button>
           <img class="install-icon" src="/apple-touch-icon-180x180.png" alt="" width="40" height="40" />
-          <p class="install-text"><strong>Yogi Timer</strong> <span>Add it to your Home Screen</span></p>
-          <button class="install-open" type="button" data-action="guide#open">Install</button>
+          <p class="install-text"><strong translate="no">Yogi Timer</strong> <span data-text="installAdd">Add it to your Home Screen</span></p>
+          <button class="install-open" type="button" data-action="guide#open" data-text="install">Install</button>
         </div>
         <header class="history-header">
-          <button class="install-open install-pill" type="button" data-install-target="pill" data-action="guide#open">Install</button>
-          <h1 class="history-heading">History</h1>
-          <button class="settings-open" type="button" aria-label="Settings" data-action="sheet#open">
+          <button class="language-switch" type="button" data-language-target="switch" data-action="language#toggle" aria-label="Language: English">
+            <span lang="en">EN</span><span aria-hidden="true">·</span><span lang="es">ES</span>
+          </button>
+          <button class="install-open install-pill" type="button" data-install-target="pill" data-action="guide#open" data-text="install">Install</button>
+          <h1 class="history-heading" data-text="historyTab">History</h1>
+          <button class="settings-open" type="button" aria-label="Settings" data-text-label="settings" data-action="sheet#open">
             <svg aria-hidden="true"><use href="#gear"/></svg>
           </button>
         </header>
         <p class="history-unsaved" role="status" data-history-target="unsaved" hidden>
-          <strong>History isn't being saved on this phone.</strong> New runs will be lost when the app closes.
+          <strong data-text="historyUnsavedTitle">History isn't being saved on this phone.</strong> <span data-text="historyUnsavedBody">New runs will be lost when the app closes.</span>
         </p>
         <div class="history-empty" data-history-target="empty">
-          <p class="placeholder">No lessons yet</p>
-          <p class="history-hint">Each lesson appears here after its first Run.</p>
+          <p class="placeholder" data-text="historyEmpty">No lessons yet</p>
+          <p class="history-hint" data-text="historyHint">Each lesson appears here after its first Run.</p>
         </div>
         <ol class="history-lessons" data-history-target="list" hidden></ol>
       </section>
     </main>
 
-    <nav class="tabbar" role="tablist" aria-label="Sections">
+    <nav class="tabbar" role="tablist" aria-label="Sections" data-text-label="sections">
       <button id="timer-tab" class="tab" role="tab" type="button" aria-controls="timer-panel" aria-selected="true"
-        data-tabs-target="tab" data-action="tabs#select">Timer</button>
+        data-tabs-target="tab" data-action="tabs#select" data-text="timerTab">Timer</button>
       <button id="history-tab" class="tab" role="tab" type="button" aria-controls="history-panel" aria-selected="false"
-        data-tabs-target="tab" data-action="tabs#select">History</button>
+        data-tabs-target="tab" data-action="tabs#select" data-text="historyTab">History</button>
     </nav>
 
     <dialog class="sheet settings" data-sheet-target="dialog" aria-labelledby="settings-title">
       <div class="sheet-grabber" aria-hidden="true"></div>
       <header class="sheet-header">
-        <h2 id="settings-title" class="sheet-title">Settings</h2>
-        <button class="sheet-done" type="button" data-action="sheet#close">Done</button>
+        <h2 id="settings-title" class="sheet-title" data-text="settings">Settings</h2>
+        <button class="sheet-done" type="button" data-action="sheet#close" data-text="done">Done</button>
       </header>
       <div class="settings-rows">
         <div class="chime" role="radiogroup" aria-labelledby="chime-heading">
-          <span id="chime-heading" class="chime-heading">Chime</span>
+          <span id="chime-heading" class="chime-heading" data-text="chime">Chime</span>
           <div class="chime-options">
             <label class="chime-option"><input type="radio" name="chime" value="bowl" data-chime-target="option" data-action="chime#choose"
-              aria-label="Singing bowl"><span aria-hidden="true">Bowl</span></label>
+              aria-label="Singing bowl" data-text-label="singingBowl"><span aria-hidden="true" data-text="bowl">Bowl</span></label>
             <label class="chime-option"><input type="radio" name="chime" value="tingsha" data-chime-target="option" data-action="chime#choose"
-              aria-label="Tingsha"><span aria-hidden="true">Tingsha</span></label>
+              aria-label="Tingsha"><span aria-hidden="true" translate="no">Tingsha</span></label>
             <label class="chime-option"><input type="radio" name="chime" value="gong" data-chime-target="option" data-action="chime#choose"
-              aria-label="Gong"><span aria-hidden="true">Gong</span></label>
+              aria-label="Gong"><span aria-hidden="true" translate="no">Gong</span></label>
           </div>
         </div>
         <div class="theme" role="radiogroup" aria-labelledby="theme-heading" data-controller="theme">
-          <span id="theme-heading" class="chime-heading">Theme</span>
+          <span id="theme-heading" class="chime-heading" data-text="theme">Theme</span>
           <div class="chime-options">
-            <label class="chime-option"><input type="radio" name="theme" value="glow" data-theme-target="option" data-action="theme#choose"><span>Glow</span></label>
-            <label class="chime-option"><input type="radio" name="theme" value="bead" data-theme-target="option" data-action="theme#choose"><span>Bead</span></label>
+            <label class="chime-option"><input type="radio" name="theme" value="glow" data-theme-target="option" data-action="theme#choose"><span translate="no">Glow</span></label>
+            <label class="chime-option"><input type="radio" name="theme" value="bead" data-theme-target="option" data-action="theme#choose"><span translate="no">Bead</span></label>
+          </div>
+        </div>
+        <div class="language" role="radiogroup" aria-labelledby="language-heading">
+          <span id="language-heading" class="chime-heading" data-text="language">Language</span>
+          <div class="chime-options">
+            <label class="chime-option"><input type="radio" name="language" value="en" data-language-target="option" data-action="language#choose"><span lang="en">English</span></label>
+            <label class="chime-option"><input type="radio" name="language" value="es" data-language-target="option" data-action="language#choose"><span lang="es">Español</span></label>
           </div>
         </div>
       </div>
-      <p class="settings-version">Version %VITE_APP_VERSION%</p>
+      <p class="settings-version" data-language-target="version" data-built="%VITE_APP_BUILT%" data-commit="%VITE_APP_COMMIT%">Version %VITE_APP_VERSION%</p>
     </dialog>
     <!-- The install guide (install_controller.js marks what it shows: the steps for Safari or a
          "open in Safari" note, screenshots or not, and the phone's language, English or Spanish).

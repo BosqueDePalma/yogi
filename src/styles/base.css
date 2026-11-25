@@ -561,9 +561,19 @@ button {
 
 /* --- Settings sheet ---------------------------------------------------------- */
 
+/* The Chime, Theme and Language rows share their columns, so the selectors line up whatever
+   the headings' length in each language. */
 .settings-rows {
   display: grid;
-  gap: 16px;
+  grid-template-columns: max-content 1fr;
+  gap: 16px 12px;
+}
+
+.settings-rows > * {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+  align-items: center;
 }
 
 .settings-version {
@@ -575,14 +585,7 @@ button {
 }
 
 /* Chime selector: a segmented control. */
-.chime {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
 .chime-heading {
-  min-width: 4.2em; /* fits "CHIME" and "THEME", so the two selectors line up */
   font-size: 0.85rem;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -591,7 +594,6 @@ button {
 }
 
 .chime-options {
-  flex: 1;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   padding: 3px;
@@ -685,10 +687,12 @@ button {
 /* The heading shares its line with the gear, which sits where it does on the Timer tab. With
    the install banner hidden, the Install pill takes the top left corner, across from the gear,
    as on the Timer tab, and the heading moves under them. */
+/* Two rows: the language switch, the Install pill (in Safari) and the gear, then the heading. */
 .history-header {
   display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-areas: "heading gear";
+  grid-template-columns: auto auto 1fr auto;
+  grid-template-areas: "switch pill . gear" "heading heading heading heading";
+  column-gap: 8px;
   align-items: center;
   margin: 4px 0 16px;
 }
@@ -697,9 +701,6 @@ button {
   margin-top: calc(var(--row-gap) + 4px);
 }
 
-:root[data-install="pill"] .history-header {
-  grid-template-areas: "pill gear" "heading heading";
-}
 
 .history-header .install-pill {
   grid-area: pill;
@@ -708,6 +709,10 @@ button {
 
 .history-header .settings-open {
   grid-area: gear;
+}
+
+.history-header .language-switch {
+  grid-area: switch;
 }
 
 .history-heading {
@@ -937,11 +942,12 @@ button {
   outline-offset: 2px;
 }
 
-/* On the Timer tab the pill sits level with the gear, in the dial's empty corner. */
+/* On the Timer tab the pill sits level with the gear, in the dial's empty corner, right of
+   the language switch. */
 .timer > .install-pill {
   position: absolute;
-  top: 10px;
-  left: 0;
+  top: calc(var(--above-lotus) + 10px); /* level with the language switch */
+  left: calc(var(--language-switch-width) + 8px);
   z-index: 1;
 }
 
@@ -1084,4 +1090,65 @@ button {
 .guide-copy:not([data-copied]) .guide-copied-label,
 .guide-copy[data-copied] .guide-copy-label {
   display: none;
+}
+
+/* --- Language ----------------------------------------------------------------- */
+
+/* In Spanish the page, written in English, stays hidden until language_controller.js has
+   written it (the head script in index.html marks this), so it never flashes in English. */
+:root[data-language-pending] body {
+  visibility: hidden;
+  animation: show-anyway 0s 2s forwards; /* should the scripts fail, the page still shows, in English */
+}
+
+@keyframes show-anyway {
+  to {
+    visibility: visible;
+  }
+}
+
+/* The EN · ES switch, in the top-left corner of both tabs: 32 px tall, with a 44 px tap area. */
+:root {
+  --language-switch-width: 68px;
+}
+
+.language-switch {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: var(--language-switch-width);
+  height: 32px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--muted) 40%, transparent);
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.language-switch::after {
+  content: "";
+  position: absolute;
+  inset: -6px -4px;
+}
+
+.language-switch[data-language="en"] [lang="en"],
+.language-switch[data-language="es"] [lang="es"] {
+  color: var(--text);
+}
+
+.language-switch:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.timer > .language-switch {
+  position: absolute;
+  top: calc(var(--above-lotus) + 10px); /* level with the gear, under the install banner when it shows */
+  left: 0;
+  z-index: 1;
 }
