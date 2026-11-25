@@ -11,6 +11,7 @@ Blocks: 19
 
 - **The drawing:** the pink lotus inside the blue ring of the mala, the same picture as the Lotus dial, simplified so it reads at Home Screen size (about 60 px). Few beads, or a solid ring, and no thin strokes or small details that turn to mush when small. The tassel can be left out if it doesn't read. Colours come from the Lotus dial's palette.
 - **The background:** dark blue, Bead's dark page colour `#111634`, with the disc in Bead's dark surface `#1a2049`. Changed from Glow's pale page (`#f4f7fe`) after the first version, at the user's request: the pale lotus barely stood out on it. There's one icon: it doesn't change with the Theme or dark mode. The manifest's `theme_color` and `background_color` stay Glow's page colour, since they colour the app's own launch screen.
+- **A signature:** "by phau" in Bradley Hand Bold, small and in Bead's dark muted colour at 75 %, curved along the mala outside its beads at the lower left. It sits inside iOS's rounded corner, so it isn't clipped. Android's maskable crop leaves it out. Chosen by the user from three fonts, then three placements.
 - **iOS 26's dark and tinted icons:** web apps can't supply their own dark icon. Accepted, and checked in the Simulator. (It turned out iOS 26.5 leaves web app icons as they are in dark mode, and only tints them when tinted icons are chosen.)
 - **Maskable:** the drawing stays inside the maskable safe zone (the middle 80 %), so no platform crops it.
 
@@ -53,4 +54,5 @@ No code rules change, so there's no TDD. The icon is checked by eye: in the brow
   - When tinted, it stays a clear light lotus on blue. The old bowl icons fade to almost nothing.
   - Screenshots: [light](27-lotus-icon/home-light.png), [dark](27-lotus-icon/home-dark.png), [tinted](27-lotus-icon/home-tinted.png).
 - **Review:** on Glow's pale background the lotus was pale (light pink on a near-white disc). At the user's request the background became dark blue, and the lotus now stands out clearly, tinted too. The 3 px thread around the disc vanishes when small and is harmless.
+- **The signature** is outlines in the SVG, so no font is needed. On the Home Screen it reads as a faint mark that you can make out up close ([detail](27-lotus-icon/home-signature.png)). The step-2 and step-4 screenshots were updated with it. The tinted screenshot is from before the signature.
 - **Tests:** 168 pass, and the build succeeds.
