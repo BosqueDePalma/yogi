@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <title>Yogi Timer</title>
   <!-- The Lotus dial, simplified to read at Home Screen size: the pink lotus inside the blue
-       mala, on Glow's page colour. Colours are the light tokens in base.css, kept in step by hand: page #f4f7fe (bg), disc #fffcfa (lotus disc), thread #efc7d2, petals #f8d3da #f5bccb #ee9fb5 #e17f9a (lotus petal 1 to 4), beads #93afed (lotus lit), guru bead #7b9ae5 (lotus blue 3).
+       mala, on Bead's dark page colour. Colours are tokens from base.css and themes.css, kept in step by hand: page #111634 (Bead's dark bg), disc #1a2049 (Bead's dark surface), thread #31428c (Bead's dark accent), petals #f8d3da #f5bccb #ee9fb5 #e17f9a (lotus petal 1 to 4), beads #93afed (lotus lit), guru bead #7b9ae5 (lotus blue 3).
        Everything stays inside the maskable safe zone (a circle of radius 205 around the centre). -->
-  <rect width="512" height="512" fill="#f4f7fe"/>
+  <rect width="512" height="512" fill="#111634"/>
   <g transform="translate(256 256)">
-  <circle r="176" fill="none" stroke="#efc7d2" stroke-width="3"/>
-  <circle r="160" fill="#fffcfa"/>
+  <circle r="176" fill="none" stroke="#31428c" stroke-width="3"/>
+  <circle r="160" fill="#1a2049"/>
   <g fill="#f8d3da">
     <path transform="rotate(0)" d="M0 0A133.3 133.3 0 0 1 0 -155A133.3 133.3 0 0 1 0 0Z"/>
     <path transform="rotate(30)" d="M0 0A133.3 133.3 0 0 1 0 -155A133.3 133.3 0 0 1 0 0Z"/>

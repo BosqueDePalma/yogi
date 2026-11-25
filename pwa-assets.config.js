@@ -1,8 +1,8 @@
 import { defineConfig, minimal2023Preset } from "@vite-pwa/assets-generator/config";
 
-// The SVG already fills its square with Glow's page colour and keeps the lotus
+// The SVG already fills its square with Bead's dark page colour and keeps the lotus
 // inside the maskable safe zone, so no extra padding is added.
-const background = "#f4f7fe";
+const background = "#111634";
 
 export default defineConfig({
   headLinkOptions: { preset: "2023" },
