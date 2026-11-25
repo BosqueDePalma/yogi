@@ -54,9 +54,9 @@ _Avoid_: Alarm, beep, bell, notification
 _En español_: campana (Singing bowl: cuenco)
 
 **Theme**:
-The look the Teacher chooses for the app: Glow (the default) or Bead. Each Theme follows the phone's light or dark mode.
+The look the Teacher chooses for the app: Glow or Bead, each light or dark. A fixed Theme follows the phone's light or dark mode. **Auto** (the default) rotates through the four looks by the clock instead: Glow light, Glow dark, Bead light, Bead dark, changing at 6:30 am and 6:30 pm.
 _Avoid_: Skin, style, colour scheme
-_En español_: tema (Glow and Bead keep their names)
+_En español_: tema (Glow, Bead and Auto keep their names)
 
 **Replace**:
 Ending the Run that is going, paused or not, to select a Preset, which the Teacher confirms with a second tap on that Preset. The replaced Run becomes a Stopped Run and the Preset becomes the Selected Preset; its Run starts like any other. Restarting is replacing with the same Preset.

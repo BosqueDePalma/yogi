@@ -1,41 +1,41 @@
 /* The app's second theme, Bead, chosen with the Theme selector in Settings
-   (theme_controller.js) and applied as <html data-theme="bead">. Glow, the default, is in
-   base.css. Both come from the user's palette, paleta-c2-mala.jpg (2026-11-23). */
+   (theme_controller.js), or by the clock with Auto, and applied as <html data-theme="bead">.
+   Glow is in base.css. This file also holds the mode Auto sets, the Theme and Language rows,
+   and the colour easing. Both come from the user's palette, paleta-c2-mala.jpg (2026-11-23). */
 
-/* Bead: the lit beads' blue (#93afed) on a light periwinkle page. */
+/* Bead: the lit beads' blue (#93afed) on a light periwinkle page. By night, a deep indigo page,
+   bluer than Glow's, with the Presets and the selected tab in a deep bead blue and the mala's
+   beads lit in Bead's own blue. Tokens left out are Glow's (base.css). */
 :root[data-theme="bead"] {
-  --bg: #eef2fd;
-  --surface: #f8faff;
-  --text: #1e2a52;
-  --muted: #4a5681;
-  --line: #d3def8;
-  --accent: #93afed;
-  --accent-text: #1e2a52;
-  --selector-track: #c5d2f3;
-  --edge: #7482b8; /* 3.3:1 on the page */
+  --bg: light-dark(#eef2fd, #111634);
+  --surface: light-dark(#f8faff, #1a2049);
+  --text: light-dark(#1e2a52, #e6ecfc);
+  --muted: light-dark(#4a5681, #a6b2e0);
+  --line: light-dark(#d3def8, #2c3672);
+  --accent: light-dark(#93afed, #31428c);
+  --accent-text: light-dark(#1e2a52, #b8c6f3); /* 5.4:1 on the accent by night */
+  --selector-track: light-dark(#c5d2f3, var(--line));
+  --selector-chosen: light-dark(var(--surface), #4a5aa6); /* 1.8:1 on the track by night */
+  --edge: light-dark(#7482b8, #5c6bad); /* 3.3:1 on the page, 3.5:1 by night */
+  --lotus-disc: light-dark(#fffcfa, #1a2049);
+  --lotus-lit: #93afed;
 }
 
-/* Bead by night: a deep indigo page, bluer than Glow's, with the Presets and the selected tab
-   in a deep bead blue and the mala's beads lit in Bead's own blue. */
-@media (prefers-color-scheme: dark) {
-  :root[data-theme="bead"] {
-    --bg: #111634;
-    --surface: #1a2049;
-    --text: #e6ecfc;
-    --muted: #a6b2e0;
-    --line: #2c3672;
-    --accent: #31428c;
-    --accent-text: #b8c6f3; /* 5.4:1 on the accent */
-    --selector-track: var(--line); /* restated: Bead's light value above would win otherwise */
-    --selector-chosen: #4a5aa6; /* 1.8:1 on the track */
-    --edge: #5c6bad; /* 3.5:1 on the page */
-    --lotus-disc: #1a2049;
-    --lotus-lit: #93afed;
-  }
+/* The Auto Theme (theme_controller.js) sets the mode by the clock, whatever the phone's. */
+:root[data-mode="light"] {
+  color-scheme: light;
 }
 
-/* The Theme and Language selectors, styled like the Chime selector (two options each). */
-.theme .chime-options,
+:root[data-mode="dark"] {
+  color-scheme: dark;
+}
+
+/* The Theme row has three options (Auto, Glow, Bead), the Language row two. */
+.theme .chime-options {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* The Language selector, styled like the Chime selector. */
 .language .chime-options {
   grid-template-columns: repeat(2, 1fr);
 }

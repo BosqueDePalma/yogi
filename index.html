@@ -6,7 +6,7 @@
     <title translate="no">Yogi Timer</title>
     <meta name="description" content="One-tap countdown timer for teaching yoga." />
     <!-- The status bar: each theme's page colour (--bg in base.css and themes.css; keep in step).
-         Glow's is the default; the head script below and theme_controller.js switch to Bead's. -->
+         The head script below and theme_controller.js set them for the Theme in use. -->
     <meta name="theme-color" content="#f4f7fe" data-glow="#f4f7fe" data-bead="#eef2fd" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#15171e" data-glow="#15171e" data-bead="#111634" media="(prefers-color-scheme: dark)" />
     <meta name="color-scheme" content="light dark" />
@@ -17,15 +17,31 @@
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" href="/icon.svg" sizes="any" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
-    <!-- Applies the Teacher's saved theme and its status bar colour before the page draws.
-         Keep the key and theme names in step with src/controllers/theme_controller.js. -->
+    <!-- Applies the Teacher's Theme and its status bar colour before the page draws: Auto (the
+         default) by the clock, or Glow or Bead. Keep the key, the choices and the look in step
+         with src/controllers/theme_controller.js and src/theme_clock.js. -->
     <script>
       try {
-        const theme = localStorage.getItem("yogi-timer.theme");
-        if (theme === "bead") {
-          document.documentElement.dataset.theme = theme;
-          for (const meta of document.querySelectorAll('meta[name="theme-color"]')) meta.content = meta.dataset.bead;
+        let choice = null;
+        try { choice = localStorage.getItem("yogi-timer.theme"); } catch {}
+        let theme = choice === "glow" || choice === "bead" ? choice : null;
+        let mode = null;
+        if (!theme) {
+          // theme_clock.js lookAt(): Glow light, Glow dark, Bead light, Bead dark, turning at
+          // 6:30 am and 6:30 pm, counted from 6:30 am on 1 Jan 2026.
+          const now = new Date();
+          const minutes = now.getHours() * 60 + now.getMinutes();
+          const night = minutes < 390 || minutes >= 1110;
+          const day = Math.round((Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - Date.UTC(2026, 0, 1)) / 86400000) - (minutes < 390 ? 1 : 0);
+          const look = (((day * 2 + (night ? 1 : 0)) % 4) + 4) % 4;
+          theme = look < 2 ? "glow" : "bead";
+          mode = look % 2 ? "dark" : "light";
+          document.documentElement.dataset.mode = mode;
         }
+        if (theme === "bead") document.documentElement.dataset.theme = theme;
+        const metas = [...document.querySelectorAll('meta[name="theme-color"]')];
+        const forMode = mode && metas.find((meta) => meta.media.includes(mode));
+        for (const meta of metas) meta.content = (forMode || meta).dataset[theme];
       } catch {}
       // The language, before the page draws (src/app_language.js and language.js; keep KEY and
       // the rule in step): the Teacher's choice, or else the phone's. The page is written in
@@ -183,6 +199,7 @@
         <div class="theme" role="radiogroup" aria-labelledby="theme-heading" data-controller="theme">
           <span id="theme-heading" class="chime-heading" data-text="theme">Theme</span>
           <div class="chime-options">
+            <label class="chime-option"><input type="radio" name="theme" value="auto" data-theme-target="option" data-action="theme#choose"><span translate="no">Auto</span></label>
             <label class="chime-option"><input type="radio" name="theme" value="glow" data-theme-target="option" data-action="theme#choose"><span translate="no">Glow</span></label>
             <label class="chime-option"><input type="radio" name="theme" value="bead" data-theme-target="option" data-action="theme#choose"><span translate="no">Bead</span></label>
           </div>

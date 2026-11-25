@@ -1,42 +1,45 @@
 /* Colour tokens: Glow, the mala's final glow (pale blue) on a blue-white page (from the theme
-   trial on 2026-11-23, after paleta-c2-mala.jpg), with its own dark version below.
-   Follows the phone's light/dark setting. */
+   trial on 2026-11-23, after paleta-c2-mala.jpg), with its own night version.
+   By night Glow is a near-neutral dark page, with the Presets and the selected tab in deep
+   slate and soft glow-blue text, so the countdown stays the strongest thing on screen.
+   Each token is light-dark(light, by night): it follows the phone's light/dark setting, or
+   <html data-mode> when the Auto Theme sets it by the clock (theme_controller.js). */
 :root {
   color-scheme: light dark;
 
-  --bg: #f4f7fe;
-  --surface: #fdfdff;
-  --text: #26345e;
-  --muted: #4f5b87;
-  --line: #dce5fb;
-  --accent: #bcd0f6;
-  --accent-text: #26345e;
-  --selector-track: #cdd8f5; /* the Chime and Theme selectors' background */
-  --selector-chosen: var(--surface); /* the chosen option on it: 1.4:1, plus darker text */
-  --edge: #7885b5; /* outlines of controls that stand on the page: 3.4:1 on the page */
-  --scrim: rgb(20 26 50 / 0.32); /* dims the page behind the Settings sheet */
+  --bg: light-dark(#f4f7fe, #15171e);
+  --surface: light-dark(#fdfdff, #1f222d);
+  --text: light-dark(#26345e, #e8edfb);
+  --muted: light-dark(#4f5b87, #9ea6bd);
+  --line: light-dark(#dce5fb, #30354a);
+  --accent: light-dark(#bcd0f6, #323d5e);
+  --accent-text: light-dark(#26345e, #afc0ea); /* by night: 5.9:1 on the accent */
+  --selector-track: light-dark(#cdd8f5, var(--line)); /* the Chime and Theme selectors' background */
+  --selector-chosen: light-dark(var(--surface), #4a5370); /* the chosen option on it: 1.4:1, plus darker text; by night lighter than the track, as on iOS: 1.6:1 */
+  --edge: light-dark(#7885b5, #646d8c); /* outlines of controls that stand on the page: 3.4:1 on the page, 3.5:1 by night */
+  --scrim: light-dark(rgb(20 26 50 / 0.32), rgb(0 0 0 / 0.4)); /* dims the page behind the Settings sheet; a dark page needs a deeper dim to read as dimmed */
 
   /* The Lotus dial's own palette (issue 12): pink lotus, blue mala, gold heart. */
-  --lotus-disc: #fffcfa;
-  --lotus-thread: #efc7d2;
-  --lotus-bead: #f8d6de;
-  --lotus-lit: #93afed;
-  --lotus-glow: #bcd0f6;
-  --lotus-ripple: #8fabec;
-  --lotus-petal-1: #f8d3da;
-  --lotus-petal-2: #f5bccb;
-  --lotus-petal-3: #ee9fb5;
-  --lotus-petal-4: #e17f9a;
-  --lotus-gold-1: #f6d3a4;
-  --lotus-gold-2: #f0bd86;
-  --lotus-blue-1: #b6caf5;
-  --lotus-blue-2: #95b0ee;
-  --lotus-blue-3: #7b9ae5;
-  --lotus-text: #b07f8e;
+  --lotus-disc: light-dark(#fffcfa, #1f222d);
+  --lotus-thread: light-dark(#efc7d2, #5b3f4a);
+  --lotus-bead: light-dark(#f8d6de, #4c3742);
+  --lotus-lit: light-dark(#93afed, #7f9be0);
+  --lotus-glow: light-dark(#bcd0f6, #4d6299);
+  --lotus-ripple: light-dark(#8fabec, #7690d6);
+  --lotus-petal-1: light-dark(#f8d3da, #5e3d48);
+  --lotus-petal-2: light-dark(#f5bccb, #774856);
+  --lotus-petal-3: light-dark(#ee9fb5, #985669);
+  --lotus-petal-4: light-dark(#e17f9a, #b8667f);
+  --lotus-gold-1: light-dark(#f6d3a4, #c9a46f);
+  --lotus-gold-2: light-dark(#f0bd86, #b98b5a);
+  --lotus-blue-1: light-dark(#b6caf5, #4d6299);
+  --lotus-blue-2: light-dark(#95b0ee, #5f78b8);
+  --lotus-blue-3: light-dark(#7b9ae5, #7690d6);
+  --lotus-text: light-dark(#b07f8e, #d3a7b5);
   /* 0:00 at the finish: 6:1 on the disc, 3:1 on the middle petals; on the darkest petals
      the halo (text-shadow) keeps it readable. */
-  --lotus-zero: #3f5cb3;
-  --lotus-shine: rgb(255 255 255 / 0.6);
+  --lotus-zero: light-dark(#3f5cb3, #bcd0f6); /* by night: 10:1 on the disc, 3.5:1 on the middle petals, halo on the darkest */
+  --lotus-shine: light-dark(rgb(255 255 255 / 0.6), rgb(255 255 255 / 0.18));
 
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
   --font-rounded: ui-rounded, "SF Pro Rounded", -apple-system, system-ui, sans-serif;
@@ -52,43 +55,6 @@
   --sheet-grabber: var(--edge);
   --sheet-backdrop: var(--scrim);
   --sheet-radius: 20px;
-}
-
-@media (prefers-color-scheme: dark) {
-  /* Glow by night: a near-neutral dark page. The Presets and the selected tab turn to deep
-     slate with soft glow-blue text, so the countdown stays the strongest thing on screen. */
-  :root {
-    --bg: #15171e;
-    --surface: #1f222d;
-    --text: #e8edfb;
-    --muted: #9ea6bd;
-    --line: #30354a;
-    --accent: #323d5e;
-    --accent-text: #afc0ea; /* 5.9:1 on the accent */
-    --selector-track: var(--line);
-    --selector-chosen: #4a5370; /* lighter than the track, as on iOS: 1.6:1 */
-    --edge: #646d8c; /* 3.5:1 on the page */
-    --scrim: rgb(0 0 0 / 0.4); /* a dark page needs a deeper dim to read as dimmed */
-
-    --lotus-disc: #1f222d;
-    --lotus-thread: #5b3f4a;
-    --lotus-bead: #4c3742;
-    --lotus-lit: #7f9be0;
-    --lotus-glow: #4d6299;
-    --lotus-ripple: #7690d6;
-    --lotus-petal-1: #5e3d48;
-    --lotus-petal-2: #774856;
-    --lotus-petal-3: #985669;
-    --lotus-petal-4: #b8667f;
-    --lotus-gold-1: #c9a46f;
-    --lotus-gold-2: #b98b5a;
-    --lotus-blue-1: #4d6299;
-    --lotus-blue-2: #5f78b8;
-    --lotus-blue-3: #7690d6;
-    --lotus-text: #d3a7b5;
-    --lotus-zero: #bcd0f6; /* 10:1 on the disc, 3.5:1 on the middle petals, halo on the darkest */
-    --lotus-shine: rgb(255 255 255 / 0.18);
-  }
 }
 
 *,
@@ -633,7 +599,7 @@ button {
 .chime-option:has(:checked) {
   background: var(--selector-chosen);
   color: var(--text);
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  box-shadow: 0 1px 3px light-dark(rgb(0 0 0 / 0.12), transparent); /* unseen on a dark page, where the option is lighter instead */
 }
 
 .chime-option:has(:focus-visible) {
@@ -733,7 +699,7 @@ button {
 
 .history-unsaved {
   margin: -4px 0 16px;
-  color: #b3412f;
+  color: light-dark(#b3412f, #e8806c);
   line-height: 1.35;
 }
 
@@ -818,23 +784,10 @@ button {
   border: 2px solid var(--line);
   border-radius: 999px;
   background: none;
-  color: #b3412f;
+  color: light-dark(#b3412f, #e8806c);
   font-weight: 600;
 }
 
-/* A drop shadow can't be seen on a dark page; there the chosen option is lighter instead. */
-@media (prefers-color-scheme: dark) {
-  .chime-option:has(:checked) {
-    box-shadow: none;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .history-delete,
-  .history-unsaved {
-    color: #e8806c;
-  }
-}
 
 /* --- Install guide ----------------------------------------------------------- */
 

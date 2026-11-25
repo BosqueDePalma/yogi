@@ -138,6 +138,7 @@ Settings open (over the Timer tab, covering the tab bar):
 - Built with Vite, Stimulus (`@hotwired/stimulus`), plain HTML, plain modern JavaScript and modern CSS. No TypeScript, no UI framework.
 - `vite-plugin-pwa` provides the web app manifest and the offline service worker.
 - The domain rules (Lessons, Runs, Pause, Adjust, Lesson Gap, Mis-tap, clock-based countdown) live in plain JavaScript modules with no DOM and no Stimulus. They take the current time as an input, so tests don't depend on the real clock. They are written test-first with Vitest.
+- The Auto Theme's rotation lives in a DOM-free module (`theme_clock.js`): given the time, the look (Theme and light or dark) and when it next changes ([issue 28](issues/28-auto-theme-rotation.md)). Colour tokens are `light-dark()` pairs, so the clock can set the mode through `<html data-mode>`.
 - Storage sits behind a small module that reads and writes the History JSON in localStorage.
 - Stimulus controllers only connect the domain modules and storage to the page: the timer, the Preset confirmation, the History list, the Chime and the Chime selector, and the Settings sheet.
 - The Timer tab's own rules (the Selected Preset, Run completion, Pause, Replace and its confirmation, the 0:00 pulse, what the countdown shows, and whether the Chime rings) live in a DOM-free module that takes the time as an input. The timer controller only draws what it returns ([issue 08](issues/08-run-screen-module.md)).
