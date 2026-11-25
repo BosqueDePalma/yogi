@@ -30,14 +30,31 @@
     </script>
     <script type="module" src="/src/main.js"></script>
   </head>
-  <body data-controller="tabs sheet chime" data-action="timer:started->chime#unlock timer:ring->chime#ring">
-    <!-- The gear on the Settings buttons (one on each tab). -->
+  <body data-controller="tabs sheet guide install chime" data-action="timer:started->chime#unlock timer:ring->chime#ring">
+    <!-- The gear on the Settings buttons (one on each tab), and the install guide's icons. -->
     <svg class="icons" aria-hidden="true">
+      <symbol id="cross" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+      <symbol id="share" viewBox="0 0 24 24"><path d="M12 3v12M8 7l4-4 4 4M8 10H6v11h12V10h-2"/></symbol>
+      <symbol id="dots" viewBox="0 0 24 24"><g fill="currentColor" stroke="none"><circle cx="5.5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18.5" cy="12" r="1.6"/></g></symbol>
+      <symbol id="add-square" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></symbol>
+      <symbol id="chevron-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+      <symbol id="switch-on" viewBox="0 0 34 20"><rect width="34" height="20" rx="10" fill="#34c759"/><circle cx="24" cy="10" r="8" fill="#fff"/></symbol>
       <symbol id="gear" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M10.3 4.08L10.59 1.49A10.6 10.6 0 0 1 13.41 1.49L13.7 4.08A8.1 8.1 0 0 1 16.39 5.2L18.43 3.57A10.6 10.6 0 0 1 20.43 5.57L18.8 7.61A8.1 8.1 0 0 1 19.92 10.3L22.51 10.59A10.6 10.6 0 0 1 22.51 13.41L19.92 13.7A8.1 8.1 0 0 1 18.8 16.39L20.43 18.43A10.6 10.6 0 0 1 18.43 20.43L16.39 18.8A8.1 8.1 0 0 1 13.7 19.92L13.41 22.51A10.6 10.6 0 0 1 10.59 22.51L10.3 19.92A8.1 8.1 0 0 1 7.61 18.8L5.57 20.43A10.6 10.6 0 0 1 3.57 18.43L5.2 16.39A8.1 8.1 0 0 1 4.08 13.7L1.49 13.41A10.6 10.6 0 0 1 1.49 10.59L4.08 10.3A8.1 8.1 0 0 1 5.2 7.61L3.57 5.57A10.6 10.6 0 0 1 5.57 3.57L7.61 5.2A8.1 8.1 0 0 1 10.3 4.08ZM15.4 12A3.4 3.4 0 1 0 8.6 12A3.4 3.4 0 1 0 15.4 12Z"/></symbol>
     </svg>
     <main class="panels">
       <section id="timer-panel" class="panel timer" role="tabpanel" aria-labelledby="timer-tab" data-tabs-target="panel"
         data-controller="timer" data-ready>
+        <!-- The install guide's way in (install_controller.js): the banner, or the pill once it's
+             hidden. Neither shows in the Home Screen app. -->
+        <div class="install-banner">
+          <button class="install-hide" type="button" aria-label="Hide" data-action="install#hide">
+            <svg aria-hidden="true"><use href="#cross"/></svg>
+          </button>
+          <img class="install-icon" src="/apple-touch-icon-180x180.png" alt="" width="40" height="40" />
+          <p class="install-text"><strong>Yogi Timer</strong> <span>Add it to your Home Screen</span></p>
+          <button class="install-open" type="button" data-action="guide#open">Install</button>
+        </div>
+        <button class="install-open install-pill" type="button" data-install-target="pill" data-action="guide#open">Install</button>
         <button class="settings-open" type="button" aria-label="Settings" data-action="sheet#open">
           <svg aria-hidden="true"><use href="#gear"/></svg>
         </button>
@@ -94,7 +111,18 @@
       </section>
       <section id="history-panel" class="panel history" role="tabpanel" aria-labelledby="history-tab" data-tabs-target="panel"
         data-controller="history" hidden>
+        <!-- The install guide's way in (install_controller.js): the banner, or the pill once it's
+             hidden. Neither shows in the Home Screen app. -->
+        <div class="install-banner">
+          <button class="install-hide" type="button" aria-label="Hide" data-action="install#hide">
+            <svg aria-hidden="true"><use href="#cross"/></svg>
+          </button>
+          <img class="install-icon" src="/apple-touch-icon-180x180.png" alt="" width="40" height="40" />
+          <p class="install-text"><strong>Yogi Timer</strong> <span>Add it to your Home Screen</span></p>
+          <button class="install-open" type="button" data-action="guide#open">Install</button>
+        </div>
         <header class="history-header">
+          <button class="install-open install-pill" type="button" data-install-target="pill" data-action="guide#open">Install</button>
           <h1 class="history-heading">History</h1>
           <button class="settings-open" type="button" aria-label="Settings" data-action="sheet#open">
             <svg aria-hidden="true"><use href="#gear"/></svg>
@@ -145,6 +173,86 @@
         </div>
       </div>
       <p class="settings-version">Version %VITE_APP_VERSION%</p>
+    </dialog>
+    <!-- The install guide (install_controller.js marks what it shows: the steps for Safari or a
+         "open in Safari" note, screenshots or not, and the phone's language, English or Spanish).
+         Its screenshots, in public/install/, are left out of the offline cache. -->
+    <dialog class="sheet guide" data-guide-target="dialog" data-install-target="sheet" aria-labelledby="guide-title">
+      <div class="sheet-grabber" aria-hidden="true"></div>
+      <header class="sheet-header">
+        <h2 id="guide-title" class="sheet-title"><span lang="en">Install Yogi Timer</span><span lang="es">Instala Yogi Timer</span></h2>
+        <button class="sheet-done" type="button" data-action="guide#close"><span lang="en">Done</span><span lang="es">Listo</span></button>
+      </header>
+      <div class="guide-body" lang="en">
+        <ol class="guide-steps">
+          <li>
+            <p>Tap <b>Share</b> <span class="glyph"><svg aria-hidden="true"><use href="#share"/></svg></span>. If you don't see it, tap <span class="glyph" role="img" aria-label="three dots"><svg aria-hidden="true"><use href="#dots"/></svg></span> first.</p>
+            <img class="guide-shot" src="/install/en-1.webp" alt="" width="640" height="389" loading="lazy" />
+          </li>
+          <li>
+            <p>Tap <b>Add to Home Screen</b> <span class="glyph"><svg aria-hidden="true"><use href="#add-square"/></svg></span>. If you don't see it, tap <b>View More</b> <span class="glyph"><svg aria-hidden="true"><use href="#chevron-down"/></svg></span> first.</p>
+            <img class="guide-shot" src="/install/en-2.webp" alt="" width="640" height="643" loading="lazy" />
+            <img class="guide-shot" src="/install/en-3.webp" alt="" width="640" height="586" loading="lazy" />
+          </li>
+          <li>
+            <p>Keep <b>Open as Web App</b> <svg class="glyph-switch" aria-hidden="true"><use href="#switch-on"/></svg> on, then tap <b>Add</b>.</p>
+            <img class="guide-shot" src="/install/en-4.webp" alt="" width="640" height="509" loading="lazy" />
+          </li>
+          <li>
+            <p>Open Yogi Timer from your Home Screen once while you're online, so it works offline.</p>
+            <figure class="guide-home" aria-hidden="true">
+              <img src="/apple-touch-icon-180x180.png" alt="" width="60" height="60" />
+              <figcaption>Yogi Timer</figcaption>
+            </figure>
+          </li>
+        </ol>
+        <div class="guide-notes">
+          <p>Runs timed here in Safari stay in Safari: the Home Screen app keeps its own History.</p>
+          <p>Already added? Open Yogi Timer from your Home Screen.</p>
+          <p class="guide-shots-note">Screens from iPhone, iOS 26.</p>
+        </div>
+        <div class="guide-safari-first">
+          <p>Open this page in Safari first.</p>
+          <button class="guide-copy" type="button" data-action="install#copyLink">
+            <span class="guide-copy-label">Copy link</span><span class="guide-copied-label" role="status">Link copied</span>
+          </button>
+        </div>
+      </div>
+      <div class="guide-body" lang="es">
+        <ol class="guide-steps">
+          <li>
+            <p>Toca <b>Compartir</b> <span class="glyph"><svg aria-hidden="true"><use href="#share"/></svg></span>. Si no lo ves, toca <span class="glyph" role="img" aria-label="tres puntos"><svg aria-hidden="true"><use href="#dots"/></svg></span> primero.</p>
+            <img class="guide-shot" src="/install/es-1.webp" alt="" width="640" height="666" loading="lazy" />
+          </li>
+          <li>
+            <p>Toca <b>Agregar a Inicio</b> <span class="glyph"><svg aria-hidden="true"><use href="#add-square"/></svg></span>. Si no lo ves, toca <b>Ver más</b> <span class="glyph"><svg aria-hidden="true"><use href="#chevron-down"/></svg></span> primero.</p>
+            <img class="guide-shot" src="/install/es-2.webp" alt="" width="640" height="643" loading="lazy" />
+            <img class="guide-shot" src="/install/es-3.webp" alt="" width="640" height="586" loading="lazy" />
+          </li>
+          <li>
+            <p>Deja activado <b>Abrir como app web</b> <svg class="glyph-switch" aria-hidden="true"><use href="#switch-on"/></svg> y toca <b>Agregar</b>.</p>
+            <img class="guide-shot" src="/install/es-4.webp" alt="" width="640" height="509" loading="lazy" />
+          </li>
+          <li>
+            <p>Abre Yogi Timer desde tu pantalla de inicio una vez con conexión a internet, para que funcione sin conexión.</p>
+            <figure class="guide-home" aria-hidden="true">
+              <img src="/apple-touch-icon-180x180.png" alt="" width="60" height="60" />
+              <figcaption>Yogi Timer</figcaption>
+            </figure>
+          </li>
+        </ol>
+        <div class="guide-notes">
+          <p>Lo que cronometres aquí en Safari se queda en Safari: la app de la pantalla de inicio guarda su propio historial, en la pestaña History.</p>
+          <p>¿Ya la agregaste? Abre Yogi Timer desde tu pantalla de inicio.</p>
+          <p class="guide-shots-note">Pantallas de iPhone, iOS 26.</p>
+        </div>
+        <div class="guide-safari-first">
+          <p>Abre esta página en Safari primero.</p>
+          <button class="guide-copy" type="button" data-action="install#copyLink">
+            <span class="guide-copy-label">Copiar enlace</span><span class="guide-copied-label" role="status">Enlace copiado</span>
+          </button>
+        </div>
+      </div>
     </dialog>
   </body>
 </html>

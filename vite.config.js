@@ -45,6 +45,10 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{html,js,css,svg,png,ico,webmanifest}"],
+        // The install guide's screenshots are only needed in a browser, before installing; the
+        // Home Screen app never shows them. globPatterns leaves out .webp already; this keeps
+        // them out if it ever takes images of every kind.
+        globIgnores: ["install/**"],
         navigateFallback: "index.html",
         cleanupOutdatedCaches: true,
       },

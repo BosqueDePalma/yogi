@@ -1,6 +1,6 @@
 # Install guide
 
-Status: ready-for-agent
+Status: resolved
 Type: feature
 Blocked by: None (can start immediately)
 Blocks: 19
@@ -30,11 +30,11 @@ Until now the app had one Teacher, who would be shown how to install it once. It
 - The same sheet as Settings (`src/sheet/`), titled "Install Yogi Timer", with Done. It closes as Settings does. A Run started in Safari keeps counting behind it.
 - **The steps, as iOS 26.5 shows them** (found in the Simulator: the share sheet hides Add to Home Screen behind "More"):
   1. Tap **Share** [share icon]. If you don't see it, tap **•••** first.
-  2. Tap **Add to Home Screen** [plus-square icon]. If you don't see it, tap **More** [chevron] first.
+  2. Tap **Add to Home Screen** [plus-square icon]. If you don't see it, tap **View More** [chevron] first. (In English the chevron reads "View More"; "More" is another button.)
   3. Keep **Open as Web App** [toggle] on, then tap **Add**.
   4. Open Yogi Timer from your Home Screen once while you're online, so it works offline. [The app icon with its name.]
 
-  Use the exact labels iOS shows in English and in Spanish: read them from the screenshots when they are taken. The Spanish ones in iOS 26.5 are Compartir, Ver más, Agregar a Inicio, Abrir como app web and Agregar.
+  Use the exact labels iOS shows in English and in Spanish: read them from the screenshots when they are taken. In iOS 26.5 they are Share, View More, Add to Home Screen, Open as Web App and Add in English, and Compartir, Ver más, Agregar a Inicio, Abrir como app web and Agregar in Spanish.
 - **Each step:** the line of text with its icon drawn in SVG, then its screenshot underneath. The text still makes sense if a detail of the menu changes.
 - **Under the steps**, in quiet text:
   - Runs timed here in Safari stay in Safari: the Home Screen app keeps its own History.
@@ -62,16 +62,16 @@ Until now the app had one Teacher, who would be shown how to install it once. It
 
 ## Acceptance criteria
 
-- [ ] In Safari on an iPhone, the banner shows at the top of Timer and History. In the Home Screen app it never shows, and nor does the pill.
-- [ ] Install opens the sheet with the four steps, each with its icon and screenshot, and the notes under them.
-- [ ] The × hides the banner, leaves the Install pill in the corner, and stays hidden after a reload. Its tap area is 44 × 44 pt and VoiceOver reads it "Hide".
-- [ ] With the phone in Spanish the sheet and its screenshots are in Spanish; otherwise in English. The banner is in English either way.
-- [ ] On an iPad the steps show without screenshots.
-- [ ] In another browser the sheet asks to open the page in Safari, and Copy link copies the page's address.
-- [ ] On a computer nothing shows.
-- [ ] The Timer tab doesn't scroll in Safari with the banner showing, nor at 375 × 667 in the browser pane. The Presets stay where the thumb expects them.
-- [ ] The screenshots are dark, cropped with no address, have the button circled, are WebP at 640 px wide and about 15 KB each, and aren't in the service worker's precache list (`dist/sw.js`).
-- [ ] **Checked in the iOS Simulator by following the guide**, in English and in Spanish:
+- [x] In Safari on an iPhone, the banner shows at the top of Timer and History. In the Home Screen app it never shows, and nor does the pill.
+- [x] Install opens the sheet with the four steps, each with its icon and screenshot, and the notes under them.
+- [ ] The × hides the banner, leaves the Install pill in the corner, and stays hidden after a reload. Its tap area is 44 × 44 pt and VoiceOver reads it "Hide". (All checked except VoiceOver itself: the label is in the page, but VoiceOver wasn't run.)
+- [x] With the phone in Spanish the sheet and its screenshots are in Spanish; otherwise in English. The banner is in English either way.
+- [x] On an iPad the steps show without screenshots. (Through the tests and in the browser pane; there was no iPad in the Simulator.)
+- [x] In another browser the sheet asks to open the page in Safari, and Copy link copies the page's address. (Through the tests and in the browser pane; no other browser in the Simulator.)
+- [x] On a computer nothing shows.
+- [x] The Timer tab doesn't scroll in Safari with the banner showing, nor at 375 × 667 in the browser pane. The Presets stay where the thumb expects them.
+- [x] The screenshots are dark, cropped with no address, have the button circled, are WebP at 640 px wide and about 15 KB each, and aren't in the service worker's precache list (`dist/sw.js`).
+- [x] **Checked in the iOS Simulator by following the guide**, in English and in Spanish:
   - Open the app in Safari, read the banner, open the guide, and follow its steps literally until Yogi Timer is on the Home Screen.
   - Opened from its icon, the app shows no banner.
   - Screenshots of the banner, the sheet in each language, and the hidden banner's pill, in Glow and Bead, light and dark.
@@ -92,3 +92,53 @@ Until now the app had one Teacher, who would be shown how to install it once. It
 - Real-phone checks are in [issue 20](20-real-iphone-acceptance-test.md).
 
 ## Comments
+
+### 2026-11-25, done.
+
+- **What to show**, in `install_guide.js`, with no DOM. Given whether the app is standalone, the user agent, `maxTouchPoints` and the language, it answers:
+  - `offer()`: "banner", "pill" or nothing;
+  - `sheet`: the Safari steps or "open in Safari", screenshots or not, and "en" or "es".
+  - `hide()` keeps the hidden banner under `yogi-timer.install-banner`.
+  - 27 tests through that interface: every case the ticket lists, plus Firefox, Edge, the Google app, Facebook's browser, an app's own web view, Windows, a touch-screen Windows laptop, storage that refuses writes and storage that can't be read.
+- **The page.**
+  - `install_controller.js` marks `<html data-install="banner|pill">` and marks the sheet with its steps, its screenshots and `lang`.
+  - The banner and the pill are on both tabs.
+  - The sheet is the Settings sheet's controller registered again as `guide`. English and Spanish are both in `index.html`, and CSS shows the one matching the phone.
+  - The icons, step 3's switch included, are SVG `<symbol>`s.
+- **The layout.**
+  - The banner takes the top row of both tabs, and the gear moves under it, still level on both tabs.
+  - The Lotus dial gives up exactly the banner's row (`--above-lotus`), so the Presets don't move at any height. On a tall screen, where the dial is limited by the screen's width, it shrinks a little more than room alone would need.
+  - The Timer tab's row gap is one token, `--row-gap`, shared with `--under-lotus`.
+  - The pill sits in the top left corner, level with the gear. On History, while it shows, the pill and the gear share the top row and the "History" heading moves under them, so they are in the same place on both tabs.
+  - On a narrow phone the banner's second line wraps; the 56 px banner has room.
+- **The screenshots**, in `public/install/` (`en-1…4`, `es-1…4`).
+  - Taken in the iPhone 17 Simulator (iOS 26.5), dark, from the real app in Safari.
+  - Each is cropped to its menu, the address is covered with the colour beside it, and the button is circled in orange.
+  - WebP q70, 640 px wide, 9.5–15 KB each. They load only when the sheet opens, and only the ones for that language.
+  - `globIgnores` keeps them out of `dist/sw.js`. It's already true because `globPatterns` has no `.webp`.
+- **Found while taking them:** in English the chevron reads **View More** ("More" is another button). The decisions above now say so, and step 2 uses it.
+- **The shared sheet (`src/sheet/`) changed in three ways, which Settings gets too.** All three came from the Simulator.
+  - The header stays at the top while a long sheet scrolls, so Done is always in reach.
+  - The sheet opens scrolled to the top.
+  - After a finger's tap the sheet itself takes focus, so iOS draws no ring on Done. From the keyboard or VoiceOver, focus still goes to Done.
+- **Checked in the browser pane** at 375 × 667 and 402 × 874, with 0 and 8 Runs, with the banner, the pill and neither.
+  - The Timer tab doesn't scroll.
+  - The Presets stay at 374 px and 464 px.
+  - The gear is at 79 px under the banner on both tabs.
+  - The pill's middle is level with the gear's.
+  - The × is 44 × 44 px.
+  - The pane presents itself as Android at phone sizes and as a computer otherwise, and nothing shows in either.
+  - The iPad and other-browser sheets were forced on: no screenshots on an iPad, and none downloaded; Copy link reports "Enlace copiado".
+- **Checked in the iOS Simulator** (iPhone 17), in Safari, with real taps.
+  - In English and in Spanish, the guide was followed step by step until Yogi Timer was on the Home Screen. Opened from its icon, the app showed no banner and no pill.
+  - The × left the pill, and the pill stayed after a reload.
+  - The Spanish sheet has Spanish screenshots, and the banner stays in English.
+  - Screenshots: [Glow dark, banner](25-install-guide/glow-dark-banner.png), [Glow dark, History with the banner](25-install-guide/glow-dark-history-banner.png), [Glow light, banner](25-install-guide/glow-light-banner.png), [Glow light, pill](25-install-guide/glow-light-pill.png), [Glow light, History with the pill](25-install-guide/glow-light-history-pill.png), [Glow dark, guide in English](25-install-guide/glow-dark-guide-en.png), [Glow dark, guide in Spanish](25-install-guide/glow-dark-guide-es.png), [Bead light, guide in Spanish](25-install-guide/bead-light-guide-es.png), [Bead dark, pill](25-install-guide/bead-dark-pill.png), [the Home Screen app, no banner](25-install-guide/home-screen-app-no-banner.png).
+  - Two Yogi Timer icons were added to that Simulator's Home Screen.
+- **Not checked:**
+  - VoiceOver ("Hide", focus moving to the pill after the ×).
+  - Whether the banner shows for a moment before the page is drawn.
+  - The banner in Bead (its colours are the same tokens as the pill's).
+- **Can't be told apart:** an app's browser built on Safari's own view (which WhatsApp and Gmail often use) sends Safari's user agent. It gets the Safari steps even though it may not offer Add to Home Screen. iPhone Safari with "Request Desktop Website" on looks like an iPad, so it gets the steps without screenshots.
+- **Leftovers:**
+  - The banner's markup is written twice in `index.html`, once per tab, as the gear is.

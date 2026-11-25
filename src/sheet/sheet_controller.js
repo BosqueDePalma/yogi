@@ -24,8 +24,15 @@ const MAX_CLOSE_MS = 600; // the slide down is 0.3 s; past this it closes regard
 //     </dialog>
 //   </body>
 //
-// It closes by swiping it down, tapping the backdrop, `sheet#close` or Escape, and gives focus
-// back to the button that opened it when that was pressed from the keyboard or VoiceOver.
+// Each controller drives one dialog. For a second sheet, register the same controller again
+// under another name (`application.register("guide", SheetController)`) and use that name in
+// its target and actions (`data-guide-target="dialog"`, `guide#open`).
+//
+// It opens at the top, with its header staying in view as the content scrolls. Opened from the
+// keyboard or VoiceOver, focus goes to its first button (Done); after a finger's tap the sheet
+// itself takes focus, so no focus ring is drawn. It closes by swiping it down, tapping the
+// backdrop, `sheet#close` or Escape, and gives focus back to the button that opened it when that
+// was pressed from the keyboard or VoiceOver.
 // Dispatches sheet:opened and sheet:closed. Colours, radius and spacing are CSS custom
 // properties, listed in sheet.css.
 export default class extends Controller {
@@ -33,6 +40,7 @@ export default class extends Controller {
 
   connect() {
     const dialog = this.dialogTarget;
+    dialog.tabIndex = -1; // so it can take focus itself (see open)
     this.listeners = {
       cancel: (event) => {
         event.preventDefault(); // Escape: slide down rather than vanish
@@ -65,8 +73,13 @@ export default class extends Controller {
     // Where focus goes back to on close. A press from the keyboard or VoiceOver (a click with
     // no pointer behind it, detail 0) returns to the button that opened it. A finger's tap
     // returns to whatever had focus before, usually nothing, so no focus ring is drawn.
-    this.opener = event?.detail === 0 && event.currentTarget ? event.currentTarget : document.activeElement;
+    const fromKeyboard = event?.detail === 0;
+    this.opener = fromKeyboard && event.currentTarget ? event.currentTarget : document.activeElement;
     dialog.showModal(); // slides up: @starting-style in sheet.css
+    // showModal() focuses the first button, Done, which a press from the keyboard or VoiceOver
+    // wants. After a finger's tap the sheet itself takes focus instead, so no ring is drawn.
+    if (!fromKeyboard) dialog.focus({ preventScroll: true });
+    dialog.scrollTop = 0; // opens at the top, wherever it was left
     // Too tall for the screen, its content scrolls, so a swipe only drags it from the top bar.
     dialog.toggleAttribute("data-scrolls", dialog.scrollHeight > dialog.clientHeight);
     this.dispatch("opened");
