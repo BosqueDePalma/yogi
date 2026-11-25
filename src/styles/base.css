@@ -584,6 +584,14 @@ button {
   font-variant-numeric: tabular-nums;
 }
 
+/* "by phau" after the version: the icon's signature, in Bradley Hand (on every iPhone). */
+.signature {
+  margin-left: 0.4em;
+  font-family: "Bradley Hand", cursive;
+  font-weight: 700;
+  font-size: 1.05em;
+}
+
 /* Chime selector: a segmented control. */
 .chime-heading {
   font-size: 0.85rem;

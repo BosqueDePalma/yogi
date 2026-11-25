@@ -55,4 +55,5 @@ No code rules change, so there's no TDD. The icon is checked by eye: in the brow
   - Screenshots: [light](27-lotus-icon/home-light.png), [dark](27-lotus-icon/home-dark.png), [tinted](27-lotus-icon/home-tinted.png).
 - **Review:** on Glow's pale background the lotus was pale (light pink on a near-white disc). At the user's request the background became dark blue, and the lotus now stands out clearly, tinted too. The 3 px thread around the disc vanishes when small and is harmless.
 - **The signature** is outlines in the SVG, so no font is needed. On the Home Screen it reads as a faint mark that you can make out up close ([detail](27-lotus-icon/home-signature.png)). The step-2 and step-4 screenshots were updated with it. The tinted screenshot is from before the signature.
+- **The signature in Settings:** "by phau" also follows the version line's commit, in Bradley Hand (on every iPhone), marked `translate="no"` and kept out of the language switch's text ([screenshot](27-lotus-icon/settings-signature.png)).
 - **Tests:** 168 pass, and the build succeeds.

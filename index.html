@@ -195,7 +195,8 @@
           </div>
         </div>
       </div>
-      <p class="settings-version" data-language-target="version" data-built="%VITE_APP_BUILT%" data-commit="%VITE_APP_COMMIT%">Version %VITE_APP_VERSION%</p>
+      <!-- The author's signature follows the version, in the same hand as on the icon (public/icon.svg). -->
+      <p class="settings-version"><span data-language-target="version" data-built="%VITE_APP_BUILT%" data-commit="%VITE_APP_COMMIT%">Version %VITE_APP_VERSION%</span> <span class="signature" translate="no">by phau</span></p>
     </dialog>
     <!-- The install guide (install_controller.js marks what it shows: the steps for Safari or a
          "open in Safari" note, screenshots or not, and the phone's language, English or Spanish).
