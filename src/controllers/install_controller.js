@@ -13,7 +13,6 @@ export default class extends Controller {
 
   connect() {
     this.installGuide = createInstallGuide({
-      storage: localStorage,
       browser: {
         standalone: navigator.standalone === true || matchMedia("(display-mode: standalone)").matches,
         userAgent: navigator.userAgent,

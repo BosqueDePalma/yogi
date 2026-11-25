@@ -1,7 +1,6 @@
 // The install guide: whether to offer adding Yogi Timer to the Home Screen, and what its sheet
 // shows. No DOM here, so it can be tested.
 //
-//   storage   localStorage or a stand-in; the hidden banner is kept under its own key
 //   browser   { standalone, userAgent, maxTouchPoints, language }, read from navigator
 //
 // It is offered only in a browser on an iPhone or iPad, never in the Home Screen app.
@@ -11,19 +10,16 @@
 //               steps        "safari" (how to add it) | "open-in-safari" (any other browser)
 //               screenshots  true on an iPhone in Safari; an iPad's menus differ
 //               language     "es" when the phone is in Spanish, "en" otherwise
-//   hide()    hides the banner for good on this browser, leaving the pill
-const KEY = "yogi-timer.install-banner";
-const HIDDEN = "hidden";
-
-export function createInstallGuide({ storage, browser }) {
+//   hide()    hides the banner, leaving the pill, until the page is opened again: nothing is
+//             saved, so each visit offers the banner anew
+export function createInstallGuide({ browser }) {
   const sheet = sheetFor(browser);
-  let hidden = load(storage);
+  let hidden = false;
   return {
     sheet,
     offer: () => (sheet ? (hidden ? "pill" : "banner") : null),
     hide() {
       hidden = true;
-      save(storage);
     },
   };
 }
@@ -49,21 +45,4 @@ const OTHER_BROWSERS = /CriOS|FxiOS|EdgiOS|OPiOS|OPT\/|GSA\/|DuckDuckGo|YaBrowse
 
 function isSafari(userAgent) {
   return /Version\/[\d.]+.*Safari\//.test(userAgent) && !OTHER_BROWSERS.test(userAgent);
-}
-
-// Anything unreadable shows the banner.
-function load(storage) {
-  try {
-    return storage.getItem(KEY) === HIDDEN;
-  } catch {
-    return false;
-  }
-}
-
-function save(storage) {
-  try {
-    storage.setItem(KEY, HIDDEN);
-  } catch {
-    // Not saved; the banner stays hidden until the page closes.
-  }
 }

@@ -21,7 +21,7 @@ Until now the app had one Teacher, who would be shown how to install it once. It
 
 - **Its own row at the top of both tabs**, above the dial on Timer and above the "History" heading on History, as Safari's own banner for App Store apps: the app icon, "Yogi Timer", "Add it to your Home Screen", and an **Install** button on the right.
 - **The Timer tab still never scrolls** ([issue 21](21-timer-tab-never-scrolls.md)): while the banner shows, the Lotus dial shrinks to make room, and Safari's own toolbars leave less room than the Home Screen app does.
-- **It can be hidden.** A **×** on its left, away from Install so it isn't tapped by mistake: a 44 × 44 pt tap area with a light × about 14 pt across, read "Hide" by VoiceOver. Hiding it leaves a small **Install** pill in the top left corner, across from the gear, so the guide is still a tap away. The browser remembers it was hidden.
+- **It can be hidden.** A **×** on its left, away from Install so it isn't tapped by mistake: a 44 × 44 pt tap area with a light × about 14 pt across, read "Hide" by VoiceOver. Hiding it leaves a small **Install** pill in the top left corner, across from the gear, so the guide is still a tap away. Hiding isn't remembered: a reload, or opening the page again, brings the banner back. (Changed on 2026-11-25 after the first build, which remembered it; see the last comment.)
 - **The banner is in English**, like the rest of the app.
 - Inside the Home Screen app neither the banner nor the pill exists, so in class it costs nothing.
 
@@ -64,7 +64,7 @@ Until now the app had one Teacher, who would be shown how to install it once. It
 
 - [x] In Safari on an iPhone, the banner shows at the top of Timer and History. In the Home Screen app it never shows, and nor does the pill.
 - [x] Install opens the sheet with the four steps, each with its icon and screenshot, and the notes under them.
-- [ ] The × hides the banner, leaves the Install pill in the corner, and stays hidden after a reload. Its tap area is 44 × 44 pt and VoiceOver reads it "Hide". (All checked except VoiceOver itself: the label is in the page, but VoiceOver wasn't run.)
+- [ ] The × hides the banner and leaves the Install pill in the corner; a reload brings the banner back. Its tap area is 44 × 44 pt and VoiceOver reads it "Hide". (All checked except VoiceOver itself: the label is in the page, but VoiceOver wasn't run.)
 - [x] With the phone in Spanish the sheet and its screenshots are in Spanish; otherwise in English. The banner is in English either way.
 - [x] On an iPad the steps show without screenshots. (Through the tests and in the browser pane; there was no iPad in the Simulator.)
 - [x] In another browser the sheet asks to open the page in Safari, and Copy link copies the page's address. (Through the tests and in the browser pane; no other browser in the Simulator.)
@@ -87,7 +87,7 @@ Until now the app had one Teacher, who would be shown how to install it once. It
   - Android;
   - the Home Screen app;
   - `es-MX` and `en-GB`.
-- The hidden banner is remembered under its own localStorage key, read through the same small seam, so tests don't need a browser.
+- Hiding the banner lasts only while the page is open, so nothing is stored and the tests need no storage.
 - The banner, the pill, the sheet, the shrinking dial and the screenshots are checked in the browser pane at 375 × 667 and 402 × 874, then in the iOS Simulator as above.
 - Real-phone checks are in [issue 20](20-real-iphone-acceptance-test.md).
 
@@ -98,7 +98,7 @@ Until now the app had one Teacher, who would be shown how to install it once. It
 - **What to show**, in `install_guide.js`, with no DOM. Given whether the app is standalone, the user agent, `maxTouchPoints` and the language, it answers:
   - `offer()`: "banner", "pill" or nothing;
   - `sheet`: the Safari steps or "open in Safari", screenshots or not, and "en" or "es".
-  - `hide()` keeps the hidden banner under `yogi-timer.install-banner`.
+  - `hide()` kept the hidden banner under `yogi-timer.install-banner`. (No longer: see the last comment.)
   - 27 tests through that interface: every case the ticket lists, plus Firefox, Edge, the Google app, Facebook's browser, an app's own web view, Windows, a touch-screen Windows laptop, storage that refuses writes and storage that can't be read.
 - **The page.**
   - `install_controller.js` marks `<html data-install="banner|pill">` and marks the sheet with its steps, its screenshots and `lang`.
@@ -131,7 +131,7 @@ Until now the app had one Teacher, who would be shown how to install it once. It
   - The iPad and other-browser sheets were forced on: no screenshots on an iPad, and none downloaded; Copy link reports "Enlace copiado".
 - **Checked in the iOS Simulator** (iPhone 17), in Safari, with real taps.
   - In English and in Spanish, the guide was followed step by step until Yogi Timer was on the Home Screen. Opened from its icon, the app showed no banner and no pill.
-  - The × left the pill, and the pill stayed after a reload.
+  - The × left the pill, and the pill stayed after a reload. (Before the change in the last comment.)
   - The Spanish sheet has Spanish screenshots, and the banner stays in English.
   - Screenshots: [Glow dark, banner](25-install-guide/glow-dark-banner.png), [Glow dark, History with the banner](25-install-guide/glow-dark-history-banner.png), [Glow light, banner](25-install-guide/glow-light-banner.png), [Glow light, pill](25-install-guide/glow-light-pill.png), [Glow light, History with the pill](25-install-guide/glow-light-history-pill.png), [Glow dark, guide in English](25-install-guide/glow-dark-guide-en.png), [Glow dark, guide in Spanish](25-install-guide/glow-dark-guide-es.png), [Bead light, guide in Spanish](25-install-guide/bead-light-guide-es.png), [Bead dark, pill](25-install-guide/bead-dark-pill.png), [the Home Screen app, no banner](25-install-guide/home-screen-app-no-banner.png).
   - Two Yogi Timer icons were added to that Simulator's Home Screen.
@@ -142,3 +142,12 @@ Until now the app had one Teacher, who would be shown how to install it once. It
 - **Can't be told apart:** an app's browser built on Safari's own view (which WhatsApp and Gmail often use) sends Safari's user agent. It gets the Safari steps even though it may not offer Add to Home Screen. iPhone Safari with "Request Desktop Website" on looks like an iPad, so it gets the steps without screenshots.
 - **Leftovers:**
   - The banner's markup is written twice in `index.html`, once per tab, as the gear is.
+
+### 2026-11-25, the × is no longer remembered.
+
+- **Why:** asked for after trying the app in the Simulator, where once hidden the banner came back only by clearing Safari's data.
+- **What changed:**
+  - `hide()` hides the banner, leaving the pill, only until the page is opened again. A reload brings the banner back.
+  - `createInstallGuide` no longer takes `storage`, and nothing is written to localStorage. A `yogi-timer.install-banner` left by the first build is simply ignored.
+  - The tests drop from 27 to 24: the three that tested the stored value (its own key, a refused write, an unreadable storage) went with it, and "is remembered" became "is forgotten the next time the page opens".
+- **Checked in the iOS Simulator** (iPhone 17, Safari, the same page where the first build had saved the banner as hidden): the banner showed, the × left the pill, and reloading brought the banner back.

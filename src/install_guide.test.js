@@ -1,14 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { createInstallGuide } from "./install_guide.js";
-import { fakeStorage } from "./testing/fake_storage.js";
 
 // User agents as each browser sends them.
 const IPHONE_SAFARI =
   "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5 Mobile/15E148 Safari/604.1";
 
-function guideFor(browser, storage = fakeStorage()) {
+function guideFor(browser) {
   return createInstallGuide({
-    storage,
     browser: { standalone: false, userAgent: IPHONE_SAFARI, maxTouchPoints: 5, language: "en-US", ...browser },
   });
 }
@@ -93,30 +91,9 @@ describe("hiding the banner", () => {
     expect(guide.sheet).toEqual({ steps: "safari", screenshots: true, language: "en" });
   });
 
-  it("is remembered the next time the page opens", () => {
-    const storage = fakeStorage();
-    guideFor({}, storage).hide();
-    expect(guideFor({}, storage).offer()).toBe("pill");
-  });
-
-  it("is kept under its own key, apart from History", () => {
-    const storage = fakeStorage();
-    guideFor({}, storage).hide();
-    expect(Object.keys(storage.items())).toEqual(["yogi-timer.install-banner"]);
-  });
-
-  it("still hides it until the page closes when storage refuses the write", () => {
-    const storage = fakeStorage();
-    storage.refuseWrites(true);
-    const guide = guideFor({}, storage);
-    guide.hide();
-    expect(guide.offer()).toBe("pill");
-    expect(guideFor({}, storage).offer()).toBe("banner");
-  });
-
-  it("shows the banner when storage can't be read", () => {
-    const blocked = { ...fakeStorage(), getItem: () => { throw new DOMException("denied", "SecurityError"); } };
-    expect(guideFor({}, blocked).offer()).toBe("banner");
+  it("is forgotten the next time the page opens: the banner comes back", () => {
+    guideFor({}).hide();
+    expect(guideFor({}).offer()).toBe("banner");
   });
 });
 
