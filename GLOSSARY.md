@@ -5,7 +5,7 @@ A countdown timer a yoga teacher uses while teaching, which keeps a history of h
 ## Language
 
 **Teacher**:
-The person running the app on her phone while leading a class. The app has exactly one user.
+A yoga teacher running the app on her own phone while leading a class. Anyone who teaches can use it, and each phone has one Teacher, whose History never leaves that phone.
 _Avoid_: User, yogi master, instructor
 
 **Preset**:
@@ -58,5 +58,9 @@ _Avoid_: Session, class
 The 90 minutes after the end of the last Run. A Run started after the Lesson Gap has passed belongs to a new Lesson. Calendar days play no part, so a class running past midnight stays one Lesson.
 
 **History**:
-The Teacher's record of past Lessons and their Runs. It lives only on her phone.
+The Teacher's record of past Lessons and their Runs. It lives only in the Home Screen app on her phone.
 _Avoid_: Log, stats
+
+**Home Screen app**:
+Yogi Timer added to the phone's Home Screen and opened from its icon. It keeps its own History, apart from any browser tab, and only it works offline.
+_Avoid_: PWA, web app, installed app

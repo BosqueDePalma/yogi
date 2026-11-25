@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<title>Yogi Timer</title>
+<meta name="apple-mobile-web-app-title" content="Yogi Timer" />
+<link rel="apple-touch-icon" href="icon.png" />
+<!-- Throwaway prototype for the install guide (grilling of 2026-11-25). Two questions:
+     where the way in sits (a banner in its own row, or a pill in the corner), and what the
+     guide shows (steps with drawn icons, or steps with real Safari screenshots). -->
+<style>
+  :root {
+    --bg: #f4f7fe; --surface: #fdfdff; --text: #26345e; --muted: #4f5b87; --line: #dce5fb;
+    --accent: #bcd0f6; --edge: #7885b5; --scrim: rgb(20 26 50 / 0.32);
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    --font-rounded: ui-rounded, "SF Pro Rounded", -apple-system, system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #15171e; --surface: #1f222d; --text: #e8edfb; --muted: #9ea6bd; --line: #30354a;
+      --accent: #323d5e; --edge: #6b7394; --scrim: rgb(0 0 0 / 0.55); }
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); -webkit-text-size-adjust: 100%; }
+  .page { min-height: 100%; padding: env(safe-area-inset-top) 16px 24px; display: flex; flex-direction: column; }
+
+  /* The prototype's own switches, not part of the design. */
+  .proto { display: grid; gap: 6px; padding: 8px 10px; margin: 8px 0; border: 1px dashed var(--edge); border-radius: 10px; font-size: 13px; color: var(--muted); }
+  .proto div { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .proto button { font: inherit; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--edge); background: none; color: var(--text); }
+  .proto button[aria-pressed="true"] { background: var(--accent); border-color: transparent; font-weight: 600; }
+
+  /* Way in, option 1: a banner in its own row at the top. */
+  .banner { display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 10px; margin-top: 4px;
+    border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
+  .banner img { width: 40px; height: 40px; border-radius: 9px; }
+  .banner p { margin: 0; flex: 1; line-height: 1.2; }
+  .banner strong { display: block; font-size: 15px; }
+  .banner span { font-size: 13px; color: var(--muted); }
+  .pill { font: inherit; font-weight: 600; font-size: 15px; min-height: 36px; padding: 0 14px; border-radius: 999px;
+    border: 0; background: var(--accent); color: var(--text); }
+
+  /* Way in, option 2: a pill in the top left corner, mirroring the gear. */
+  .corner { display: flex; justify-content: space-between; align-items: center; height: 44px; margin-top: 4px; }
+  .gear { width: 44px; height: 44px; display: grid; place-items: center; color: var(--text); opacity: .8; }
+  .gear svg { width: 24px; height: 24px; fill: currentColor; }
+
+  /* A stand-in for the Lotus dial, to show what the banner costs in height. */
+  .dial { flex: 1; display: grid; place-items: center; min-height: 0; }
+  .dial div { aspect-ratio: 524 / 556; height: min(100%, 360px); max-width: 100%; border-radius: 50%;
+    background: radial-gradient(circle, #f8d3da 0 30%, transparent 31%), radial-gradient(circle, transparent 0 60%, var(--accent) 61% 63%, transparent 64%);
+    display: grid; place-items: center; font-family: var(--font-rounded); font-size: 44px; font-weight: 600; }
+  .presets { display: flex; gap: 8px; margin-top: 12px; }
+  .presets span { flex: 1; text-align: center; padding: 14px 0; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); font-weight: 600; }
+
+  /* The sheet: the look of src/sheet/sheet.css. */
+  dialog { position: fixed; inset: auto 0 0 0; width: 100%; max-width: 100%; max-height: 90svh; margin: 0; border: 0;
+    padding: 0 16px calc(16px + env(safe-area-inset-bottom)); border-radius: 20px 20px 0 0;
+    background: var(--surface); color: var(--text); overflow-y: auto; }
+  dialog::backdrop { background: var(--scrim); }
+  .grabber { width: 36px; height: 5px; margin: 6px auto 0; border-radius: 3px; background: var(--edge); }
+  .sheet-header { display: flex; justify-content: space-between; align-items: center; min-height: 44px; margin-bottom: 4px; }
+  .sheet-header h2 { margin: 0; font-size: 1.1rem; }
+  .done { font: inherit; font-weight: 600; border: 0; background: none; color: var(--text); min-height: 44px; padding: 0 4px; }
+
+  ol.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: step; }
+  ol.steps > li { counter-increment: step; display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start; font-size: 16px; line-height: 1.4; }
+  ol.steps > li::before { content: counter(step); width: 28px; height: 28px; border-radius: 50%; background: var(--accent);
+    display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+  .glyph { display: inline-grid; place-items: center; vertical-align: -6px; width: 26px; height: 26px; margin: 0 2px;
+    border-radius: 7px; background: var(--bg); border: 1px solid var(--line); }
+  .glyph svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .toggle { display: inline-block; vertical-align: -5px; width: 34px; height: 20px; border-radius: 10px; background: #34c759; position: relative; margin: 0 2px; }
+  .toggle::after { content: ""; position: absolute; right: 2px; top: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; }
+  .shot { display: block; width: 100%; margin-top: 8px; border-radius: 12px; border: 1px solid var(--line); }
+  .note { margin: 18px 0 0; font-size: 14px; color: var(--muted); line-height: 1.4; }
+  .home { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+  .home img { width: 52px; height: 52px; border-radius: 12px; }
+  .home small { display: block; text-align: center; font-size: 11px; margin-top: 3px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <section class="proto" aria-label="Prototype switches">
+    <div>Way in: <button data-entry="banner" aria-pressed="true">Banner</button><button data-entry="corner" aria-pressed="false">Corner</button></div>
+    <div>Guide: <button data-guide="icons" aria-pressed="true">A · Icons</button><button data-guide="shots" aria-pressed="false">B · Screenshots</button></div>
+  </section>
+
+  <div class="banner" data-show="banner">
+    <img src="icon.png" alt="" />
+    <p><strong>Yogi Timer</strong><span>Add it to your Home Screen</span></p>
+    <button class="pill" data-open>Install</button>
+  </div>
+  <div class="corner" data-show="corner" hidden>
+    <button class="pill" data-open>Install</button>
+    <span class="gear" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="3"/></svg></span>
+  </div>
+
+  <div class="dial"><div>Ready</div></div>
+  <div class="presets"><span>1</span><span>2</span><span>3</span><span>5</span><span>10</span></div>
+</div>
+
+<dialog id="guide" aria-labelledby="guide-title">
+  <div class="grabber" aria-hidden="true"></div>
+  <header class="sheet-header"><h2 id="guide-title">Install Yogi Timer</h2><button class="done" data-close>Done</button></header>
+
+  <ol class="steps">
+    <li><div>Tap <b>Share</b>
+        <span class="glyph"><svg viewBox="0 0 24 24"><path d="M12 3v12M8 7l4-4 4 4M7 11H5v10h14V11h-2"/></svg></span>.
+        If you don't see it, tap
+        <span class="glyph"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r=".8"/><circle cx="12" cy="12" r=".8"/><circle cx="18" cy="12" r=".8"/></svg></span>
+        first.
+        <img class="shot" data-show="shots" src="shot-1.webp" alt="" hidden /></div></li>
+    <li><div>Tap <b>Add to Home Screen</b>
+        <span class="glyph"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg></span>.
+        If you don't see it, tap <b>More</b>
+        <span class="glyph"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
+        first.
+        <img class="shot" data-show="shots" src="shot-2.webp" alt="" hidden />
+        <img class="shot" data-show="shots" src="shot-3.webp" alt="" hidden /></div></li>
+    <li><div>Keep <b>Open as Web App</b> <span class="toggle" aria-hidden="true"></span> on, then tap <b>Add</b>.
+        <img class="shot" data-show="shots" src="shot-4.webp" alt="" hidden /></div></li>
+    <li><div>Open Yogi Timer from your Home Screen once while you're online, so it works offline.
+        <div class="home"><div><img src="icon.png" alt="" /><small>Yogi Timer</small></div></div></div></li>
+  </ol>
+  <p class="note">Runs timed here in Safari stay in Safari: the Home Screen app keeps its own History.</p>
+  <p class="note">Already added? Open Yogi Timer from your Home Screen.</p>
+</dialog>
+
+<script>
+  const dialog = document.getElementById("guide");
+  for (const b of document.querySelectorAll("[data-open]")) b.onclick = () => dialog.showModal();
+  document.querySelector("[data-close]").onclick = () => dialog.close();
+  dialog.onclick = (e) => { if (e.target === dialog && e.offsetY < 0) dialog.close(); };
+  function choose(attr, value) {
+    for (const b of document.querySelectorAll(`[data-${attr}]`)) b.setAttribute("aria-pressed", b.dataset[attr] === value);
+    const group = attr === "entry" ? ["banner", "corner"] : ["icons", "shots"];
+    for (const name of group) for (const el of document.querySelectorAll(`[data-show="${name}"]`)) el.hidden = name !== value;
+    for (const el of document.querySelectorAll(".glyph, .toggle")) if (attr === "guide") el.hidden = false;
+  }
+  for (const b of document.querySelectorAll("[data-entry]")) b.onclick = () => choose("entry", b.dataset.entry);
+  for (const b of document.querySelectorAll("[data-guide]")) b.onclick = () => choose("guide", b.dataset.guide);
+</script>
+</body>
+</html>

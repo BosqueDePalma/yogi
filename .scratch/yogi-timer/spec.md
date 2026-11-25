@@ -2,7 +2,7 @@
 
 Status: ready-for-agent
 
-A countdown timer the Teacher uses on her iPhone while teaching. It keeps a History of her Lessons. Terms follow [GLOSSARY.md](../../GLOSSARY.md); the architecture decision is [ADR 0001](../../docs/adr/0001-static-home-screen-web-app.md).
+A countdown timer the Teacher uses on her iPhone while teaching. It keeps a History of her Lessons. Anyone who teaches can open its link and add it to their Home Screen; each phone has its own Teacher and its own History, and nothing is shared between phones. Terms follow [GLOSSARY.md](../../GLOSSARY.md); the architecture decision is [ADR 0001](../../docs/adr/0001-static-home-screen-web-app.md).
 
 ## Goals
 
@@ -92,6 +92,7 @@ A countdown timer the Teacher uses on her iPhone while teaching. It keeps a Hist
 - **Theme selector** in the Settings sheet, under the Chime selector: **Glow** (the default: the mala's final glow, a pale blue, on a blue-white page; by night a near-neutral dark page with slate Presets) or **Bead** (the lit beads' stronger blue on a periwinkle page; by night a deep indigo page with deep blue Presets). Both come from the lotus palette, each in light and dark. In dark mode the countdown stays the brightest thing on screen. One tap switches; the choice is remembered on the phone under its own key, and the status bar colour follows it.
 - Named "Yogi Timer" on the home screen, with an SVG singing-bowl icon (plus the PNG sizes iOS needs).
 - Can be installed to the home screen and works offline.
+- **Install guide** ([issue 25](issues/25-install-guide.md)): opened in a browser on an iPhone or iPad, a banner at the top offers **Install**, which opens a sheet with the steps to add it to the Home Screen, each with a real Safari screenshot. The sheet follows the phone's language (English or Spanish). It never shows in the Home Screen app.
 
 ## Main screen layout
 
