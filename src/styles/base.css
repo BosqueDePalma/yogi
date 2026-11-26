@@ -1113,3 +1113,128 @@ button {
   left: 0;
   z-index: 1;
 }
+
+/* --- Landscape (issue 29) ------------------------------------------------------ */
+
+/* iOS can't be locked to portrait, so a phone on its side gets this fallback; an iPad, being
+   tall enough, keeps the portrait layout. The Timer tab is two columns: the Lotus dial on the
+   left, as tall as the tab; the Presets, Stop and "This lesson" on the right. While a Run
+   counts, the right column and the tab bar fade out and the dial grows into the middle; paused,
+   they come back. Nothing goes under the Dynamic Island or the home indicator. */
+@media (orientation: landscape) and (max-height: 500px) {
+  :root {
+    --side: max(16px, env(safe-area-inset-left), env(safe-area-inset-right));
+    --landscape-column: 560px; /* History, Settings and the tab bar's tabs */
+    --landscape-move: 0.5s; /* the dial growing into the middle, and the tab bar fading */
+    --landscape-fade: 0.4s; /* the right column, the switch and the gear fading */
+  }
+
+  .panels {
+    padding: env(safe-area-inset-top) var(--side) calc(52px + env(safe-area-inset-bottom)) /* the tab bar: 44px tabs and 4px above and below */;
+    transition: padding-bottom var(--landscape-move) ease-in-out;
+  }
+
+  .tabbar {
+    padding: 4px max(var(--side), (100% - var(--landscape-column)) / 2) calc(4px + env(safe-area-inset-bottom));
+    transition: opacity var(--landscape-move) ease-in-out, visibility 0s;
+  }
+
+  /* While a Run counts on the Timer tab, and through its celebration at zero. */
+  .panels:has(> .timer:not([hidden]):is([data-running]:not([data-paused]), [data-pulsing], [data-settling])) {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .panels:has(> .timer:not([hidden]):is([data-running]:not([data-paused]), [data-pulsing], [data-settling])) + .tabbar {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity var(--landscape-move) ease-in-out, visibility 0s var(--landscape-move);
+  }
+
+  .timer {
+    --lotus-width: min(100cqh * 524 / 556, 56cqw);
+    display: grid;
+    grid-template-columns: var(--lotus-width) 1fr;
+    grid-template-rows: auto 48px auto auto minmax(0, 1fr);
+    grid-template-areas:
+      "lotus banner"
+      "lotus ."
+      "lotus presets"
+      "lotus stop"
+      "lotus lesson";
+    justify-content: center;
+    column-gap: 24px;
+    row-gap: 10px;
+    padding-bottom: 8px;
+    transition: grid-template-columns var(--landscape-move) ease-in-out, column-gap var(--landscape-move) ease-in-out;
+  }
+
+  .timer .dial {
+    display: contents;
+  }
+
+  .timer .lotus-frame {
+    grid-area: lotus;
+    align-self: center;
+    width: var(--lotus-width);
+  }
+
+  .timer .install-banner { grid-area: banner; margin-top: 4px; }
+  .timer .presets { grid-area: presets; }
+  .timer .stop-row { grid-area: stop; }
+  .timer .lesson { grid-area: lesson; }
+
+  :root[data-install="banner"] .timer {
+    --above-lotus: calc(4px + var(--install-banner-height) + 10px); /* only the gear, in the right column, moves under it */
+  }
+
+  /* The switch and the pill sit over the dial's corner, not under the banner, which is in the
+     right column. */
+  .timer > .language-switch,
+  .timer > .install-pill {
+    top: 10px;
+  }
+
+  /* The right column, the switch and the gear: they fade while a Run counts. */
+  .timer > :is(.install-banner, .presets, .lesson, .language-switch, .install-pill, .settings-open),
+  .timer .stop-row {
+    min-width: 0;
+    transition: opacity var(--landscape-fade) ease-in-out, visibility 0s;
+  }
+
+  .timer:is([data-running]:not([data-paused]), [data-pulsing], [data-settling]) {
+    --lotus-width: min(100cqh * 524 / 556, 100cqw);
+    grid-template-columns: var(--lotus-width) 0fr;
+    column-gap: 0; /* grid tracks animate from Safari 17.4; older iOS snaps */
+  }
+
+  /* Read from further away than in portrait; it still sits inside the mala. */
+  .timer:is([data-running]:not([data-paused]), [data-pulsing], [data-settling]) .countdown {
+    font-size: 28cqi;
+  }
+
+  .timer:is([data-running]:not([data-paused]), [data-pulsing], [data-settling]) > :is(.install-banner, .presets, .lesson, .language-switch, .install-pill, .settings-open),
+  .timer:is([data-running]:not([data-paused]), [data-pulsing], [data-settling]) .stop-row {
+    visibility: hidden;
+    opacity: 0;
+    overflow: hidden; /* at 0fr the right column's content mustn't spill over the dial */
+    transition: opacity var(--landscape-fade) ease-in-out, visibility 0s var(--landscape-fade);
+  }
+
+  /* History and Settings: a centred column. */
+  .history {
+    max-width: var(--landscape-column);
+    margin-inline: auto;
+  }
+
+  .sheet {
+    width: min(100%, var(--landscape-column));
+    margin-inline: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --landscape-move: 0s;
+      --landscape-fade: 0s;
+    }
+  }
+}
