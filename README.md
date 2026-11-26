@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/pwa-192x192.png" alt="Yogi Timer icon: a pink lotus inside a blue mala" width="112" height="112">
+<img src="docs/readme/social-preview.png" alt="Yogi Timer: the icon, the name and the Lotus dial mid-Run" width="640">
 
 # Yogi Timer
 
