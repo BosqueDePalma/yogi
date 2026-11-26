@@ -50,6 +50,19 @@
         ".scratch/yogi-timer/prototypes/install-guide"
       ],
       "port": 5181
+    },
+    {
+      "name": "app-dev-2",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "vite",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "5174",
+        "--strictPort"
+      ],
+      "port": 5174
     }
   ]
 }
