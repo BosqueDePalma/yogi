@@ -46,3 +46,7 @@ npm run build    # static site in dist/
 Every push to `main` publishes to GitHub Pages.
 
 The domain language is in [GLOSSARY.md](GLOSSARY.md), and the architecture decision is in [docs/adr](docs/adr/0001-static-home-screen-web-app.md).
+
+## License
+
+[zlib](LICENSE) © 2026 phau
