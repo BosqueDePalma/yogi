@@ -25,7 +25,10 @@ try {
   process.env.VITE_APP_COMMIT = "";
 }
 
-export default defineConfig({
+// GitHub Pages serves the app at https://bosquedepalma.github.io/yogi/, so the build lives
+// under /yogi/. The dev server stays at the root, where the Simulator's Home Screen app points.
+export default defineConfig(({ command }) => ({
+  base: command === "build" ? "/yogi/" : "/",
   plugins: [
     VitePWA({
       registerType: "autoUpdate",
@@ -64,4 +67,4 @@ export default defineConfig({
   test: {
     include: ["src/**/*.test.js"],
   },
-});
+}));
