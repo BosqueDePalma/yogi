@@ -66,7 +66,7 @@ export const MESSAGES = {
   es: {
     ready: "Lista",
     paused: "En pausa",
-    tapToStart: "Toca para empezar",
+    tapToStart: "Toca y empieza",
     tapAgain: "Toca otra vez",
     stop: "Detener",
     cancel: "Cancelar",

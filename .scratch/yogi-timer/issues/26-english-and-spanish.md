@@ -47,7 +47,7 @@ Today the app is in English, except the install guide's sheet, which already fol
 | English | Spanish |
 |---|---|
 | Ready | Lista |
-| Tap to start | Toca para empezar |
+| Tap to start | Toca y empieza |
 | Paused | En pausa |
 | Stop / Cancel | Detener / Cancelar |
 | Tap again | Toca otra vez |
