@@ -24,7 +24,9 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
+      # Not `npm ci`: the lock file, made on a Mac, leaves out packages the bundler needs only on
+      # Linux (@emnapi/*), and `npm ci` refuses to fill them in.
+      - run: npm install --no-audit --no-fund
       - run: npm test
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
