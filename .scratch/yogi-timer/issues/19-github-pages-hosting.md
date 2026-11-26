@@ -18,6 +18,8 @@ Blocks: 20
 - **The repo:** the user created the public repo [BosqueDePalma/yogi](https://github.com/BosqueDePalma/yogi) and asked for the app to go up there, with this branch as `main`.
 - **Vite's `base`** is `/yogi/` for the build only. The dev server stays at `/`, where the Simulator's Home Screen app points. The built page, manifest, icons, guide screenshots and service worker (scope `/yogi/`) all sit under `/yogi/`.
 - **The workflow**, `.github/workflows/pages.yml`, runs the tests, builds and publishes `dist/` to Pages on every push to `main`. Pages is set to build from GitHub Actions.
+- **`npm install`, not `npm ci`:** the first run failed because the lock file, made on a Mac, leaves out the bundler's Linux-only packages (`@emnapi/*`), and `npm ci` won't add them.
+- **Checked live:** the run passed, the page loads with the version line "26 Nov 2026 · 190c8af", and the manifest, icons, guide screenshots and scripts all answer 200. In the browser pane the service worker is active with scope `/yogi/`, with no console errors.
 - **The URL:** https://bosquedepalma.github.io/yogi/
 - **Saved data on a shared origin:** every Pages site of the account shares `bosquedepalma.github.io`, and so its localStorage. Yogi Timer's keys all start with `yogi-timer.`, so another site there won't clash with them.
 - **Next:** the Teacher opens the URL in Safari and installs it with the guide, the real-iPhone test ([issue 20](20-real-iphone-acceptance-test.md)).
